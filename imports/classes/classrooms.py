@@ -1,0 +1,1 @@
+# attributes: ID (string), capacity (int), isLab (bool)
