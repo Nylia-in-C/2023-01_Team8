@@ -15,6 +15,7 @@ programCourses = {
             "CMSK 0153", "CMSK 0200", "CMSK 0201", "CMSK 0203", "CMSK 0202", "PCOM 0160"],
     "DXD": ["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", 
             "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"],
+    # Program ID for book keeping certificate
     "BKC": ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
             "ACCT 0208", "ACCT 9901"]
 }
