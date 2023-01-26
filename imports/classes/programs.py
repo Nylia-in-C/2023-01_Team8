@@ -2,7 +2,6 @@
 
 # attributes: ID (string), courses (list of strings indicating courses unique to the program)
 
-import courses
 from dataclasses import field, dataclass
 
 programCourses = {
@@ -25,6 +24,7 @@ class Program:
     ID: str
     courses: list = field(default_factory=list)
     
+    # called immediately after object is created & attributes are initialized
     def __post_init__(self):
         if self.ID not in programCourses.keys():
             raise ValueError(f"{self.ID} is not a valid program ID")
