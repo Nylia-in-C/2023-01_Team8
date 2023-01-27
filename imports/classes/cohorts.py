@@ -31,3 +31,6 @@ class Cohort:
         self.cohortID = "{:02d}".format(cohortCounts[self.programID + self.termID])
 
         self.name = self.programID + self.termID + self.cohortID
+    
+    def __repr__(self):
+        return f"{self.name} students: {self.count}"
