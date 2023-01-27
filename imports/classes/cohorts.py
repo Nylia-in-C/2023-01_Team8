@@ -7,4 +7,4 @@
 
 
 # To initialize: pass program ID, term ID, student count (cohort ID increments by 1),
-# Name is created by concatenating these
+# Name is created by concatenating these (inside __post_init__ method)
