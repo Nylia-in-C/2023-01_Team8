@@ -32,6 +32,7 @@ class Course:
     
     # called immediately after object is created & attributes are initialized
     def __post_init__(self):
-        if self.ID not in preReqs.keys():
+        if self.ID in preReqs.keys():
+            self.preReqs = preReqs[self.ID]
+        else:
             self.preReqs = []
-        self.preReqs = preReqs[self.ID]
