@@ -4,7 +4,10 @@
 import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+import sqlite3
 
+
+table_columns = []
 
 class UI(QMainWindow):
 
@@ -15,6 +18,7 @@ class UI(QMainWindow):
         # Can add more as needed
         self.file_path = ""
         self.file_label = QLabel()
+        self.table = QTableWidget()
 
         self.setWindowTitle("Scheduler")
 
@@ -38,17 +42,45 @@ class UI(QMainWindow):
         vbox.addLayout(bottom_hbox)
 
         # Add spacing, currently there are "4" items (tophbox, bothbox, spacer 1, spacer 2)
-        vbox.insertSpacing(1, 200)
+        vbox.insertSpacing(1, 100)
         vbox.insertSpacing(3, 70)
         return vbox
 
     # Creates the top hbox where most information will be displayed
     def create_topHlayout(self):
         hbox = QHBoxLayout(self)
-        hbox.addWidget(QLabel("Placeholder"))
+        self.create_tableview()
+        hbox.addWidget(self.table)
         # Add stuff into this HBox as needed
         # This will most likely be the display of most information
         return hbox
+
+    # Settings to create the TableView
+    def create_tableview(self):
+
+        try:
+            # Connect to database to get headers
+            database = sqlite3.connect("database/database.db")
+            cursor = database.cursor()
+
+            # Move to cohort table
+            cursor.execute("SELECT * FROM COHORT")
+
+            all_columns = cursor.description
+
+            for column_name in all_columns:
+                table_columns.append(column_name[0])
+
+            self.table.setColumnCount(len(table_columns))
+            self.table.setHorizontalHeaderLabels(table_columns)
+
+            cursor.close()
+            database.close()
+
+        except:
+            print("Could not read database")
+
+
 
     # Creates the bottom hbox where most user interaction takes place
     def create_botHlayout(self):
@@ -87,6 +119,13 @@ class UI(QMainWindow):
         )
         if chosen_file[0] == "":
             self.file_label.setText("No File Chosen")
+            self.file_path = ""
         else:
             self.file_path = chosen_file[0]
             self.file_label.setText(chosen_file[0])
+
+
+
+# total cohort size:
+# total number of students:
+# Cohorts per program:
