@@ -8,6 +8,9 @@ import sqlite3
 
 
 table_columns = []
+classrooms = ["11-533", "11-534", "11-560", "11-562",
+              "11-564", "11-458", "11-430", "11-320"
+              "11-532 (Lab)"]
 
 class UI(QMainWindow):
 
@@ -66,13 +69,10 @@ class UI(QMainWindow):
             # Move to cohort table
             cursor.execute("SELECT * FROM COHORT")
 
-            all_columns = cursor.description
+            self.create_column_headers(cursor)
 
-            for column_name in all_columns:
-                table_columns.append(column_name[0])
-
-            self.table.setColumnCount(len(table_columns))
-            self.table.setHorizontalHeaderLabels(table_columns)
+            value_fill = cursor.fetchall()
+            self.load_data(value_fill)
 
             cursor.close()
             database.close()
@@ -80,6 +80,29 @@ class UI(QMainWindow):
         except:
             print("Could not read database")
 
+    def create_column_headers(self, cursor_obj):
+        table_columns.clear()
+        all_columns = cursor_obj.description
+        for column_name in all_columns:
+            table_columns.append(column_name[0])
+
+        self.table.setColumnCount(len(table_columns))
+        self.table.setHorizontalHeaderLabels(table_columns)
+
+    # Load data into tableview
+    def load_data(self, row_data):
+
+        self.table.setRowCount(len(row_data))
+        columns = self.table.columnCount()
+
+        for each_row in range(len(row_data)):
+            for each_column in range(columns):
+                 self.table.setItem(each_row, each_column, QTableWidgetItem(str(row_data[each_row][each_column])))
+
+    def clear_table(self):
+        self.table.clear()
+        self.table.setColumnCount(0)
+        self.table.setRowCount(0)
 
 
     # Creates the bottom hbox where most user interaction takes place
