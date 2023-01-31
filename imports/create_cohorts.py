@@ -5,7 +5,7 @@
 
 import random
 from itertools import cycle
-from classes.cohorts import Cohort
+from imports.classes.cohorts import Cohort
 
 # constants (testing only)
 CLASSROOMS = [36, 36, 24, 24, 24, 40, 30, 30, 30]
