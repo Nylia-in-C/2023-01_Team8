@@ -9,7 +9,7 @@ from dataclasses import field, dataclass
 # note: only program-specific courses have prerequisites
 preReqs = {
     "CMSK 1052": ["CMSK 0151"],
-    "CMSK 1053": ["CMSK 0151", "CMSK 1052", "CMSK 0157"],
+    "CMSK 1053": ["CMSK 1052", "CMSK 0157"],
     "CMSK 0200": ["CMSK 0154"],
     "CMSK 0201": ["CMSK 0200"],  # 0154 is omitted since it's already a preReq for 0200
     "CMSK 0203": ["CMSK 0201"],
