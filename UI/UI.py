@@ -8,11 +8,6 @@ from PyQt5.QtWidgets import *
 from imports.create_cohorts import *
 
 table_columns = []
-classrooms = ["11-533", "11-534", "11-560", "11-562",
-              "11-564", "11-458", "11-430", "11-320"
-              "11-532 (Lab)"]
-
-
 
 class UI(QMainWindow):
 
