@@ -23,3 +23,11 @@ class Cohort:
     
     def __repr__(self):
         return f"{self.name} students: {self.count}"
+
+    def createItemInfo(self):
+        """
+        Returns an item string of the objects contents.
+        "ProgID, TermID, CohortID, Name, Count"
+        Passed to database to load cohort into the database.
+        """
+        return f" '{self.programID}', {self.termID}, {self.cohortID}, '{self.name}', {self.count} "
