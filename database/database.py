@@ -58,7 +58,7 @@ def fillCohortItems(conn, cohort, tableName ):
 def createAndFill():
     #main function to build basic database with test cohort data
     
-    database = "database.db"  #database.db file path 
+    database = "2023-01_Team8\database\database.db"  #database.db file path 
     conn = create_connection(database)
     COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
                     ProgID VARCHAR(100) NOT NULL,
