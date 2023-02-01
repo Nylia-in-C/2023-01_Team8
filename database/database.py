@@ -2,6 +2,12 @@
 """ref:connection string:  https://www.sqlitetutorial.net/sqlite-python/creating-tables/
 """ 
 import sqlite3
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+from imports.classes.cohorts import Cohort
+
 def create_connection(db_file):
     #creates database connection on passed .db file. 
     #returns connection object or none
@@ -35,10 +41,10 @@ def close_connection(conn):
 
     return 
 
-def fillCohortItems(conn, itemInfo, tableName ):
+def fillCohortItems(conn, cohort, tableName ):
      #add item to table from passed connection object and SQlite statement
     try:
-        rowString = "INSERT INTO " + str(tableName) + " (ProgID, TermID, CorhortID, Name, Count) VALUES (" + str(itemInfo) + ")"
+        rowString = "INSERT INTO " + str(tableName) + " (ProgID, TermID, CorhortID, Name, Count) VALUES (" + cohort.createItemInfo() + ")"
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -52,7 +58,7 @@ def fillCohortItems(conn, itemInfo, tableName ):
 def createAndFill():
     #main function to build basic database with test cohort data
     
-    database = "database.db"  #database.db file path 
+    database = "2023-01_Team8\database\database.db"  #database.db file path 
     conn = create_connection(database)
     COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
                     ProgID VARCHAR(100) NOT NULL,
@@ -85,22 +91,22 @@ def createAndFill():
                     CorhortID INT NOT NULL,
                     IsLab BIT NOT NULL
                 ); """
-    cohortItemInfo = """ 'PM', 01, 01, 'PM0101', 6 """
-    cohortItemInfo2 = """ 'PM', 01, 02, 'PM0102', 6 """
-    cohortItemInfo3 = """ 'PM', 01, 03, 'PM0103', 6 """
-    cohortItemInfo4 = """ 'PM', 01, 04, 'PM0103', 6 """
-    cohortItemInfo5 = """ 'PM', 02, 05, 'PM0205', 6 """
-    cohortItemInfo6 = """ 'PM', 02, 06, 'PM0206', 6 """
-    cohortItemInfo7 = """ 'PM', 02, 07, 'PM0207', 6 """
-    cohortItemInfo8 = """ 'PM', 02, 08, 'PM0208', 6 """
-    cohortItemInfo9 = """ 'BM', 01, 09, 'BM0109', 6 """
-    cohortItemInfo10 = """ 'BM', 01, 10, 'BM0110', 6 """
-    cohortItemInfo11 = """ 'BM', 01, 11, 'BM0111', 6 """
-    cohortItemInfo12 = """ 'BM', 01, 12, 'BM0112', 6 """
-    cohortItemInfo13 = """ 'BM', 02, 13, 'BM0213', 6 """
-    cohortItemInfo14 = """ 'BM', 02, 14, 'BM0214', 6 """
-    cohortItemInfo15 = """ 'BM', 02, 15, 'BM0215', 6 """
-    cohortItemInfo16 = """ 'BM', 02, 16, 'BM0216', 6 """
+    cohort1  = Cohort ('PM', '01', 5)
+    cohort2  = Cohort ('PM', '01', 6)
+    cohort3  = Cohort ('PM', '01', 6)
+    cohort4  = Cohort ('PM', '01', 6)
+    cohort5  = Cohort ('PM', '02', 6)
+    cohort6  = Cohort ('PM', '02', 6)
+    cohort7  = Cohort ('PM', '02', 6)
+    cohort8  = Cohort ('PM', '02', 6)
+    cohort9  = Cohort ('BA', '01', 6)
+    cohort12 = Cohort ('BA', '01', 6)
+    cohort10 = Cohort ('BA', '01', 6)
+    cohort13 = Cohort ('BA', '02', 6)
+    cohort14 = Cohort ('BA', '02', 6)
+    cohort11 = Cohort ('BA', '01', 6)
+    cohort15 = Cohort ('BA', '02', 6)
+    cohort16 = Cohort ('BA', '02', 6)
     
     if conn is not None: 
         create_table(conn, COHORTTableCols)
@@ -109,22 +115,22 @@ def createAndFill():
         create_table(conn, PROGRAMSTableCols)
         create_table(conn, CLASSROOMSTableCols) 
         
-        fillCohortItems(conn, cohortItemInfo, "COHORT")
-        fillCohortItems(conn, cohortItemInfo2, "COHORT")
-        fillCohortItems(conn, cohortItemInfo3, "COHORT")
-        fillCohortItems(conn, cohortItemInfo4, "COHORT")
-        fillCohortItems(conn, cohortItemInfo5, "COHORT")
-        fillCohortItems(conn, cohortItemInfo6, "COHORT")
-        fillCohortItems(conn, cohortItemInfo7, "COHORT")
-        fillCohortItems(conn, cohortItemInfo8, "COHORT")
-        fillCohortItems(conn, cohortItemInfo9, "COHORT")
-        fillCohortItems(conn, cohortItemInfo10, "COHORT")
-        fillCohortItems(conn, cohortItemInfo11, "COHORT")
-        fillCohortItems(conn, cohortItemInfo12, "COHORT")
-        fillCohortItems(conn, cohortItemInfo13, "COHORT")
-        fillCohortItems(conn, cohortItemInfo14, "COHORT")
-        fillCohortItems(conn, cohortItemInfo15, "COHORT")
-        fillCohortItems(conn, cohortItemInfo16, "COHORT")
+        fillCohortItems(conn, cohort1,  "COHORT")
+        fillCohortItems(conn, cohort2,  "COHORT")
+        fillCohortItems(conn, cohort3,  "COHORT")
+        fillCohortItems(conn, cohort4,  "COHORT")
+        fillCohortItems(conn, cohort5,  "COHORT")
+        fillCohortItems(conn, cohort6,  "COHORT")
+        fillCohortItems(conn, cohort7,  "COHORT")
+        fillCohortItems(conn, cohort8,  "COHORT")
+        fillCohortItems(conn, cohort9,  "COHORT")
+        fillCohortItems(conn, cohort10, "COHORT")
+        fillCohortItems(conn, cohort11, "COHORT")
+        fillCohortItems(conn, cohort12, "COHORT")
+        fillCohortItems(conn, cohort13, "COHORT")
+        fillCohortItems(conn, cohort14, "COHORT")
+        fillCohortItems(conn, cohort15, "COHORT")
+        fillCohortItems(conn, cohort16, "COHORT")
  
     else: 
          print("Could not connect to database")
