@@ -176,6 +176,8 @@ class UI(QMainWindow):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
     # Load data into tableview
+    # row_data is a list of tuples generated from
+    # a cursor object calling fetchall()
     def load_db(self, row_data):
 
         self.table.setRowCount(len(row_data))
