@@ -14,7 +14,7 @@ def create_connection(db_file):
     conn = None
     try: 
         conn = sqlite3.connect(db_file)
-        print("opened database succefully")
+        print("opened database successfully")
     except Exception as e:
         print("Error during connection", str(e))
 
@@ -41,10 +41,10 @@ def close_connection(conn):
 
     return 
 
-def fillCohortItems(conn, cohort, tableName ):
+def fillCohortItems(conn, cohort ):
      #add item to table from passed connection object and SQlite statement
     try:
-        rowString = "INSERT INTO " + str(tableName) + " (ProgID, TermID, CorhortID, Name, Count) VALUES (" + cohort.createItemInfo() + ")"
+        rowString = "INSERT INTO COHORT (ProgID, TermID, CorhortID, Name, Count) VALUES (" + cohort.createItemInfo() + ")"
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -58,7 +58,7 @@ def fillCohortItems(conn, cohort, tableName ):
 def createAndFill():
     #main function to build basic database with test cohort data
     
-    database = "2023-01_Team8\database\database.db"  #database.db file path 
+    database = r".\database\database.db"  #database.db file path 
     conn = create_connection(database)
     COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
                     ProgID VARCHAR(100) NOT NULL,
@@ -109,28 +109,29 @@ def createAndFill():
     cohort16 = Cohort ('BA', '02', 6)
     
     if conn is not None: 
+        print("success")
         create_table(conn, COHORTTableCols)
         create_table(conn, COURSESTableCols)
         create_table(conn, PREREQUISITETableCols)
         create_table(conn, PROGRAMSTableCols)
         create_table(conn, CLASSROOMSTableCols) 
         
-        fillCohortItems(conn, cohort1,  "COHORT")
-        fillCohortItems(conn, cohort2,  "COHORT")
-        fillCohortItems(conn, cohort3,  "COHORT")
-        fillCohortItems(conn, cohort4,  "COHORT")
-        fillCohortItems(conn, cohort5,  "COHORT")
-        fillCohortItems(conn, cohort6,  "COHORT")
-        fillCohortItems(conn, cohort7,  "COHORT")
-        fillCohortItems(conn, cohort8,  "COHORT")
-        fillCohortItems(conn, cohort9,  "COHORT")
-        fillCohortItems(conn, cohort10, "COHORT")
-        fillCohortItems(conn, cohort11, "COHORT")
-        fillCohortItems(conn, cohort12, "COHORT")
-        fillCohortItems(conn, cohort13, "COHORT")
-        fillCohortItems(conn, cohort14, "COHORT")
-        fillCohortItems(conn, cohort15, "COHORT")
-        fillCohortItems(conn, cohort16, "COHORT")
+        fillCohortItems(conn, cohort1)
+        fillCohortItems(conn, cohort2)
+        fillCohortItems(conn, cohort3)
+        fillCohortItems(conn, cohort4)
+        fillCohortItems(conn, cohort5)
+        fillCohortItems(conn, cohort6)
+        fillCohortItems(conn, cohort7)
+        fillCohortItems(conn, cohort8)
+        fillCohortItems(conn, cohort9)
+        fillCohortItems(conn, cohort10)
+        fillCohortItems(conn, cohort11)
+        fillCohortItems(conn, cohort12)
+        fillCohortItems(conn, cohort13)
+        fillCohortItems(conn, cohort14)
+        fillCohortItems(conn, cohort15)
+        fillCohortItems(conn, cohort16)
  
     else: 
          print("Could not connect to database")
@@ -139,4 +140,4 @@ def createAndFill():
  
     return 
 
-createAndFill()
+#createAndFill()
