@@ -4,11 +4,13 @@
 # Term IDs are hardcoded for now, and will need to change once we implement file upload/parsing
 
 import random
-from itertools import cycle
-from imports.classes.cohorts import Cohort
+from classes.cohorts import Cohort
 
-# constants (testing only)
-CLASSROOMS = [36, 36, 24, 24, 24, 40, 30, 30, 30]
+# constants
+CLASSROOMS = [36, 36, 24, 24, 24, 40, 30, 30, 30,36,36]
+OPTIMAL_SIZES = [6, 4, 5]       # top 3 cohort sizes ordered from best to worst
+
+# testing only
 TERM_ID    = "01"
 
 def random_students():
@@ -18,21 +20,22 @@ def random_students():
     programs = ["PM", "BA", "GLM", "FS", "DXD", "BK"]
     counts = {}
     total = 0
-    while total < 90 or total > 120:
+    while total < 100 or total > 250:
         for i in range(6):
-            num = random.randint(4,20)
+            num = random.randint(15,40)
             counts[programs[i]] = num
             total = sum(counts.values())
     return counts
 
+#This isnt being used, but we'll keep it on the off-chance that the classroom sizes change
 def get_optimal_cohort_size(program_count, class_sizes):
     '''
     returns the optimal cohort size based on how many classroom seats are left 
     unused, and how well the number of students in a given program divide 
-    into cohorts of that size
+    into cohorts of that size.
     '''
     cohorts = []
-    for cohort_size in range(4, min(program_count.values()) + 1):
+    for cohort_size in range(6, min(program_count.values()) + 1):
         # total number of unused class seats for a given cohort size
         CR_sum = sum([(class_size % cohort_size ) for class_size in class_sizes])
         # total number of extra students not in a cohort
@@ -45,66 +48,50 @@ def get_optimal_cohort_size(program_count, class_sizes):
     # sort cohorts from lowest to highest remainders
     cohorts.sort(key=lambda x: x[1])
     
-    return cohorts[0][0]
-
-def partition_students(student_count, cohort_size):
-    '''
-    Divides the number of students (dividend) by chosen cohort size (divisor),
-    returning a list representing the number of students in each cohort 
-    '''
-    cohorts = []
-    while student_count >= cohort_size:
-        quotient, remainder = divmod(student_count, cohort_size)
-        cohorts.extend([cohort_size] * quotient)
-        student_count = remainder
-        
-    # finished creating cohorts, need to deal w remainder now
-    if student_count > (cohort_size // 2):   # student remainder is close enough to cohort size
-        cohorts.append(student_count)         
-    else:                               
-        groups = cycle(cohorts)
-        for group in groups:                 # add remaining students to a cohort one-by-one
-            if student_count == 0:
-                break
-            group += 1
-            student_count -= 1
-            next(groups)
-    
     return cohorts
 
+def partition_students(count):
+    '''
+    Takes in the number of students applying to a specific program, and returns
+    a list of how the number as a linear combination of 6, 4 and 5 (in order of preference)
+    This works for all integers except for 1, 2, 3, and 7 (handled as edge cases)
+    '''
+    if count <= 3:
+        return [count]
+    
+    if count == 7:
+        return [4, 3]
+    
+    for i in range((count // 5) + 1):
+        for j in range((count // 4) + 1):
+            k = count - (i * 5) - (j * 4)
+            if k >= 0 and k % 6 == 0:       # in theory this should always be true
+                return ([6] * (k // 6)) + ([4] * j) + ([5] * i)
 
-def create_cohort_dict(students, cohort_size):
+    return None
+
+
+def create_cohort_dict(students):
     '''
     Calls the `partition_students` function to create cohort sizes for each 
     program. Returns a dictionary mapping programIDs to integer lists
     '''
     result = {}
     for program, count in students.items():
-        result[program] = partition_students(count, cohort_size)
+        result[program] = partition_students(count)
     return result
 
 def make_cohorts():
 #===testing purposes only=======================================================
     program_count = random_students()
     print(f"program counts: {program_count}\n")
-
-    optimal_size = get_optimal_cohort_size(program_count, CLASSROOMS)
-    print(f"optimal cohort size: {optimal_size}")
     
-    cohort_dict = create_cohort_dict(program_count, optimal_size)
-    print(f"cohort: {cohort_dict}\n\n")
+    res = create_cohort_dict(program_count)
+    print(res)
+    
     
     #TODO: make cohort objects directly, instead of dictionaries first (maybe)
-    
-    results = []   
-    for program in cohort_dict.keys():
-        for cohort_size in cohort_dict[program]:
-            new_cohort = Cohort(program, TERM_ID, cohort_size)
-            results.append(new_cohort)
-    
-    for cohort in results:
-        print(cohort)
-    
+
     
 #===============================================================================
     
