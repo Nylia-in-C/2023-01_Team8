@@ -18,9 +18,21 @@ class UI(QMainWindow):
         # Can add more as needed
         self.file_path = ""
         self.file_label = QLabel()
-        self.table = QTableWidget()
-        # Make table unedittable
-        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+
+        '''
+        Creating tables for each tab
+        and giving proper settings (i.e. un-editable, resize to width etc)
+        '''
+        self.main_table = QTableWidget()
+        self.bg_calc_table = QTableWidget()
+
+        self.main_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.bg_calc_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Make table un-editable
+        self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.bg_calc_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
         self.cohort_size = QLabel()
 
         self.setWindowTitle("Scheduler")
@@ -37,11 +49,11 @@ class UI(QMainWindow):
     # Creates all items for central widget
     def create_vlayout(self):
         vbox = QVBoxLayout(self)
-        top_hbox = self.create_topHlayout()
+        top_hbox = self.create_tabs()
         bottom_hbox = self.create_botlayout()
 
         # Add layouts to overall area
-        vbox.addLayout(top_hbox)
+        vbox.addWidget(top_hbox)
         vbox.addSpacing(100)
         vbox.addLayout(bottom_hbox)
         vbox.addSpacing(20)
@@ -51,13 +63,22 @@ class UI(QMainWindow):
         return vbox
 
     # Creates the top hbox where most information will be displayed
-    def create_topHlayout(self):
+    def create_tabs(self):
         hbox = QHBoxLayout(self)
-        self.create_tableview()
-        hbox.addWidget(self.table)
-        # Add stuff into this HBox as needed
-        # This will most likely be the display of most information
-        return hbox
+
+        # Create tabs
+        tabs = QTabWidget()
+        tab1 = QWidget()
+        tab2 = QWidget()
+
+        tabs.addTab(tab1, "Main")
+        tabs.addTab(tab2, "Cohort Calculations")
+
+        hbox.addWidget(self.bg_calc_table)
+
+        tab2.setLayout(hbox)
+
+        return tabs
 
     # Creates the bottom layout where most user interaction takes place
     def create_botlayout(self):
@@ -101,7 +122,7 @@ class UI(QMainWindow):
         self.cohort_size.setMaximumWidth(100)
 
 
-        calculate = QPushButton("Calculate Optimal Cohort Size")
+        calculate = QPushButton("Calculate Cohort Sizes")
         calculate.clicked.connect(self.load_optimal_cohorts)
         # Need to connect this button to a function
 
@@ -139,29 +160,6 @@ class UI(QMainWindow):
             self.file_label.setText(chosen_file[0])
 
 
-    # Settings to create the TableView
-    def create_tableview(self):
-
-        try:
-            # Connect to database to get headers
-            database = sqlite3.connect("database/database.db")
-            cursor = database.cursor()
-
-            # Move to cohort table
-            cursor.execute("SELECT * FROM COHORT")
-
-            self.create_db_column_headers(cursor)
-
-            value_fill = cursor.fetchall()
-            self.load_db(value_fill)
-
-            cursor.close()
-            database.close()
-
-        except:
-            print("Could not read database")
-
-
     # The following section will be for action events
     # or functions that are called repeatedly
     # after the initial startup
@@ -171,26 +169,26 @@ class UI(QMainWindow):
         for column_name in all_columns:
             table_columns.append(column_name[0])
 
-        self.table.setColumnCount(len(table_columns))
-        self.table.setHorizontalHeaderLabels(table_columns)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.bg_calc_table.setColumnCount(len(table_columns))
+        self.bg_calc_table.setHorizontalHeaderLabels(table_columns)
+        self.bg_calc_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
     # Load data into tableview
     # row_data is a list of tuples generated from
     # a cursor object calling fetchall()
     def load_db(self, row_data):
 
-        self.table.setRowCount(len(row_data))
-        columns = self.table.columnCount()
+        self.bg_calc_table.setRowCount(len(row_data))
+        columns = self.bg_calc_table.columnCount()
 
         for each_row in range(len(row_data)):
             for each_column in range(columns):
-                 self.table.setItem(each_row, each_column, QTableWidgetItem(str(row_data[each_row][each_column])))
+                 self.bg_calc_table.setItem(each_row, each_column, QTableWidgetItem(str(row_data[each_row][each_column])))
 
     def clear_table(self):
-        self.table.clear()
-        self.table.setColumnCount(0)
-        self.table.setRowCount(0)
+        self.bg_calc_table.clear()
+        self.bg_calc_table.setColumnCount(0)
+        self.bg_calc_table.setRowCount(0)
 
 
     def load_optimal_cohorts(self):
@@ -202,10 +200,9 @@ class UI(QMainWindow):
         # Creates the randomized student number
         # and randomizes how many students are in programs
         program_count = random_students()
-        opt_size = get_optimal_cohort_size(program_count, CLASSROOMS)
-        self.cohort_size.setText(str(opt_size))
+        self.cohort_size.setText("Work in Progress")
 
-        cohort_dict = create_cohort_dict(program_count, opt_size)
+        cohort_dict = create_cohort_dict(program_count)
 
         # Adding everything to tableview
 
@@ -214,39 +211,28 @@ class UI(QMainWindow):
         for programs in program_count.keys():
             table_columns.append(programs)
 
-        self.table.setColumnCount(len(table_columns))
-        self.table.setHorizontalHeaderLabels(table_columns)
+        self.bg_calc_table.setColumnCount(len(table_columns))
+        self.bg_calc_table.setHorizontalHeaderLabels(table_columns)
 
         # Create Rows
         table_rows = ["Students in Program", "Amount of Cohorts", "Cohort sizes", ""]
-        all_cohorts = []
-        for program in cohort_dict.keys():
-            for cohort_size in cohort_dict[program]:
-                new_cohort = Cohort(program, TERM_ID, cohort_size)
-                table_rows.append(new_cohort.name)
-                all_cohorts.append(new_cohort)
 
-        self.table.setRowCount(len(table_rows))
-        self.table.setVerticalHeaderLabels(table_rows)
+        self.bg_calc_table.setRowCount(len(table_rows))
+        self.bg_calc_table.setVerticalHeaderLabels(table_rows)
 
         # Enter students in program / amount of cohorts / cohort sizes
         for row in range(3):
             for program in range(len(table_columns)):
                 match row:
                     case 0:
-                        self.table.setItem(row, program, QTableWidgetItem(str(program_count[table_columns[program]])))
+                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(program_count[table_columns[program]])))
                     case 1:
-                        self.table.setItem(row, program, QTableWidgetItem(str(len(cohort_dict[table_columns[program]]))))
+                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(len(cohort_dict[table_columns[program]]))))
                     case 2:
-                        self.table.setItem(row, program, QTableWidgetItem(str(cohort_dict[table_columns[program]])))
+                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(cohort_dict[table_columns[program]])))
 
 
         # Total Students
-        self.table.setItem(3, 0, QTableWidgetItem("Total Students: " + str(sum(program_count.values()))))
+        self.bg_calc_table.setItem(3, 0, QTableWidgetItem("Total Students: " + str(sum(program_count.values()))))
 
-        # Enters cohort sizes for each course
-        co_size = 0
-        for each_program in range(4, len(table_rows)):
-            self.table.setItem(each_program, 0, QTableWidgetItem("Cohort size: " + str(all_cohorts[co_size].count)))
-            co_size+=1
 
