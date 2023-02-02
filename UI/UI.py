@@ -1,7 +1,6 @@
 # main python file - 395 team 8
 
 import os
-import sqlite3
 
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -14,10 +13,14 @@ class UI(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setWindowTitle("Scheduler")
+        self.setGeometry(50, 50, 970, 600)
+
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
         self.file_path = ""
         self.file_label = QLabel()
+        self.cohort_size = QLabel()
 
 
         '''
@@ -33,11 +36,11 @@ class UI(QMainWindow):
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.bg_calc_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
-        self.cohort_size = QLabel()
-
-        self.setWindowTitle("Scheduler")
-
-        self.setGeometry(50, 50, 970, 600)
+        '''
+        Layouts containing the term inputs
+        for easier iteration when reading inputs
+        '''
+        self.term_1_inputs = QVBoxLayout()
 
         central_widget = QWidget()  # Must have central widget set
         central_widget.setLayout(self.create_vlayout())
@@ -50,12 +53,11 @@ class UI(QMainWindow):
     def create_vlayout(self):
         vbox = QVBoxLayout(self)
         top_hbox = self.create_tabs()
-        bottom_hbox = self.create_botlayout()
+        bottom_vbox = self.create_botlayout()
 
         # Add layouts to overall area
         vbox.addWidget(top_hbox)
-        vbox.addSpacing(100)
-        vbox.addLayout(bottom_hbox)
+        vbox.addLayout(bottom_vbox)
         vbox.addSpacing(20)
 
         # Add spacing, currently there are "4" items (tophbox, bothbox, spacer 1, spacer 2)
@@ -64,7 +66,8 @@ class UI(QMainWindow):
 
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
-        hbox = QHBoxLayout(self)
+        main_table_box = QHBoxLayout(self)
+        cohort_calc_box = QHBoxLayout(self)
 
         # Create tabs
         tabs = QTabWidget()
@@ -74,9 +77,11 @@ class UI(QMainWindow):
         tabs.addTab(tab1, "Main")
         tabs.addTab(tab2, "Cohort Calculations")
 
-        hbox.addWidget(self.bg_calc_table)
+        main_table_box.addWidget(self.main_table)
+        cohort_calc_box.addWidget(self.bg_calc_table)
 
-        tab2.setLayout(hbox)
+        tab1.setLayout(main_table_box)
+        tab2.setLayout(cohort_calc_box)
 
         return tabs
 
@@ -124,7 +129,6 @@ class UI(QMainWindow):
 
         calculate = QPushButton("Calculate Cohort Sizes")
         calculate.clicked.connect(self.load_optimal_cohorts)
-        # Need to connect this button to a function
 
         hbox_info.addWidget(label)
         hbox_info.addWidget(self.cohort_size)
@@ -134,13 +138,73 @@ class UI(QMainWindow):
 
         hbox_all.addLayout(vbox)
 
-        # Remove this spacing if adding more stuff
-        hbox_all.insertSpacing(1, self.width())
+        hbox_all.addSpacing(50)
+
+        hbox_all.addLayout(self.create_term1_inputs())
+        #TODO Fix the term layouts so they aren't stretching the Cohorts information, or remove cohorts info?
 
         return hbox_all
 
+    def create_term1_inputs(self):
+
+        '''
+        self.term_1_inputs holds all the fields here
+        each Hbox is a label of which course + student number input field
+        '''
+        vbox_all = QVBoxLayout()
+        hbox = QHBoxLayout()
+        vbox_labels = QVBoxLayout()
+
+        vbox_labels.addWidget(QLabel("PCOM Students"))
+        vbox_labels.addWidget(QLabel("BCOM Students"))
+        vbox_labels.addWidget(QLabel("PM Students"))
+        vbox_labels.addWidget(QLabel("BA Students"))
+        vbox_labels.addWidget(QLabel("GLM Students"))
+        vbox_labels.addWidget(QLabel("FS Students"))
+        vbox_labels.addWidget(QLabel("DXD Students"))
+        vbox_labels.addWidget(QLabel("BKC Students"))
+
+        self.term_1_inputs.addWidget(QLineEdit())
+        self.term_1_inputs.addWidget(QLineEdit())
+        self.term_1_inputs.addWidget(QLineEdit())
+        self.term_1_inputs.addWidget(QLineEdit())
+        self.term_1_inputs.addWidget(QLineEdit())
+        self.term_1_inputs.addWidget(QLineEdit())
+        self.term_1_inputs.addWidget(QLineEdit())
+        self.term_1_inputs.addWidget(QLineEdit())
+
+        hbox.addLayout(vbox_labels)
+        hbox.addLayout(self.term_1_inputs)
+
+        vbox_all.addWidget(QLabel("Term 1"))
+        vbox_all.addLayout(hbox)
+
+        return vbox_all
 
 
+    '''
+    Helper Functions
+    '''
+
+    def retrieve_term_inputs(self, layout):
+
+        '''
+        Used to read values from the term input fields.
+        Will return a list of the inputs
+        Always in the order of:
+        PCOM
+        BCOM
+        PM
+        BA
+        GLM
+        FS
+        DXD
+        BKC
+        '''
+        input_fields = layout.count()
+
+        for each_field in range(input_fields):
+            print(layout.itemAt(each_field).widget().text())
 
     # Action event for the choose file button
     def choose_file(self):
@@ -185,15 +249,28 @@ class UI(QMainWindow):
             for each_column in range(columns):
                  self.bg_calc_table.setItem(each_row, each_column, QTableWidgetItem(str(row_data[each_row][each_column])))
 
-    def clear_table(self):
+
+    '''
+    Table Clearing functions
+    '''
+    def clear_bg_table(self):
         self.bg_calc_table.clear()
         self.bg_calc_table.setColumnCount(0)
         self.bg_calc_table.setRowCount(0)
 
+    def clear_main_table(self):
+        self.main_table.clear()
+        self.main_table.setColumnCount(0)
+        self.main_table.setRowCount(0)
+
+
+    '''
+    Action Event functions
+    '''
 
     def load_optimal_cohorts(self):
 
-        self.clear_table()
+        self.clear_bg_table()
 
         # This is a simulated event so far
 
@@ -234,5 +311,3 @@ class UI(QMainWindow):
 
         # Total Students
         self.bg_calc_table.setItem(3, 0, QTableWidgetItem("Total Students: " + str(sum(program_count.values()))))
-
-
