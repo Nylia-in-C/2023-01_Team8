@@ -24,7 +24,7 @@ class Cohort:
     def __repr__(self):
         return f"{self.name} students: {self.count}"
 
-    def createItemInfo(self):
+    def createCohortItemInfo(self):
         """
         Returns an item string of the objects contents.
         "ProgID, TermID, CohortID, Name, Count"
