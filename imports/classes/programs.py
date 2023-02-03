@@ -30,4 +30,20 @@ class Program:
         if self.ID not in programCourses.keys():
             raise ValueError(f"{self.ID} is not a valid program ID")
         self.courses = programCourses[self.ID]
-    
+
+    def createProgramItemInfo(self):
+        """
+        Returns a tuple of the ProgramID and a list of the courses.
+        "ProgID, Courses"
+        Passed to database to load program into the database.
+        """
+        return ( self.ID, self.courses )
+       
+        #testing purposes
+    def printPrograms(self):
+         print( self.createProgramItemInfo())
+         
+#testing purposes
+# Dummy = Program('BKC', ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
+#             "ACCT 0208", "ACCT 9901"])      
+# Dummy.printPrograms() 
