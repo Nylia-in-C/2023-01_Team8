@@ -48,7 +48,7 @@ programCoursesByTerm = {
               "ACCT 0208", "ACCT 9901"]
 }
 
-rooms = [Classroom("11-458", 12, False),
+rooms = [Classroom("11-458", 40, False),
          Classroom("11-533", 36, False), 
          Classroom("11-534", 36, False),
          Classroom("11-430", 30, False), 
@@ -56,6 +56,8 @@ rooms = [Classroom("11-458", 12, False),
          Classroom("11-560", 24, False),
          Classroom("11-562", 24, False),
          Classroom("11-564", 24, False)]
+
+availableRooms = rooms.copy()
 
 roomHours = {"11-458": 0,
              "11-533": 0, 
@@ -65,6 +67,15 @@ roomHours = {"11-458": 0,
              "11-560": 0,
              "11-562": 0,
              "11-564": 0}
+
+roomFill  = {"11-458": [],
+             "11-533": [], 
+             "11-534": [],
+             "11-430": [], 
+             "11-320": [],
+             "11-560": [],
+             "11-562": [],
+             "11-564": []}
 
 Lab = Classroom("11-532", 30, True) 
 
@@ -89,15 +100,64 @@ def random_students_by_term():
             total = sum(counts.values())
     return counts
 
-def findRoom(roomCounter, course):
+def findRoom(totalStudents, hours):
+    """
+    For use in findRooms()
+    Returns the smallest room that can fit totalStudents
+    """
+    minimalEmptySeats = 100000
+    bestRoom = 0
+
+    for room in availableRooms:
+        if (roomHours[room.ID] + hours) > PROGRAMHOURS: continue
+
+        emptySeats = room.capacity - totalStudents
+        if emptySeats >= 0 and emptySeats < minimalEmptySeats:
+            minimalEmptySeats = emptySeats
+            bestRoom = room
+    
+    return bestRoom
+
+def splitCohorts(cohorts):
+    """
+    Split a list of cohorts into 2 lists of cohorts
+    """
+    list1 = []
+    list2 = []
+    for i in range(len(cohorts)):
+        if i%2 == 0: list1.append(cohorts[i])
+        else:        list2.append(cohorts[i])
+    
+    return (list1, list2)
+
+def bookCohorts(cohorts, program):
     """
     For use in fillClassrooms()
-    roomCounter is an iterative variable for the rooms list
-    course is a Course object
+    totalStudents is an int representing all students that must take that course
+    program is a string id of a program and term, maybe make it an object later
 
-    Adds the course term hours to the rooms booked hours, and if
-    the room is full, 
+    Finds the most efficient way to store the cohorts into a classroom
     """
+    totalStudents = 0
+    for cohortSize in cohorts:
+        totalStudents += cohortSize
+
+    if max(availableRooms, key = lambda Classroom: Classroom.capacity).capacity < totalStudents:
+        # If too big to fit in largest classroom, split into 2
+        bookCohorts(totalStudents, program)(int(totalStudents/2), program)
+        bookCohorts(totalStudents, program)(totalStudents - int(totalStudents/2), program)
+        return
+
+    room = 0
+    for course in programCoursesByTerm[program]:
+        if room == 0: room = findRoom(totalStudents, course.termHours)
+        if (roomHours[room.ID] + course.termHours) >= PROGRAMHOURS: room = findRoom(totalStudents, course.termHours)
+        
+        roomHours[room.ID] += course.termHours
+        roomFill[room.ID].append(totalStudents)
+
+            
+
 
 def fillClassrooms(cohorts):
     """
@@ -106,47 +166,13 @@ def fillClassrooms(cohorts):
 
     Schedules one room until it is completely booked before moving on to the next
     """
-    roomCounter = 0
-    room = rooms[roomCounter]
-    roomTotal = 0
-    print(f"Room {room}")
-
-    for term in ["PM01", "PM02", "PM03"]:
-        print(f"Scheduling program {term}")
-        for course in programCoursesByTerm[term]:
-            print(f"Scheduling course {course}")
-            while roomHours[room.ID] + course.termHours >= PROGRAMHOURS:
-                # Find a room with enough hours
-                roomCounter += 1
-                room = rooms[roomCounter]
-                print(f"Room {room.ID} hours: {roomHours[room.ID]}/{PROGRAMHOURS}")
-            
-            for cohortSize in cohorts[term]:
-                print(f"Cohort of {cohortSize} students make {roomTotal + cohortSize} in capacity of {room.capacity}")
-                if (cohortSize + roomTotal) <= room.capacity:
-                    # Can fit one more cohort in there
-                    roomTotal += cohortSize
-                    print(f"Putting cohort of size {cohortSize} to {room.ID}")
-                else:
-                    # New course offering
-                    roomHours[room.ID] += course.termHours
-                    print(f"Room full at {roomTotal} students. {roomHours[room.ID]}/{PROGRAMHOURS} hours")
-
-                    while roomHours[room.ID] + course.termHours >= PROGRAMHOURS:
-                        # Find a room with enough hours
-                        roomCounter += 1
-                        room = rooms[roomCounter]
-                        print(f"Room {room.ID} hours: {roomHours[room.ID]}/{PROGRAMHOURS}")
-                    
-                    # Put cohort in the next room
-                    roomTotal = cohortSize
-                    print(f"Putting cohort of {cohortSize} into {room.ID} for {roomTotal} students in capacity of {room.capacity}")
-            
-            # Book room for last course offering
-            print(f"Total students: {roomTotal}")
-            roomHours[room.ID] += course.termHours
-            print(f"Room {room.ID} hours: {roomHours[room.ID]}/{PROGRAMHOURS}")
-            roomTotal = 0
-
+    for program in ["PM01", "PM02", "PM03"]:
+        
+        bookCohorts(cohorts[program], program)
+        
+"""
 cohorts = create_cohort_dict(random_students_by_term())
 fillClassrooms(cohorts)
+
+print(roomFill, roomHours)
+"""
