@@ -11,6 +11,7 @@ from create_cohorts     import *
 #===================================================================================================
 # Setup
 PROGRAMHOURS = 2*13*9 #days*weeks*hours
+#PROGRAMHOURS = 60
 #COREHOURS
 
 courseHours = {
@@ -57,7 +58,7 @@ rooms = [Classroom("11-458", 40, False),
          Classroom("11-562", 24, False),
          Classroom("11-564", 24, False)]
 
-availableRooms = rooms.copy()
+ghostRooms = []
 
 roomHours = {"11-458": 0,
              "11-533": 0, 
@@ -106,15 +107,29 @@ def findRoom(totalStudents, hours):
     Returns the smallest room that can fit totalStudents
     """
     minimalEmptySeats = 100000
-    bestRoom = 0
+    bestRoom = False
+    allRoomsFull = True
 
-    for room in availableRooms:
+    for room in rooms:
         if (roomHours[room.ID] + hours) > PROGRAMHOURS: continue
+        allRoomsFull = False
 
         emptySeats = room.capacity - totalStudents
         if emptySeats >= 0 and emptySeats < minimalEmptySeats:
             minimalEmptySeats = emptySeats
             bestRoom = room
+    
+    if allRoomsFull:
+        ghostID = f"ghost-{len(ghostRooms) + 1}"
+        ghostCapacity = 40
+        ghostRoom = Classroom(ghostID, ghostCapacity, False)
+
+        rooms.append(ghostRoom)
+        ghostRooms.append(ghostRoom)
+        roomHours[ghostID] = 0
+        roomFill[ghostID] = []
+
+        bestRoom = findRoom(totalStudents, hours)
     
     return bestRoom
 
@@ -130,7 +145,7 @@ def splitCohorts(cohorts):
     
     return (list1, list2)
 
-def bookCohorts(cohorts, program):
+def bookCohorts(cohorts, totalStudents, course):
     """
     For use in fillClassrooms()
     totalStudents is an int representing all students that must take that course
@@ -138,26 +153,26 @@ def bookCohorts(cohorts, program):
 
     Finds the most efficient way to store the cohorts into a classroom
     """
-    totalStudents = 0
-    for cohortSize in cohorts:
-        totalStudents += cohortSize
 
-    if max(availableRooms, key = lambda Classroom: Classroom.capacity).capacity < totalStudents:
-        # If too big to fit in largest classroom, split into 2
-        bookCohorts(totalStudents, program)(int(totalStudents/2), program)
-        bookCohorts(totalStudents, program)(totalStudents - int(totalStudents/2), program)
-        return
+    room = findRoom(totalStudents, course.termHours)
+    if room == False:
+        # There are no classrooms with enough hours and capacity to fit the students
+        # Split into two and try again
+        splitGroups = splitCohorts(cohorts)
 
-    room = 0
-    for course in programCoursesByTerm[program]:
-        if room == 0: room = findRoom(totalStudents, course.termHours)
-        if (roomHours[room.ID] + course.termHours) >= PROGRAMHOURS: room = findRoom(totalStudents, course.termHours)
+        totalStudents0 = 0
+        for cohortSize in splitGroups[0]:
+            totalStudents0 += cohortSize
+        totalStudents1 = 0
+        for cohortSize in splitGroups[1]:
+            totalStudents1 += cohortSize
         
-        roomHours[room.ID] += course.termHours
-        roomFill[room.ID].append(totalStudents)
-
-            
-
+        bookCohorts(splitGroups[0], totalStudents0, course)
+        bookCohorts(splitGroups[1], totalStudents1, course)
+        return
+        
+    roomHours[room.ID] += course.termHours
+    roomFill[room.ID].append(totalStudents)
 
 def fillClassrooms(cohorts):
     """
@@ -167,12 +182,17 @@ def fillClassrooms(cohorts):
     Schedules one room until it is completely booked before moving on to the next
     """
     for program in ["PM01", "PM02", "PM03"]:
+        totalStudents = 0
+        for cohortSize in cohorts[program]:
+            totalStudents += cohortSize
         
-        bookCohorts(cohorts[program], program)
+        for course in programCoursesByTerm[program]:
+            bookCohorts(cohorts[program], totalStudents, course)
         
-"""
-cohorts = create_cohort_dict(random_students_by_term())
-fillClassrooms(cohorts)
+#===================================================================================================
+if __name__ == '__main__':
+    cohorts = create_cohort_dict(random_students_by_term())
+    fillClassrooms(cohorts)
 
-print(roomFill, roomHours)
-"""
+    print(roomFill, roomHours)
+
