@@ -8,6 +8,7 @@ from PyQt5.QtCore import *
 from imports.create_cohorts import *
 
 table_columns = []
+LEFT_MAX_WIDTH = 450
 
 class UI(QMainWindow):
 
@@ -15,6 +16,7 @@ class UI(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Scheduler")
+        self.setGeometry(0,0,960,800)
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -58,9 +60,10 @@ class UI(QMainWindow):
         left_vbox = self.create_leftlayout()
 
         # Add layouts to overall area
-        hbox.addLayout(left_vbox)
+        hbox.addWidget(left_vbox)
         hbox.addWidget(right_box)
 
+        hbox.setAlignment(left_vbox, Qt.AlignTop)
 
         return hbox
 
@@ -97,16 +100,21 @@ class UI(QMainWindow):
     # Creates the bottom layout where most user interaction takes place
     def create_leftlayout(self):
 
+        width_limit = QWidget()
+        width_limit.setMaximumWidth(LEFT_MAX_WIDTH)
+
         vbox = QVBoxLayout(self)
-        vbox.setAlignment(Qt.AlignTop)
-        vbox.setSizeConstraint(QLayout.SetFixedSize)
+        vbox.setSizeConstraint(QLayout.SetFixedSize) # Prevents left side from resizing
+
         title = QLabel("Scheduler")
+        title.setMaximumWidth(LEFT_MAX_WIDTH)
         font = QFont()
         font.setBold(True)
         font.setPointSize(20)
         title.setFont(font)
 
         input_title = QLabel("Students per Term")
+        input_title.setMaximumWidth(LEFT_MAX_WIDTH)
         font.setPointSize(12)
         input_title.setFont(font)
 
@@ -121,7 +129,10 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(self.create_file_choose())
 
-        return vbox
+
+        width_limit.setLayout(vbox)
+
+        return width_limit
 
     # create the file choose layout / widgets
     def create_file_choose(self):
@@ -132,7 +143,7 @@ class UI(QMainWindow):
         choose_input_button.clicked.connect(self.choose_file)
 
         self.file_label.setText("No File Chosen")
-        self.file_label.setFont(QFont("Arial", 14))
+        self.file_label.setMaximumWidth(LEFT_MAX_WIDTH)
 
         hbox_file_choose.addWidget(choose_input_button)
         hbox_file_choose.addWidget(self.file_label)
@@ -145,6 +156,7 @@ class UI(QMainWindow):
         vbox_all = QVBoxLayout()
 
         hbox_inputs = QHBoxLayout()
+
         hbox_inputs.addLayout(self.program_labels())
         hbox_inputs.addLayout(self.create_term1_inputs())
         hbox_inputs.addLayout(self.create_term2_inputs())
