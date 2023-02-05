@@ -16,7 +16,7 @@ class UI(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Scheduler")
-        self.setGeometry(0,0,960,800)
+        self.setGeometry(0,0,1240,700)
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -128,7 +128,10 @@ class UI(QMainWindow):
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(self.create_file_choose())
-
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(self.create_horizontal_line())
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addLayout(self.calc_cohort())
 
         width_limit.setLayout(vbox)
 
@@ -168,8 +171,9 @@ class UI(QMainWindow):
 
 
     def stu_num_input(self):
-        input_box = QLineEdit()
-        input_box.setMaximumWidth(50)
+        input_box = QSpinBox()
+        input_box.setMaximum(1000)
+        input_box.setMinimumWidth(50)
         return input_box
 
     def program_labels(self):
@@ -271,8 +275,11 @@ class UI(QMainWindow):
         calculate = QPushButton("Calculate Cohort Sizes")
         calculate.clicked.connect(self.load_optimal_cohorts)
 
+        hbox_info.addWidget(calculate)
         hbox_info.addWidget(label)
         hbox_info.addWidget(self.cohort_size)
+
+        return hbox_info
 
     '''
     Helper Functions
@@ -299,7 +306,7 @@ class UI(QMainWindow):
         input_fields = layout.count()
 
         for each_field in range(input_fields):
-            print(layout.itemAt(each_field).widget().text())
+            print(layout.itemAt(each_field).widget().value())
 
     # Action event for the choose file button
     def choose_file(self):
