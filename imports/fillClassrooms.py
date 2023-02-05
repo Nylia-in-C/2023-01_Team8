@@ -49,14 +49,17 @@ programCoursesByTerm = {
               "ACCT 0208", "ACCT 9901"]
 }
 
-rooms = [Classroom("11-458", 40, False),
+rooms = [
+         Classroom("11-458", 40, False),
          Classroom("11-533", 36, False), 
          Classroom("11-534", 36, False),
          Classroom("11-430", 30, False), 
          Classroom("11-320", 30, False),
          Classroom("11-560", 24, False),
          Classroom("11-562", 24, False),
-         Classroom("11-564", 24, False)]
+         Classroom("11-564", 24, False),
+         Classroom("11-532", 30, True) 
+         ]
 
 ghostRooms = []
 
@@ -67,7 +70,8 @@ roomHours = {"11-458": 0,
              "11-320": 0,
              "11-560": 0,
              "11-562": 0,
-             "11-564": 0}
+             "11-564": 0,
+             "11-532": 0}
 
 roomFill  = {"11-458": [],
              "11-533": [], 
@@ -76,9 +80,10 @@ roomFill  = {"11-458": [],
              "11-320": [],
              "11-560": [],
              "11-562": [],
-             "11-564": []}
+             "11-564": [],
+             "11-532": []}
 
-Lab = Classroom("11-532", 30, True) 
+
 
 #===================================================================================================
 # Functions
@@ -101,7 +106,7 @@ def random_students_by_term():
             total = sum(counts.values())
     return counts
 
-def findRoom(totalStudents, hours):
+def findRoom(totalStudents, course):
     """
     For use in findRooms()
     Returns the smallest room that can fit totalStudents
@@ -111,7 +116,8 @@ def findRoom(totalStudents, hours):
     allRoomsFull = True
 
     for room in rooms:
-        if (roomHours[room.ID] + hours) > PROGRAMHOURS: continue
+        if (roomHours[room.ID] + course.termHours) > PROGRAMHOURS or course.hasLab != room.isLab: continue
+
         allRoomsFull = False
 
         emptySeats = room.capacity - totalStudents
@@ -121,7 +127,7 @@ def findRoom(totalStudents, hours):
     
     if allRoomsFull:
         ghostID = f"ghost-{len(ghostRooms) + 1}"
-        ghostCapacity = 40
+        ghostCapacity = totalStudents + (totalStudents % 6)
         ghostRoom = Classroom(ghostID, ghostCapacity, False)
 
         rooms.append(ghostRoom)
@@ -129,7 +135,7 @@ def findRoom(totalStudents, hours):
         roomHours[ghostID] = 0
         roomFill[ghostID] = []
 
-        bestRoom = findRoom(totalStudents, hours)
+        bestRoom = findRoom(totalStudents, course)
     
     return bestRoom
 
@@ -153,11 +159,12 @@ def bookCohorts(cohorts, totalStudents, course):
 
     Finds the most efficient way to store the cohorts into a classroom
     """
+    room = findRoom(totalStudents, course)
 
-    room = findRoom(totalStudents, course.termHours)
     if room == False:
         # There are no classrooms with enough hours and capacity to fit the students
         # Split into two and try again
+        # *** Needs work, is not efficient if more than one split is required ***
         splitGroups = splitCohorts(cohorts)
 
         totalStudents0 = 0
@@ -181,7 +188,9 @@ def fillClassrooms(cohorts):
 
     Schedules one room until it is completely booked before moving on to the next
     """
+   #for program in programCoursesByTerm.keys():
     for program in ["PM01", "PM02", "PM03"]:
+
         totalStudents = 0
         for cohortSize in cohorts[program]:
             totalStudents += cohortSize
@@ -194,5 +203,5 @@ if __name__ == '__main__':
     cohorts = create_cohort_dict(random_students_by_term())
     fillClassrooms(cohorts)
 
-    print(roomFill, roomHours)
+    print(roomFill, roomHours, ghostRooms, sep = "\n")
 
