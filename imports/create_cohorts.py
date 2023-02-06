@@ -4,7 +4,6 @@
 # Term IDs are hardcoded for now, and will need to change once we implement file upload/parsing
 
 import random
-from classes.cohorts import Cohort
 
 # constants
 CLASSROOMS = [36, 36, 24, 24, 24, 40, 30, 30, 30,36,36]
