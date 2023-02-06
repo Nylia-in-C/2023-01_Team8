@@ -10,43 +10,33 @@ from create_cohorts     import *
 
 #===================================================================================================
 # Setup
-PROGRAMHOURS = 2*13*9 #days*weeks*hours
+PROGRAMHOURS    = 2*13*9 #days*weeks*hours
+FSPRROGRAMHOURS = 2*13*4
 #PROGRAMHOURS = 60
 #COREHOURS
 
-courseHours = {
-    "PRDV 0201": 21, "PRDV 0202": 14, "PRDV 0203": 21, 
-    "PRDV 0204": 14, "PRDV 0205": 21, "PCOM 0130": 21, "PRDV 0206": 14, 
-    "PRDV 0207": 14, "PCOM 0131": 39,
-    "PRDV 0640": 21, "PRDV 0652": 14, "PRDV 0653": 21, "PRDV 0642": 14, "PRDV 0644": 21, 
-    #Correct up to this point
-    "PRDV 0648": 21, "PCOM 0140": 21, "PRDV 0646": 21, "PCOM 0141": 21,
-    "SCMT 0501": 21, "SCMT 0502": 21, "PRDV 0304": 21, "SCMT 9901": 21, "SCMT 0503": 21,
-    "SCMT 0504": 21, "SCMT 9902": 21, "SCMT 0505": 21, "PCOM 0151": 21,
-    "CMSK 0150": 21, "CMSK 0151": 21, "CMSK 0152": 21, "CMSK 0157": 21, "CMSK 0154": 21, 
-    "CMSK 0153": 21, "CMSK 0200": 21, "CMSK 0201": 21, "CMSK 0203": 21, "CMSK 0202": 21, "PCOM 0160": 21,
-    "AVDM 0165": 21, "DXDI 0101": 21, "DXDI 0102": 21, "AVDM 0170": 21, "AVDM 0138": 21, "DXDI 0103": 21, 
-    "DXDI 0104": 21, "AVDM 0238": 21, "AVDM 0270": 21, "DXDI 9901": 21,
-    "ACCT 0201": 21, "ACCT 0202": 21, "ACCT 0203": 21, "ACCT 0206": 21, "ACCT 0210": 21, "ACCT 0211": 21, 
-    "ACCT 0208": 21, "ACCT 9901": 21
-}
+
 
 programCoursesByTerm = {
     "PM01":  [Course("PRDV 0201", "NA", 21, 2, False, False, False), Course("PRDV 0202", "NA", 14, 2, False, False, False), Course("PRDV 0203", "NA", 21, 2, False, False, False)], 
     "PM02":  [Course("PRDV 0204", "NA", 14, 2, False, False, False), Course("PRDV 0205", "NA", 21, 2, False, False, False), Course("PCOM 0130", "NA", 21, 2, False, False, False), Course("PRDV 0206", "NA", 14, 2, False, False, False)], 
     "PM03":  [Course("PRDV 0207", "NA", 14, 2, False, False, False), Course("PCOM 0131", "NA", 39, 2, False, False, False)],
-    #Split into terms up to this point
-    "BA01":  ["PRDV 0640", "PRDV 0652", "PRDV 0653", "PRDV 0642", "PRDV 0644", 
-              "PRDV 0648", "PCOM 0140", "PRDV 0646", "PCOM 0141"],
-    "GLM01": ["SCMT 0501","SCMT 0502","PRDV 0304","SCMT 9901","SCMT 0503",
-              "SCMT 0504","SCMT 9902","SCMT 0505","PCOM 0151"],
-    "FS01":  ["CMSK 0150", "CMSK 0151", "CMSK 0152", "CMSK 0157", "CMSK 0154", 
-              "CMSK 0153", "CMSK 0200", "CMSK 0201", "CMSK 0203", "CMSK 0202", "PCOM 0160"],
-    "DXD01": ["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", 
-              "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"],
-    # Program ID for book keeping certificate
-    "BKC01": ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
-              "ACCT 0208", "ACCT 9901"]
+    "BA01":  [Course("PRDV 0640", "NA", 21, 2, False, False, False), Course("PRDV 0652", "NA", 14, 2, False, False, False), Course("PRDV 0653", "NA", 21, 2, False, False, False), Course("PRDV 0642", "NA", 14, 2, False, False, False)], 
+    "BA02":  [Course("PRDV 0644", "NA", 21, 2, False, False, False), Course("PRDV 0648", "NA", 14, 2, False, False, False), Course("PCOM 0140", "NA", 35, 2, False, False, False)], 
+    "BA03":  [Course("PRDV 0646", "NA", 14, 2, False, False, False), Course("PCOM 0141", "NA", 39, 3, False, False, False)],
+    "GLM01": [Course("SCMT 0501", "NA", 21, 2, False, False, False), Course("SCMT 0502", "NA", 21, 2, False, False, False), Course("PRDV 0304", "NA", 15, 2, False, False, False)], 
+    "GLM02": [Course("SCMT 0503", "NA", 15, 2, False, False, False), Course("SCMT 0504", "NA", 21, 2, False, False, False)],
+    "GLM03": [Course("SCMT 0505", "NA", 21, 2, False, False, False), Course("PCOM 0151", "NA", 39, 3, False, False, False)],
+    #"FS01":  [Course("CMSK 0150", "NA", 16, 2, False, False, True ), Course("CMSK 0151", "NA", 16, 2, False, False, True ), Course("CMSK 0152", "NA", 16, 2, False, False, True ), Course("CMSK 0157", "NA", 16, 2, False, False, True ), Course("CMSK 0154", "NA", 16, 2, False, False, True )], 
+    #"FS02":  [Course("CMSK 0153", "NA", 18, 2, False, False, True ), Course("CMSK 0200", "NA", 16, 2, False, False, True ), Course("CMSK 0201", "NA", 18, 2, False, False, True ), Course("CMSK 0203", "NA", 16, 2, False, False, True ), Course("CMSK 0202", "NA", 18, 2, False, False, True )], 
+    #"FS03":  [Course("PCOM 0160", "NA", 50, 2, False, False, True )],
+    "DXD01": [Course("AVDM 0165", "NA", 18, 2, False, False, True ), Course("DXDI 0101", "NA", 24, 2, False, False, True ), Course("DXDI 0102", "NA", 24, 2, False, False, True )], 
+    "DXD02": [Course("AVDM 0170", "NA", 18, 2, False, False, True ), Course("AVDM 0138", "NA", 18, 2, False, False, True ), Course("DXDI 0103", "NA", 24, 2, False, False, True ), Course("DXDI 0104", "NA", 24, 2, False, False, True )], 
+    "DXD03": [Course("AVDM 0238", "NA", 18, 2, False, False, True ), Course("AVDM 0270", "NA", 18, 2, False, False, True ), Course("DXDI 9901", "NA", 45, 2, False, False, True )],
+    # Program Course(ID for book  "NA", 21, 2, False, False, False), Course(eeping certi "NA", 21, 2, False, False, False),fCourse(icate
+    "BKC01": [Course("ACCT 0201", "NA", 18, 2, False, False, False), Course("ACCT 0202", "NA", 12, 2, False, False, False), Course("ACCT 0203", "NA", 12, 2, False, False, False)], 
+    "BKC02": [Course("ACCT 0206", "NA", 12, 2, False, False, False), Course("ACCT 0210", "NA", 28, 2, False, False, True ), Course("ACCT 0211", "NA", 28, 2, False, False, True)], 
+    "BKC03": [Course("ACCT 0208", "NA", 21, 2, False, False, True ), Course("ACCT 9901", "NA", 33, 2, False, False, True ) ]
 }
 
 rooms = [
@@ -58,7 +48,7 @@ rooms = [
          Classroom("11-560", 24, False),
          Classroom("11-562", 24, False),
          Classroom("11-564", 24, False),
-         Classroom("11-532", 30, True) 
+         Classroom("11-532", 30, True ) 
          ]
 
 ghostRooms = []
@@ -72,6 +62,8 @@ roomHours = {"11-458": 0,
              "11-562": 0,
              "11-564": 0,
              "11-532": 0}
+
+fsRoomHours = {"11-532": 0}
 
 roomFill  = {"11-458": [],
              "11-533": [], 
@@ -96,7 +88,7 @@ def random_students_by_term():
                 "GLM01", "GLM02", "GLM03", 
                 "FS01",  "FS02",  "FS03", 
                 "DXD01", "DXD02", "DXD03", 
-                "BK01",  "BK02",  "BK03"]
+                "BKC01", "BKC02", "BKC03"]
     counts = {}
     total = 0
     while total < 120 or total > 500:
@@ -126,9 +118,11 @@ def findRoom(totalStudents, course):
             bestRoom = room
     
     if allRoomsFull:
+        print(course)
         ghostID = f"ghost-{len(ghostRooms) + 1}"
         ghostCapacity = totalStudents + (totalStudents % 6)
-        ghostRoom = Classroom(ghostID, ghostCapacity, False)
+        ghostLab = course.hasLab
+        ghostRoom = Classroom(ghostID, ghostCapacity, ghostLab)
 
         rooms.append(ghostRoom)
         ghostRooms.append(ghostRoom)
@@ -188,8 +182,8 @@ def fillClassrooms(cohorts):
 
     Schedules one room until it is completely booked before moving on to the next
     """
-   #for program in programCoursesByTerm.keys():
-    for program in ["PM01", "PM02", "PM03"]:
+    for program in programCoursesByTerm.keys():
+    #for program in ["PM01", "PM02", "PM03", "BA01", "BA02", "BA03", "GLM01", "GLM02", "GLM03"]:
 
         totalStudents = 0
         for cohortSize in cohorts[program]:
