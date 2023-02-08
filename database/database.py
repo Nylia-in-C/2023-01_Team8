@@ -56,7 +56,18 @@ def addCohortItem(conn, cohort ):
     except Exception as e:
         print("Issues inserting into table: ", e)
     return 
-
+def readCohortItem(conn, cohortName):
+    try:
+        queryString = f"Select * from COHORT where Name = '{cohortName}' "
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return 
+    
 def addProgramItem(conn, program):
     #adds programID and CourseID into table, one courseID per row
     programObject = program.createProgramItemInfo()
@@ -70,10 +81,22 @@ def addProgramItem(conn, program):
             c = conn.cursor()
             c.execute(rowString)
             i= i+1      
-            # print("Row added successfully")
         except Exception as e:
             print("Issues inserting into table: ", e)
     return 
+
+def readProgramItem(conn, ProgID):
+    try:
+        queryString = f"Select * from PROGRAMS where ProgID = '{ProgID}'"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return 
+
 def addClassroomItem(conn, classroom ):
      #add item to table from passed connection object and SQlite statement
     try:
@@ -85,10 +108,20 @@ def addClassroomItem(conn, classroom ):
     except Exception as e:
         print("Issues inserting into table: ", e)
     return 
+def readClassroomItem(conn, ClassID):
+    try:
+        queryString = f"Select * from CLASSROOMS where ClassID = '{ClassID}'"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return 
 def addCourseItem(conn,course):
     courseObject = course.createCourseItemInfo()
     #CourseID, title, termHours, duration, isCore, isOnline, hasLab, preReq 
-    
     CourseID = courseObject[0]
     title = courseObject[1]
     termHours = courseObject[2]
@@ -107,10 +140,20 @@ def addCourseItem(conn,course):
     except Exception as e:
             print("Issues inserting into table:", e)
     return 
+def readCourseItem(conn, CourseID):
+    try:
+        queryString = f"Select * from COURSES where CourseID = '{CourseID}'"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return
 
-
-def createAndFill():
-    #main function to build basic database with test cohort data
+def mainTest():
+    #main function to connect to database and test helper functions
     
     database = r".\database\database.db"  #database.db file path 
     conn = create_connection(database)    
@@ -120,6 +163,7 @@ def createAndFill():
         # Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, 'CMSK 1052, CMSK 0157')  
         # #Dummy.printCourse()    
         # addCourseItem(conn,Dummy)
+        readCourseItem(conn, 'CMSK 1053')
 
     else: 
          print("Could not connect to database")
@@ -128,4 +172,4 @@ def createAndFill():
  
     return 
 
-createAndFill()
+mainTest()
