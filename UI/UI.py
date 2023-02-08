@@ -85,14 +85,14 @@ class UI(QMainWindow):
         tab1 = QWidget()
         tab2 = QWidget()
 
-
-        tabs.addTab(tab1, "Main")
+        #TODO Bring back these tabs. Just hiding it for sprint 1.
+        #tabs.addTab(tab1, "Main")
         tabs.addTab(tab2, "Cohort Calculations")
 
-        main_table_box.addWidget(self.main_table)
+        #main_table_box.addWidget(self.main_table)
         cohort_calc_box.addWidget(self.bg_calc_table)
 
-        tab1.setLayout(main_table_box)
+        #tab1.setLayout(main_table_box)
         tab2.setLayout(cohort_calc_box)
 
         return tabs
@@ -374,7 +374,7 @@ class UI(QMainWindow):
         # Creates the randomized student number
         # and randomizes how many students are in programs
         program_count = random_students()
-        self.cohort_size.setText("Work in Progress")
+        self.cohort_size.setText("6")
 
         cohort_dict = create_cohort_dict(program_count)
 
