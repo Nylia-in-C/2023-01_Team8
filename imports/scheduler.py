@@ -9,18 +9,34 @@ from classes.courses import *
 # term 1 PCOM core courses (specific values are not accurate to specs)
 pcom_0101 = Course('PCOM 0101', 'Business Writing 1', 35, 0, True, False, False)
 pcom_0105 = Course('PCOM 0105', 'Intercultural Communication Skills', 35, 0, True, False, False)
-pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 35, 0, True, False, False)
-cmsk_0233 = Course('CMSK 0233', 'MS Project Essentials', 21, 0, True, False, False)
-cmsk_0235 = Course('CMSK 0235', 'MS Visio Essentials', 18, 0, True, False, False)
+pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 18, 0, True, False, False)
+cmsk_0233 = Course('CMSK 0233', 'MS Project Essentials', 7, 0, True, False, False)
+cmsk_0235 = Course('CMSK 0235', 'MS Visio Essentials', 6, 0, True, False, False)
 
-course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235]
+# term 2 PCOM core courses (specific values are not accurate to specs)
+pcom_0102 = Course('PCOM 0102', 'Business Writing 2', 35, 0, True, False, False)
+pcom_0201 = Course('PCOM 0201', 'Fundamentals of Public Speaking', 35, 0, True, False, False)
+pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 0, True, False, False)
+
+# term 3 PCOM core courses (specific values are not accurate to specs)
+pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33, 0, True, False, False)
+pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35, 0, True, False, False)
+pcom_0109 = Course('PCOM 0109', 'The Job Hunt in Canada', 14, 0, True, False, False)
+
+course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235,
+               pcom_0102, pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109]
 
 # rooms mapped to their lectures (repeated courses indicate a different lecture group)
 course_rooms = {
-    '11-533': ['PCOM 0101', 'PCOM 0101', 'CMSK 0233', 'CMSK 0233'],
-    '11-534': ['PCOM 0101', 'PCOM 0101', 'PCOM 0105', 'PCOM 0105'],
-    '11-458': ['PCOM 0107'],
-    '11-430': ['PCOM 0107', 'CMSK 0235', 'CMSK 0235']
+    '11-533': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107'],
+    '11-534': ['PCOM 0101', 'PCOM 0105', 'PCOM 0202'],
+    '11-560': ['PCOM 0105', 'PCOM 0107', 'CMSK 0233'],
+    '11-562': ['CMSK 0233', 'CMSK 0235', 'PCOM 0103'],
+    '11-564': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
+    '11-458': ['PCOM 0102', 'PCOM 0108', 'PCOM 0109'],
+    '11-430': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
+    '11-320': ['PCOM 0202', 'PCOM 0103', 'PCOM 0109']
+    
 }
 
 # 8 AM - 4:30 PM in half-hour increments
@@ -32,8 +48,6 @@ def make_schedule_df():
     Create empty pandas dataframes to represent the monday and wednesday 
     schedules for all rooms
     '''
-    # TODO: 
-    # get rid of global variables, figure out a less greasy way of handling teh schedule
     global mon_schedule, wed_schedule
 
     mon_schedule = pd.DataFrame(index = times)
@@ -43,14 +57,6 @@ def make_schedule_df():
         mon_schedule[room] = [""] * 21
         wed_schedule[room] = [""] * 21
     
-    # format schedules
-    # wed_schedule = wed_schedule.reset_index()
-    # mon_schedule = mon_schedule.reset_index()
-    
-    # print("\n\t\tMONDAY SCHEDULE:\n")
-    # print(mon_schedule)
-    # print("\n\t\tWEDNESDAY SCHEDULE:\n")
-    # print(wed_schedule)
     return
 
 def get_weekly_hours(course_list):
@@ -70,7 +76,7 @@ def find_opening(room_sched, blocks):
     '''
     Helper function for checking if a room is available for a specific time period
     on a given day. Returns the starting index (time) of when the room becomes
-    available. If no availability is found, returns False
+    available. If no availability is found, returns -1
     '''
     
     # number of time blocks required to fit lecture into schedule
@@ -79,7 +85,7 @@ def find_opening(room_sched, blocks):
     left  = 0
     right = blocks
     
-    while (right < len(room_sched) + 1):
+    while (right < len(room_sched) + 1):    
         if room_sched[left:right] == opening:
             return left
         left  += 1
@@ -100,20 +106,19 @@ def schedule_lectures(room, course, blocks):
     mon_start = find_opening(monday_times, blocks)
     wed_start = find_opening(wednesday_times, blocks)
     
-    if blocks <= 6 and mon_start != False:
-        # schedule lecture for monday
+    if blocks <= 6 and mon_start >= 0:
         lecture = [course] * blocks
         mon_schedule.iloc[mon_start:(mon_start+blocks), room_col_index] = lecture
         return
     
-    elif blocks <= 6 and wed_start != False:
+    elif blocks <= 6 and wed_start >= 0:
         lecture = [course] * (blocks)
         wed_schedule.iloc[wed_start:(wed_start+blocks), room_col_index] = lecture
-        pass
+        return
     
     # if the lecture is too long or the room is fully booked, split the lecture into 2
     else:
-        pass
+        print("!!!")
     
     return
 
@@ -135,20 +140,15 @@ if __name__ == '__main__':
     hours = get_weekly_hours(course_list)
     print(hours)
     
-    # room = '11-533'
-    # course = 'TEST'
-    # blocks = 6
+    schedule_rooms(course_rooms, hours)
+    print(mon_schedule)
+    print(wed_schedule)
     
-    # room_col_index  = mon_schedule.columns.get_loc(room)
-    # monday_times    = (mon_schedule.iloc[:, [room_col_index]])
-    
-    # for i in range(10):
-    #     monday_times.iloc[[i], [0]] = 'abc'
-    
-    # mon_start = find_opening((monday_times[room]).tolist(), blocks)
-
-    # lecture = [course] * (blocks)
-    # mon_schedule.iloc[mon_start:(mon_start+blocks), room_col_index] = lecture
-    # print(mon_schedule)
+    #TODO: 
+    #   - make schedules local instead of global
+    #   - after creating schedule, make sure any given student (PCOM or BCOM) will be able to take combination of courses
+    #   - add BCOM courses & alternate scheduling between PCOM and BCOM
+    #   - account for labs
+    #   - check for other constraints (gap between online & in person, specific time slot reqs, etc.)
     
  
