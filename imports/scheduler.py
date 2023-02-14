@@ -27,37 +27,32 @@ course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235,
                pcom_0102, pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109]
 
 # rooms mapped to their lectures (repeated courses indicate a different lecture group)
-course_rooms = {
-    '11-533': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107'],
-    '11-534': ['PCOM 0101', 'PCOM 0105', 'PCOM 0202'],
-    '11-560': ['PCOM 0105', 'PCOM 0107', 'CMSK 0233'],
-    '11-562': ['CMSK 0233', 'CMSK 0235', 'PCOM 0103'],
+# assuming ~90 PCOM students/term, each course will have ~3 different lecture groups
+room_course_dict = {
+                        # term 1 courses
+    '11-533': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107', 'CMSK 0233', 'CMSK 0235'],
+    '11-534': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107', 'CMSK 0233', 'CMSK 0235'],
+    '11-560': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107', 'CMSK 0233', 'CMSK 0235'],
+    
+                        # term 2 courses
+    '11-562': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
     '11-564': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
-    '11-458': ['PCOM 0102', 'PCOM 0108', 'PCOM 0109'],
-    '11-430': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
+    '11-458': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
+
+                        # term 3 courses
+    '11-430': ['PCOM 0202', 'PCOM 0103', 'PCOM 0109'],
     '11-320': ['PCOM 0202', 'PCOM 0103', 'PCOM 0109']
     
 }
 
-# 8 AM - 4:30 PM in half-hour increments
+# 8 AM - 5 PM in half-hour increments 
 times = [datetime.time(i, j).strftime("%H:%M") for i in range (8, 18) for j in [0, 30]]
 times.append(datetime.time(5, 0).strftime("%H:%M"))
-# ==============================================================================
-def make_schedule_df():
-    '''
-    Create empty pandas dataframes to represent the monday and wednesday 
-    schedules for all rooms
-    '''
-    global mon_schedule, wed_schedule
 
-    mon_schedule = pd.DataFrame(index = times)
-    wed_schedule = pd.DataFrame(index = times)
-    
-    for room in course_rooms.keys():
-        mon_schedule[room] = [""] * 21
-        wed_schedule[room] = [""] * 21
-    
-    return
+# empty schedules for monday and wednesday
+mon_schedule = pd.DataFrame(index = times)
+wed_schedule = pd.DataFrame(index = times)
+# ==============================================================================
 
 def get_weekly_hours(course_list):
     '''
@@ -72,55 +67,56 @@ def get_weekly_hours(course_list):
      
     return hours
 
-def find_opening(room_sched, blocks):
+def get_available_time(room_sched, blocks):
     '''
-    Helper function for checking if a room is available for a specific time period
+    Helper function that checks if a room is available for a specific time period
     on a given day. Returns the starting index (time) of when the room becomes
     available. If no availability is found, returns -1
     '''
-    
     # number of time blocks required to fit lecture into schedule
-    opening = [""] * blocks
-    # iterators for sliding window
-    left  = 0
-    right = blocks
-    
-    while (right < len(room_sched) + 1):    
-        if room_sched[left:right] == opening:
-            return left
-        left  += 1
-        right += 1
-    
-    return False
+    available= [""] * blocks
 
-def schedule_lectures(room, course, blocks):
+    start = 0
+    end   = blocks
+    while (end < len(room_sched) + 1):    
+        if room_sched[start:end] == available:
+            return start 
+        start  += 1
+        end += 1
     
-    # get the column index of the current room
-    room_col_index  = mon_schedule.columns.get_loc(room)
+    return -1
+
+def book_room(room, course, blocks, day):
+    '''
+    This function schedules a lecture in a given room. Using the existing schedule
+    for a specific day and the length of the lecture, it first tries to retreive an
+    available start time. If lectures are over 3 hours or no start time is found,
+    it splits the lecture time in half, and schedules 2 lectures for the week.
+    '''
+    if (day not in ['mon', 'wed']):
+        return 
     
-    # create list of row values for monday and wednesday schedules
-    monday_times    = ((mon_schedule.iloc[:, [room_col_index]]))[room].tolist()
-    wednesday_times = ((wed_schedule.iloc[:, [room_col_index]]))[room].tolist()
+    elif (day == 'mon'):
+        room_col_index = mon_schedule.columns.get_loc(room)
+        times = ((mon_schedule.iloc[:, [room_col_index]]))[room].tolist()
+        
+    elif (day == 'wed'):
+        room_col_index = wed_schedule.columns.get_loc(room)
+        times = ((wed_schedule.iloc[:, [room_col_index]]))[room].tolist()
     
-    # find first available time opening on monday or wednesday   
-    mon_start = find_opening(monday_times, blocks)
-    wed_start = find_opening(wednesday_times, blocks)
+    start_time = get_available_time(times, blocks)
     
-    if blocks <= 6 and mon_start >= 0:
+    if blocks <= 6 and start_time >= 0:
         lecture = [course] * blocks
-        mon_schedule.iloc[mon_start:(mon_start+blocks), room_col_index] = lecture
-        return
-    
-    elif blocks <= 6 and wed_start >= 0:
-        lecture = [course] * (blocks)
-        wed_schedule.iloc[wed_start:(wed_start+blocks), room_col_index] = lecture
-        return
-    
-    # if the lecture is too long or the room is fully booked, split the lecture into 2
+        if (day == 'mon'):
+            mon_schedule.iloc[start_time:(start_time+blocks), room_col_index] = lecture
+        elif (day == 'wed'):
+            wed_schedule.iloc[start_time:(start_time+blocks), room_col_index] = lecture
     else:
         print("!!!")
-    
+        return
     return
+
 
 def schedule_rooms(course_rooms, weekly_hours):
     '''
@@ -128,25 +124,33 @@ def schedule_rooms(course_rooms, weekly_hours):
     weekly hours to the `schedule_lectures` function 
     '''
     for room in course_rooms.keys():
-        for course in course_rooms[room]:
+        for index, course in enumerate(course_rooms[room]):
+            
             # number of half-hour time blocks that a lecture will take up
             blocks = int(weekly_hours[course] * 2)
-            schedule_lectures(room, course, blocks)
-
+            
+            # alternate between monday & wednesday scheduling
+            if (index % 2 == 0):
+                book_room(room, course, blocks, 'mon')
+            else:
+                book_room(room, course, blocks, 'wed')
     return
 
 if __name__ == '__main__':
-    make_schedule_df()
+    # add empty slots to monday and wednesday schedules 
+    for room in room_course_dict.keys():
+        mon_schedule[room] = [""] * 21
+        wed_schedule[room] = [""] * 21
+    
     hours = get_weekly_hours(course_list)
     print(hours)
     
-    schedule_rooms(course_rooms, hours)
+    schedule_rooms(room_course_dict, hours)
     print(mon_schedule)
     print(wed_schedule)
     
     #TODO: 
-    #   - make schedules local instead of global
-    #   - after creating schedule, make sure any given student (PCOM or BCOM) will be able to take combination of courses
+    #   - after creating schedule, make sure no students (in either program) will have a scheduling conflict
     #   - add BCOM courses & alternate scheduling between PCOM and BCOM
     #   - account for labs
     #   - check for other constraints (gap between online & in person, specific time slot reqs, etc.)
