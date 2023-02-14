@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from imports.create_cohorts import *
+import datetime
 
 table_columns = []
 LEFT_MAX_WIDTH = 450
@@ -33,6 +34,7 @@ class UI(QMainWindow):
         self.bg_calc_table = QTableWidget()
 
         self.main_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.main_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.bg_calc_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # Make table un-editable
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -86,16 +88,43 @@ class UI(QMainWindow):
         tab2 = QWidget()
 
         #TODO Bring back these tabs. Just hiding it for sprint 1.
-        #tabs.addTab(tab1, "Main")
+        tabs.addTab(tab1, "Schedule")
         tabs.addTab(tab2, "Cohort Calculations")
 
-        #main_table_box.addWidget(self.main_table)
+        self.create_schedule_base()
+
+        main_table_box.addWidget(self.main_table)
         cohort_calc_box.addWidget(self.bg_calc_table)
 
-        #tab1.setLayout(main_table_box)
+        tab1.setLayout(main_table_box)
         tab2.setLayout(cohort_calc_box)
 
         return tabs
+
+    # Make the basic layout of the schedule table
+
+    def create_schedule_base(self):
+
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
+        times = []
+
+        # Creation of all times from 8:00 AM to 5:00 PM to use as row headers
+
+        first_time = datetime.datetime(year=2000, month=1, day=1, hour=8, minute=00)
+        time_dif = datetime.timedelta(minutes=30)
+
+        times.append(first_time.strftime("%I:%M %p"))
+        new_time = first_time + time_dif
+        for half_hour in range(18):
+            times.append(new_time.strftime("%I:%M %p"))
+            new_time = new_time + time_dif
+
+        self.main_table.setColumnCount(4)
+        self.main_table.setHorizontalHeaderLabels(days)
+
+        self.main_table.setRowCount(len(times))
+        self.main_table.setVerticalHeaderLabels(times)
+
 
     # Creates the bottom layout where most user interaction takes place
     def create_leftlayout(self):
@@ -308,22 +337,6 @@ class UI(QMainWindow):
         for each_field in range(input_fields):
             print(layout.itemAt(each_field).widget().value())
 
-    # Action event for the choose file button
-    def choose_file(self):
-
-        chosen_file = QFileDialog.getOpenFileName(
-            self,
-            "Choose a file",
-            os.getcwd(),
-            "",  # Filters to be added later to show only excel type files
-            ""
-        )
-        if chosen_file[0] == "":
-            self.file_label.setText("No File Chosen")
-            self.file_path = ""
-        else:
-            self.file_path = chosen_file[0]
-            self.file_label.setText(chosen_file[0])
     def create_db_column_headers(self, cursor_obj):
         table_columns.clear()
         all_columns = cursor_obj.description
@@ -364,6 +377,23 @@ class UI(QMainWindow):
     '''
     Action Event functions
     '''
+
+    # Action event for the choose file button
+    def choose_file(self):
+
+        chosen_file = QFileDialog.getOpenFileName(
+            self,
+            "Choose a file",
+            os.getcwd(),
+            "",  # Filters to be added later to show only excel type files
+            ""
+        )
+        if chosen_file[0] == "":
+            self.file_label.setText("No File Chosen")
+            self.file_path = ""
+        else:
+            self.file_path = chosen_file[0]
+            self.file_label.setText(chosen_file[0])
 
     def load_optimal_cohorts(self):
 
