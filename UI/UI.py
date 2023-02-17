@@ -5,7 +5,9 @@ import os
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from openpyxl.workbook import *
 from imports.create_cohorts import *
+
 import datetime
 
 table_columns = []
@@ -169,6 +171,8 @@ class UI(QMainWindow):
     # create the file choose layout / widgets
     def create_file_choose(self):
 
+        vbox = QVBoxLayout()
+
         hbox_file_choose = QHBoxLayout(self)
         choose_input_button = QPushButton("Choose File", self)
         choose_input_button.setMaximumWidth(100)
@@ -179,7 +183,14 @@ class UI(QMainWindow):
 
         hbox_file_choose.addWidget(choose_input_button)
         hbox_file_choose.addWidget(self.file_label)
-        return hbox_file_choose
+
+        create_template_button = QPushButton("Create Template")
+        create_template_button.clicked.connect(self.create_template)
+
+        vbox.addLayout(hbox_file_choose)
+        vbox.addWidget(create_template_button)
+
+        return vbox
 
 
 
@@ -378,6 +389,28 @@ class UI(QMainWindow):
     Action Event functions
     '''
 
+    # Action event for creating template file
+    def create_template(self):
+
+        template = Workbook()
+
+        sheet = template.active
+        sheet.title = "Student Numbers"
+
+        fields = ["Term", "Program", "Students"]
+
+        sheet.append(fields)
+
+        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+
+        for term in range (1, 4):
+            for program in range(len(programs)):
+                sheet.append([term, programs[program], 0])
+
+        template.save("Student_Number_Inputs_Template.xlsx")
+        template.close()
+
+
     # Action event for the choose file button
     def choose_file(self):
 
@@ -393,7 +426,8 @@ class UI(QMainWindow):
             self.file_path = ""
         else:
             self.file_path = chosen_file[0]
-            self.file_label.setText(chosen_file[0])
+            tokens = chosen_file[0].split("/")
+            self.file_label.setText(tokens[-1])
 
     def load_optimal_cohorts(self):
 
