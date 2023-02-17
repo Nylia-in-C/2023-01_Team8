@@ -418,8 +418,7 @@ class UI(QMainWindow):
             self,
             "Choose a file",
             os.getcwd(),
-            "",  # Filters to be added later to show only excel type files
-            ""
+            "Excel Workbook files (*.xlsx)"  # Filters to specified file types
         )
         if chosen_file[0] == "":
             self.file_label.setText("No File Chosen")
