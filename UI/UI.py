@@ -5,7 +5,8 @@ import os
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from openpyxl.workbook import *
+from openpyxl.reader.excel import load_workbook
+from openpyxl.workbook import Workbook
 from imports.create_cohorts import *
 
 import datetime
@@ -184,10 +185,14 @@ class UI(QMainWindow):
         hbox_file_choose.addWidget(choose_input_button)
         hbox_file_choose.addWidget(self.file_label)
 
+        load_data = QPushButton("Load Data")
+        load_data.clicked.connect(self.load_student_numbers)
+
         create_template_button = QPushButton("Create Template")
         create_template_button.clicked.connect(self.create_template)
 
         vbox.addLayout(hbox_file_choose)
+        vbox.addWidget(load_data)
         vbox.addWidget(create_template_button)
 
         return vbox
@@ -427,6 +432,35 @@ class UI(QMainWindow):
             self.file_path = chosen_file[0]
             tokens = chosen_file[0].split("/")
             self.file_label.setText(tokens[-1])
+
+    # Action event to load student input numbers
+    def load_student_numbers(self):
+
+        try:
+            stu_numbers = load_workbook(filename=self.file_path)
+
+            try:
+                sheet = stu_numbers.active
+                term_1 = sheet["C2":"C9"]
+                term_2 = sheet["C10":"C17"]
+                term_3 = sheet["C18":"C25"]
+
+                for each_field in range(self.term_1_inputs.count()):
+                    self.term_1_inputs.itemAt(each_field).widget().setValue(term_1[each_field][0].value)
+
+                for each_field in range(self.term_2_inputs.count()):
+                    self.term_2_inputs.itemAt(each_field).widget().setValue(term_2[each_field][0].value)
+
+                for each_field in range(self.term_3_inputs.count()):
+                    self.term_3_inputs.itemAt(each_field).widget().setValue(term_3[each_field][0].value)
+
+                stu_numbers.close()
+
+            except:
+                print("Error reading values")  # add error message here eventually
+
+        except:
+            print("Error Opening File")# Maybe put an actual error message here eventually about opening files
 
     def load_optimal_cohorts(self):
 
