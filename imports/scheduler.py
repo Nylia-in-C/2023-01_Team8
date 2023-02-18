@@ -1,5 +1,6 @@
 import math
 import datetime
+import pprint
 import pandas as pd
 from classes.courses import *
 
@@ -23,11 +24,14 @@ pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33, 0, True, Fa
 pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35, 0, True, False, False)
 pcom_0109 = Course('PCOM 0109', 'The Job Hunt in Canada', 14, 0, True, False, False)
 
-course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235,
-               pcom_0102, pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109]
+course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102, 
+               pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109]
 
-# rooms mapped to their lectures (repeated courses indicate a different lecture group)
-# assuming ~90 PCOM students/term, each course will have ~3 different lecture groups
+room_list = ['11-533', '11-534', '11-560', '11-562', '11-564', '11-458', 
+             '11-430', '11-320']
+
+# rooms mapped to their lectures (the same course in multiple rooms indicates a different lecture group)
+# assuming there are 70-90 PCOM students/term, each course will need 2 or 3 different lecture groups
 room_course_dict = {
                         # term 1 courses
     '11-533': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107', 'CMSK 0233', 'CMSK 0235'],
@@ -45,113 +49,152 @@ room_course_dict = {
     
 }
 
-# 8 AM - 5 PM in half-hour increments 
-times = [datetime.time(i, j).strftime("%H:%M") for i in range (8, 18) for j in [0, 30]]
-times.append(datetime.time(5, 0).strftime("%H:%M"))
-
-# empty schedules for monday and wednesday
-mon_schedule = pd.DataFrame(index = times)
-wed_schedule = pd.DataFrame(index = times)
 # ==============================================================================
+# generator for alternating between monday & wednesday schedules
+def alternate_schedules(mon, wed):
+    while True:
+        yield mon
+        yield wed
 
-def get_weekly_hours(course_list):
+def create_intital_schedule():
     '''
-    Calculate how many lecture hours per week each course should have
+    This function creates 2 empty pandas dataframes to represent the 
+    monday and wednesday schedules. The column headers are room numbers 
+    and the row indexes are times (half hour increments)
+    '''
+    
+    # 8 AM - 5 PM in half-hour increments 
+    times = [datetime.time(i, j).strftime("%H:%M") for i in range (8, 18) for j in [0, 30]]
+    times.append(datetime.time(5, 0).strftime("%H:%M"))
+    
+    sched = pd.DataFrame(index = times)
+    
+    for room in room_list:
+        sched[room]    = [""] * 21
+        
+    return sched
+
+def get_course_hours():
+    '''
+    Create a dictionary that maps courses to information on how many lecture hours 
+    it requires and hwo many it already has
     '''
     hours = {}
     for course in course_list:
-        weekly_avg = course.termHours / 13
-        # round up to the nearest half-hour
-        weekly_hours = math.ceil(weekly_avg * 2) / 2
-        hours[course.ID] = weekly_hours
-     
+        hours[course.ID] = {
+            'required' : course.termHours, 
+            'remaining': course.termHours,
+            'scheduled': 0, 
+        }
     return hours
 
-def get_available_time(room_sched, blocks):
+def get_reschedule_day(course_hours):
     '''
-    Helper function that checks if a room is available for a specific time period
-    on a given day. Returns the starting index (time) of when the room becomes
-    available. If no availability is found, returns -1
+    This function takes a dictionary of courses mapped to their lecture hour
+    information, finds the courses that are currently being scheduled
+    and returns the number of days until the schedule will need updating
+    (i.e. a currently scheduled course reaches its lecture hours requirement)
     '''
-    # number of time blocks required to fit lecture into schedule
-    available= [""] * blocks
-
-    start = 0
-    end   = blocks
-    while (end < len(room_sched) + 1):    
-        if room_sched[start:end] == available:
-            return start 
-        start  += 1
-        end += 1
-    
-    return -1
-
-def book_room(room, course, blocks, day):
-    '''
-    This function schedules a lecture in a given room. Using the existing schedule
-    for a specific day and the length of the lecture, it first tries to retreive an
-    available start time. If lectures are over 3 hours or no start time is found,
-    it splits the lecture time in half, and schedules 2 lectures for the week.
-    '''
-    if (day not in ['mon', 'wed']):
-        return 
-    
-    elif (day == 'mon'):
-        room_col_index = mon_schedule.columns.get_loc(room)
-        times = ((mon_schedule.iloc[:, [room_col_index]]))[room].tolist()
+    # lowest number of lecture hours remaining for courses being scheduled
+    curr_min = float('inf')
+    for hours in course_hours.values():
+        if (hours['required'] <= hours['scheduled']):
+            continue
+        curr_min = min(curr_min, hours['remaining'])
         
-    elif (day == 'wed'):
-        room_col_index = wed_schedule.columns.get_loc(room)
-        times = ((wed_schedule.iloc[:, [room_col_index]]))[room].tolist()
+    # return the number of days needed to reach `curr_min` lecture hours
+    return math.ceil(curr_min / 1.5)
+
+def update_course_hours(course_hours, sched):
+    '''
+    This function uses the schedule for a single day (monday or wednesday) to 
+    update the of scheduled and remaining hour counts in course_hours
+    '''
+    # get number of hours for each course on the schedule
+    for room in room_list:
+        courses = sched[room].tolist()
+        for course in courses:
+            if (course == ""):
+                continue
+            course_hours[course]['scheduled'] += 0.5
+            course_hours[course]['remaining'] -= 0.5
+
+    return course_hours
+
+def create_day_schedule(sched, course_hours, blocks):
+    '''
+    This function takes an empty dataframe representing the schedule for a given day,
+    and adds 3 lecture groups for each course, starting with the ones that have 
+    the most lecture hours. To prevent scheduling conflicts, each course is limited to 1 room only
+    '''
+
+    # list of course IDs ordered by required lecture hours (descending order)
+    courses = [course.ID for course in 
+               sorted(course_list, key = lambda x: x.termHours, reverse = True)]
     
-    start_time = get_available_time(times, blocks)
+    # ignore courses that have been fully scheduled
+    for course, hours in course_hours.items():
+        if hours['remaining'] <= 0:
+            courses.remove(course)
     
-    if blocks <= 6 and start_time >= 0:
-        lecture = [course] * blocks
-        if (day == 'mon'):
-            mon_schedule.iloc[start_time:(start_time+blocks), room_col_index] = lecture
-        elif (day == 'wed'):
-            wed_schedule.iloc[start_time:(start_time+blocks), room_col_index] = lecture
-    else:
-        print("!!!")
-        return
+    for index, room in enumerate(room_list):
+        room_col_index = sched.columns.get_loc(room)
+        sched.iloc[:blocks, room_col_index] = ( [courses[index]] * blocks)
+    
+    return sched
+
+def create_term_schedule():
+    course_hours = get_course_hours()
+    
+    # number of days until schedule needs to be changed
+    days_until_update = get_reschedule_day(course_hours)
+    print(f"\ndays until rescheduling: {days_until_update}\n")
+    
+    week = 1
+    
+    for i in range(days_until_update):
+        sched = create_intital_schedule()
+        create_day_schedule(sched, course_hours, 6)
+        course_hours = update_course_hours(course_hours, sched)
+        
+        if (i % 2 == 0):
+            print(f"\t\t\tMONDAY WEEK {week}: \n")
+        else:
+            print(f"\t\t\tWEDNESDAY WEEK {week}: \n")
+            week += 1
+    
+        print(sched)
+
     return
 
 
-def schedule_rooms(course_rooms, weekly_hours):
-    '''
-    Add each room's lectures to the schedule by passing its courses, and their 
-    weekly hours to the `schedule_lectures` function 
-    '''
-    for room in course_rooms.keys():
-        for index, course in enumerate(course_rooms[room]):
-            
-            # number of half-hour time blocks that a lecture will take up
-            blocks = int(weekly_hours[course] * 2)
-            
-            # alternate between monday & wednesday scheduling
-            if (index % 2 == 0):
-                book_room(room, course, blocks, 'mon')
-            else:
-                book_room(room, course, blocks, 'wed')
-    return
+ # not being used, but we might need this in the future
+# def get_available_time(room_sched, blocks):
+#     '''
+#     Helper function that checks if a room is available for a specific time period
+#     on a given day. Returns the starting index (time) of when the room becomes
+#     available. If no availability is found, returns -1
+#     '''
+#     # number of time blocks required to fit lecture into schedule
+#     available= [""] * blocks
+
+#     start = 0
+#     end   = blocks
+#     while (end < len(room_sched) + 1):    
+#         if room_sched[start:end] == available:
+#             return start 
+#         start  += 1
+#         end += 1
+    
+#     return -1
 
 if __name__ == '__main__':
-    # add empty slots to monday and wednesday schedules 
-    for room in room_course_dict.keys():
-        mon_schedule[room] = [""] * 21
-        wed_schedule[room] = [""] * 21
     
-    hours = get_weekly_hours(course_list)
-    print(hours)
+    create_term_schedule()
     
-    schedule_rooms(room_course_dict, hours)
-    print(mon_schedule)
-    print(wed_schedule)
     
     #TODO: 
-    #   - after creating schedule, make sure no students (in either program) will have a scheduling conflict
-    #   - add BCOM courses & alternate scheduling between PCOM and BCOM
+    #   - after creating schedule, make sure no students (in either program) will have a scheduling conflict (try to use LP so this isnt super slow)
     #   - account for labs
     #   - check for other constraints (gap between online & in person, specific time slot reqs, etc.)
     
