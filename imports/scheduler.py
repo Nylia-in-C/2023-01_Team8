@@ -30,37 +30,17 @@ course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102,
 room_list = ['11-533', '11-534', '11-560', '11-562', '11-564', '11-458', 
              '11-430', '11-320']
 
-# rooms mapped to their lectures (the same course in multiple rooms indicates a different lecture group)
-# assuming there are 70-90 PCOM students/term, each course will need 2 or 3 different lecture groups
-room_course_dict = {
-                        # term 1 courses
-    '11-533': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107', 'CMSK 0233', 'CMSK 0235'],
-    '11-534': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107', 'CMSK 0233', 'CMSK 0235'],
-    '11-560': ['PCOM 0101', 'PCOM 0105', 'PCOM 0107', 'CMSK 0233', 'CMSK 0235'],
-    
-                        # term 2 courses
-    '11-562': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
-    '11-564': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
-    '11-458': ['PCOM 0102', 'PCOM 0201', 'PCOM 0108'],
 
-                        # term 3 courses
-    '11-430': ['PCOM 0202', 'PCOM 0103', 'PCOM 0109'],
-    '11-320': ['PCOM 0202', 'PCOM 0103', 'PCOM 0109']
-    
-}
+# assuming ~70-90 new PCOM students/term requires 3 different lecture groups for each course
+LECTURE_GROUPS= 3
 
 # ==============================================================================
-# generator for alternating between monday & wednesday schedules
-def alternate_schedules(mon, wed):
-    while True:
-        yield mon
-        yield wed
 
-def create_intital_schedule():
+def create_empty_schedule():
     '''
-    This function creates 2 empty pandas dataframes to represent the 
-    monday and wednesday schedules. The column headers are room numbers 
-    and the row indexes are times (half hour increments)
+    This function creates an empty pandas dataframe to represent the schedule 
+    for a single day. The column headers are room numbers and the row indexes 
+    are times (half hour increments)
     '''
     
     # 8 AM - 5 PM in half-hour increments 
@@ -70,14 +50,15 @@ def create_intital_schedule():
     sched = pd.DataFrame(index = times)
     
     for room in room_list:
-        sched[room]    = [""] * 21
+        sched[room] = [""] * 21
         
     return sched
+    
 
 def get_course_hours():
     '''
-    Create a dictionary that maps courses to information on how many lecture hours 
-    it requires and hwo many it already has
+    Create a dictionary that will be used to keep track of how many lecture hours
+    a given course has, and how many hours it has left
     '''
     hours = {}
     for course in course_list:
@@ -88,45 +69,32 @@ def get_course_hours():
         }
     return hours
 
-def get_reschedule_day(course_hours):
-    '''
-    This function takes a dictionary of courses mapped to their lecture hour
-    information, finds the courses that are currently being scheduled
-    and returns the number of days until the schedule will need updating
-    (i.e. a currently scheduled course reaches its lecture hours requirement)
-    '''
-    # lowest number of lecture hours remaining for courses being scheduled
-    curr_min = float('inf')
-    for hours in course_hours.values():
-        if (hours['required'] <= hours['scheduled']):
-            continue
-        curr_min = min(curr_min, hours['remaining'])
-        
-    # return the number of days needed to reach `curr_min` lecture hours
-    return math.ceil(curr_min / 1.5)
-
 def update_course_hours(course_hours, sched):
     '''
-    This function uses the schedule for a single day (monday or wednesday) to 
-    update the of scheduled and remaining hour counts in course_hours
+    Uses the latest schedule to update the remaining lecture hours for each course
     '''
     # get number of hours for each course on the schedule
     for room in room_list:
         courses = sched[room].tolist()
-        for course in courses:
+        for course in set(courses): # use a set to prevent repeating courses
             if (course == ""):
                 continue
-            course_hours[course]['scheduled'] += 0.5
-            course_hours[course]['remaining'] -= 0.5
+            
+            # account for multiple lecture groups for each course
+            scheduled_time = (courses.count(course) // LECTURE_GROUPS ) * 0.5
+            course_hours[course]['scheduled'] += scheduled_time
+            course_hours[course]['remaining'] -= scheduled_time
 
     return course_hours
 
-def create_day_schedule(sched, course_hours, blocks):
+def create_day_schedule(course_hours):
     '''
     This function takes an empty dataframe representing the schedule for a given day,
     and adds 3 lecture groups for each course, starting with the ones that have 
     the most lecture hours. To prevent scheduling conflicts, each course is limited to 1 room only
     '''
+    
+    sched = create_empty_schedule()
 
     # list of course IDs ordered by required lecture hours (descending order)
     courses = [course.ID for course in 
@@ -138,34 +106,42 @@ def create_day_schedule(sched, course_hours, blocks):
             courses.remove(course)
     
     for index, room in enumerate(room_list):
+        # if there are more rooms that courses left, leave extra rooms empty
+        if (index >= len(courses)):
+            break
+        
         room_col_index = sched.columns.get_loc(room)
-        sched.iloc[:blocks, room_col_index] = ( [courses[index]] * blocks)
+        course = courses[index]
+        
+        if (course_hours[course]['remaining'] >= 1):
+            blocks = 3 * LECTURE_GROUPS
+        elif (course_hours[course]['remaining'] > 0.5):
+            blocks = 2 * LECTURE_GROUPS
+        else:
+            blocks = 1 * LECTURE_GROUPS
+         
+        sched.iloc[:blocks, room_col_index] = ( [course] * blocks )
     
     return sched
 
-def create_term_schedule():
-    course_hours = get_course_hours()
+def create_term_schedule(course_hours):
     
-    # number of days until schedule needs to be changed
-    days_until_update = get_reschedule_day(course_hours)
-    print(f"\ndays until rescheduling: {days_until_update}\n")
-    
-    week = 1
-    
-    for i in range(days_until_update):
-        sched = create_intital_schedule()
-        create_day_schedule(sched, course_hours, 6)
-        course_hours = update_course_hours(course_hours, sched)
-        
-        if (i % 2 == 0):
-            print(f"\t\t\tMONDAY WEEK {week}: \n")
-        else:
-            print(f"\t\t\tWEDNESDAY WEEK {week}: \n")
-            week += 1
-    
-        print(sched)
+    full_schedule = []
 
-    return
+    for i in range(26):
+        curr_day = create_day_schedule(course_hours)
+        if (i % 2 == 0):
+            print(f"\n\t\t\tMONDAY (day {i+1})")
+        else:
+            print(f"\n\t\t\tWEDNESDAY (day {i+1})")
+        print(curr_day)
+        course_hours = update_course_hours(course_hours, curr_day)
+        print("\n\n")
+        pprint.pprint(course_hours)
+        full_schedule.append(curr_day)        
+
+    
+    return full_schedule
 
 
  # not being used, but we might need this in the future
@@ -189,8 +165,9 @@ def create_term_schedule():
 #     return -1
 
 if __name__ == '__main__':
-    
-    create_term_schedule()
+    course_hours = get_course_hours()
+    schedule = create_term_schedule(course_hours)
+
     
     
     #TODO: 
