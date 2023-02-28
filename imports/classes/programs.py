@@ -57,7 +57,7 @@ legionCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
 class Legion(Program):
     cohorts: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
     term: str = ""
-    count: int = 0
+    legionID: int = 0
 
     def __post_init__(self):
         Program.__post_init__(self)
@@ -65,12 +65,12 @@ class Legion(Program):
         if self.term not in ["01", "02", "03"]:
             self.term = self.cohorts[0].termID
 
-        if self.count < 1:
+        if self.legionID < 1:
             legionCounts[self.ID + self.term] += 1
-            self.count = "{:02d}".format(legionCounts[self.ID + self.term])
+            self.legionID = "{:02d}".format(legionCounts[self.ID + self.term])
 
     def __repr__(self):
-        return f"{self.ID}{self.term}{self.count} cohorts = {self.cohorts}"
+        return f"{self.ID}{self.term}{self.legionID} cohorts = {self.cohorts}"
     
     def createLegionItemInfo(self):
         """
@@ -78,7 +78,7 @@ class Legion(Program):
         Passed to database to load program into the database.
         """
         # May need to expand on self.cohorts, as each cohort will need to be loaded into the database
-        return ( self.ID, self.term, self.count, self.cohorts, self.courses )
+        return ( self.ID, self.term, self.legionID, self.cohorts, self.courses )
 
          
 #testing purposes
