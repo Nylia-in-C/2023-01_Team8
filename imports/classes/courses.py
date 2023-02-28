@@ -4,6 +4,8 @@
 #             term hours (int), isCore (bool), timeSlot (int), isOnline (bool)
 
 from dataclasses import field, dataclass
+from programs import *
+from classrooms import *
 
 # Directed graph representing course prerequisites (might change to Course objects later)
 # note: only program-specific courses have prerequisites
@@ -59,8 +61,29 @@ class Course:
          print( self.createCourseItemInfo())
 
 
-class Section(Course):
-    pass
+@dataclass
+class Lecture(Course):
+    legion: Legion = field(default_factory=Legion)
+    room: Classroom = field(default_factory=Classroom)
+    startWeek: int = 0
+    startDay: str = ""
+    startTime: str = ""
+
+    def createLectureItemInfo(self):
+        """
+        Returns a tuple of the Lecture information.
+        Passed to database to load program into the database.
+        """
+        preReqsString = ""
+        i = len(self.preReqs)-1
+        for Req in self.preReqs:
+            if i==0:
+                preReqsString = preReqsString + self.preReqs[i]
+                i=i-1
+            else:
+                preReqsString = preReqsString + self.preReqs[i] + ', '
+                i = i-1
+        return ( self.ID, self.title, self.legion, self.room, self.termHours, self.duration, self.startWeek, self.startDay, self.startTime, self.isCore, self.isOnline, self.hasLab, preReqsString )
 
 
 #testing purposes
