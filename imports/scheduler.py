@@ -24,6 +24,12 @@ pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33, 0, True, Fa
 pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35, 0, True, False, False)
 pcom_0109 = Course('PCOM 0109', 'The Job Hunt in Canada', 14, 0, True, False, False)
 
+term_courses = {
+    1: [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235],
+    2: [pcom_0102, pcom_0201, pcom_0108],
+    3: [pcom_0202, pcom_0103, pcom_0109], 
+}
+
 course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102, 
                pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109]
 
@@ -165,12 +171,16 @@ def create_term_schedule(course_hours):
 #     return -1
 
 if __name__ == '__main__':
+    
+    # KENNETH: see lines 119, 129, https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html
+    
     course_hours = get_course_hours()
     schedule = create_term_schedule(course_hours)
 
     
     
     #TODO: 
+    #   - account for new schedule changes
     #   - after creating schedule, make sure no students (in either program) will have a scheduling conflict (try to use LP so this isnt super slow)
     #   - account for labs
     #   - check for other constraints (gap between online & in person, specific time slot reqs, etc.)
