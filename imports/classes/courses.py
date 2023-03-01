@@ -4,6 +4,8 @@
 #             term hours (int), isCore (bool), timeSlot (int), isOnline (bool)
 
 from dataclasses import field, dataclass
+from programs import *
+from classrooms import *
 
 # Directed graph representing course prerequisites (might change to Course objects later)
 # note: only program-specific courses have prerequisites
@@ -58,6 +60,47 @@ class Course:
     def printCourse(self):
          print( self.createCourseItemInfo())
 
+
+@dataclass
+class Lecture(Course):
+    """
+    Represents a lecture offering.
+    Has a legion attending a lecture, a room where it takes place, and the time it starts. 
+
+    ***All fields in this subclass must be declared on class creation!***
+    ***It will not function properly if you do not specify legion, room, startWeek, startDay, and startTime on creation***
+
+    All fields have a default value since non-default fields cannot follow default fields,
+    and due to it being a subclass, all fields in the Lecture class are after the fields in the Courses class.
+    If anyone has the knowledge, time, and desire to fix this be my guest.
+    """
+    legion: Legion = field(default_factory=Legion)
+    room: Classroom = field(default_factory=Classroom)
+    startWeek: int = 0
+    startDay: str = ""
+    startTime: str = ""
+
+    def createLectureItemInfo(self):
+        """
+        Returns a tuple of the Lecture information.
+        Passed to database to load program into the database.
+
+        self.legion and self.room are class objects for Legion and Classroom, and should be handled accordingly
+        """
+        preReqsString = ""
+        i = len(self.preReqs)-1
+        for Req in self.preReqs:
+            if i==0:
+                preReqsString = preReqsString + self.preReqs[i]
+                i=i-1
+            else:
+                preReqsString = preReqsString + self.preReqs[i] + ', '
+                i = i-1
+        return ( self.ID, self.title, self.legion, self.room, self.termHours, self.duration, self.startWeek, self.startDay, self.startTime, self.isCore, self.isOnline, self.hasLab, preReqsString )
+
+
 #testing purposes
 # Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])      
-# Dummy.printCourse() 
+# Dummy.printCourse()
+#subDummy = Section('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])
+#print(subDummy)

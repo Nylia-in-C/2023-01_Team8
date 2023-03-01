@@ -16,7 +16,7 @@ programCourses = {
     "DXD": ["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", 
             "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"],
     # Program ID for book keeping certificate
-    "BKC": ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
+    "BK": ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
             "ACCT 0208", "ACCT 9901"]
 }
 
@@ -42,6 +42,55 @@ class Program:
         #testing purposes
     def printPrograms(self):
          print( self.createProgramItemInfo())
+
+
+# Need to move this to the database
+legionCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
+                "BA01" : 0, "BA02" : 0, "BA03" : 0,
+                "GLM01": 0, "GLM02": 0, "GLM03": 0, 
+                "FS01" : 0, "FS02" : 0, "FS03" : 0, 
+                "DXD01": 0, "DXD02": 0, "DXD03": 0,
+                "BK01" : 0, "BK02" : 0, "BK03" : 0 }
+
+# When database is implemented, needs to check if the 
+@dataclass
+class Legion(Program):
+    """
+    A collection of cohorts for a certain program and term, which are taking classes together.
+    Essentially the client's idea of a cohort.
+
+    ***cohorts must be declared on class creation!***
+    ***It will not function properly if you do not specify cohorts***
+
+    LegionCounts needs to be replaced with a sql call to the database.
+    """
+    cohorts: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
+    term: str = ""
+    legionID: int = 0
+
+    def __post_init__(self):
+        Program.__post_init__(self)
+
+        if self.term not in ["01", "02", "03"]:
+            self.term = self.cohorts[0].termID
+
+        if self.legionID < 1:
+            legionCounts[self.ID + self.term] += 1
+            self.legionID = "{:02d}".format(legionCounts[self.ID + self.term])
+
+    def __repr__(self):
+        return f"{self.ID}{self.term}{self.legionID} cohorts = {self.cohorts}"
+    
+    def createLegionItemInfo(self):
+        """
+        Returns a tuple of the Legion info
+        Passed to database to load program into the database.
+
+        self.cohorts is a list of cohort objects and should be handled accordingly
+        """
+        # May need to expand on self.cohorts, as each cohort will need to be loaded into the database
+        return ( self.ID, self.term, self.legionID, self.cohorts, self.courses )
+
          
 #testing purposes
 # Dummy = Program('BKC', ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
