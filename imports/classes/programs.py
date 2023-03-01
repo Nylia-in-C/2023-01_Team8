@@ -55,6 +55,15 @@ legionCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
 # When database is implemented, needs to check if the 
 @dataclass
 class Legion(Program):
+    """
+    A collection of cohorts for a certain program and term, which are taking classes together.
+    Essentially the client's idea of a cohort.
+
+    ***cohorts must be declared on class creation!***
+    ***It will not function properly if you do not specify cohorts***
+
+    LegionCounts needs to be replaced with a sql call to the database.
+    """
     cohorts: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
     term: str = ""
     legionID: int = 0
@@ -76,6 +85,8 @@ class Legion(Program):
         """
         Returns a tuple of the Legion info
         Passed to database to load program into the database.
+
+        self.cohorts is a list of cohort objects and should be handled accordingly
         """
         # May need to expand on self.cohorts, as each cohort will need to be loaded into the database
         return ( self.ID, self.term, self.legionID, self.cohorts, self.courses )
