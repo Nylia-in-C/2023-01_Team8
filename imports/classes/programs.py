@@ -45,7 +45,7 @@ class Program:
 
 
 # Need to move this to the database
-legionCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
+cohortCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
                 "BA01" : 0, "BA02" : 0, "BA03" : 0,
                 "GLM01": 0, "GLM02": 0, "GLM03": 0, 
                 "FS01" : 0, "FS02" : 0, "FS03" : 0, 
@@ -54,19 +54,18 @@ legionCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
 
 # When database is implemented, needs to check if the 
 @dataclass
-class Legion(Program):
+class Cohort(Program):
     """
     A collection of legions for a certain program and term, which are taking classes together.
-    Essentially the client's idea of a legion.
 
     ***legions must be declared on class creation!***
     ***It will not function properly if you do not specify legions***
 
-    LegionCounts needs to be replaced with a sql call to the database.
+    cohortCounts needs to be replaced with a sql call to the database.
     """
     legions: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
     term: str = ""
-    legionID: int = 0
+    cohortID: int = 0
 
     def __post_init__(self):
         Program.__post_init__(self)
@@ -74,22 +73,22 @@ class Legion(Program):
         if self.term not in ["01", "02", "03"]:
             self.term = self.legions[0].termID
 
-        if self.legionID < 1:
-            legionCounts[self.ID + self.term] += 1
-            self.legionID = "{:02d}".format(legionCounts[self.ID + self.term])
+        if self.cohortID < 1:
+            cohortCounts[self.ID + self.term] += 1
+            self.cohortID = "{:02d}".format(cohortCounts[self.ID + self.term])
 
     def __repr__(self):
-        return f"{self.ID}{self.term}{self.legionID} legions = {self.legions}"
+        return f"{self.ID}{self.term}{self.cohortID} legions = {self.legions}"
     
-    def createLegionItemInfo(self):
+    def createCohortItemInfo(self):
         """
-        Returns a tuple of the Legion info
+        Returns a tuple of the Cohort info
         Passed to database to load program into the database.
 
         self.legions is a list of legion objects and should be handled accordingly
         """
         # May need to expand on self.legions, as each legion will need to be loaded into the database
-        return ( self.ID, self.term, self.legionID, self.legions, self.courses )
+        return ( self.ID, self.term, self.cohortID, self.legions, self.courses )
 
          
 #testing purposes
