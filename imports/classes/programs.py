@@ -56,15 +56,15 @@ legionCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
 @dataclass
 class Legion(Program):
     """
-    A collection of cohorts for a certain program and term, which are taking classes together.
-    Essentially the client's idea of a cohort.
+    A collection of legions for a certain program and term, which are taking classes together.
+    Essentially the client's idea of a legion.
 
-    ***cohorts must be declared on class creation!***
-    ***It will not function properly if you do not specify cohorts***
+    ***legions must be declared on class creation!***
+    ***It will not function properly if you do not specify legions***
 
     LegionCounts needs to be replaced with a sql call to the database.
     """
-    cohorts: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
+    legions: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
     term: str = ""
     legionID: int = 0
 
@@ -72,24 +72,24 @@ class Legion(Program):
         Program.__post_init__(self)
 
         if self.term not in ["01", "02", "03"]:
-            self.term = self.cohorts[0].termID
+            self.term = self.legions[0].termID
 
         if self.legionID < 1:
             legionCounts[self.ID + self.term] += 1
             self.legionID = "{:02d}".format(legionCounts[self.ID + self.term])
 
     def __repr__(self):
-        return f"{self.ID}{self.term}{self.legionID} cohorts = {self.cohorts}"
+        return f"{self.ID}{self.term}{self.legionID} legions = {self.legions}"
     
     def createLegionItemInfo(self):
         """
         Returns a tuple of the Legion info
         Passed to database to load program into the database.
 
-        self.cohorts is a list of cohort objects and should be handled accordingly
+        self.legions is a list of legion objects and should be handled accordingly
         """
-        # May need to expand on self.cohorts, as each cohort will need to be loaded into the database
-        return ( self.ID, self.term, self.legionID, self.cohorts, self.courses )
+        # May need to expand on self.legions, as each legion will need to be loaded into the database
+        return ( self.ID, self.term, self.legionID, self.legions, self.courses )
 
          
 #testing purposes

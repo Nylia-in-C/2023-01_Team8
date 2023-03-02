@@ -4,8 +4,8 @@
 #             term hours (int), isCore (bool), timeSlot (int), isOnline (bool)
 
 from dataclasses import field, dataclass
-from programs import *
-from classrooms import *
+from imports.classes.programs import *
+from imports.classes.classrooms import *
 
 # Directed graph representing course prerequisites (might change to Course objects later)
 # note: only program-specific courses have prerequisites
@@ -100,7 +100,7 @@ class Lecture(Course):
 
 
 #testing purposes
-# Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])      
-# Dummy.printCourse()
-#subDummy = Section('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])
-#print(subDummy)
+Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])      
+Dummy.printCourse()
+# subDummy = Section('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])
+# print(subDummy)

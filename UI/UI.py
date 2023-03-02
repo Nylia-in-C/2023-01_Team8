@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
-from imports.create_cohorts import *
+from imports.create_legions import *
 
 import datetime
 
@@ -26,7 +26,7 @@ class UI(QMainWindow):
         # Can add more as needed
         self.file_path = ""
         self.file_label = QLabel()
-        self.cohort_size = QLabel()
+        self.legion_size = QLabel()
 
 
         '''
@@ -83,7 +83,7 @@ class UI(QMainWindow):
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
         main_table_box = QVBoxLayout(self)
-        cohort_calc_box = QVBoxLayout(self)
+        legion_calc_box = QVBoxLayout(self)
 
         # Create tabs
         tabs = QTabWidget()
@@ -92,15 +92,15 @@ class UI(QMainWindow):
 
         #TODO Bring back these tabs. Just hiding it for sprint 1.
         tabs.addTab(tab1, "Schedule")
-        tabs.addTab(tab2, "Cohort Calculations")
+        tabs.addTab(tab2, "Legion Calculations")
 
         self.create_schedule_base()
 
         main_table_box.addWidget(self.main_table)
-        cohort_calc_box.addWidget(self.bg_calc_table)
+        legion_calc_box.addWidget(self.bg_calc_table)
 
         tab1.setLayout(main_table_box)
-        tab2.setLayout(cohort_calc_box)
+        tab2.setLayout(legion_calc_box)
 
         return tabs
 
@@ -155,7 +155,7 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(input_title)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addLayout(self.cohort_inputs())
+        vbox.addLayout(self.legion_inputs())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
@@ -163,7 +163,7 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addLayout(self.calc_cohort())
+        vbox.addLayout(self.calc_legion())
 
         width_limit.setLayout(vbox)
 
@@ -200,7 +200,7 @@ class UI(QMainWindow):
 
 
     # Makes layout for the term input section
-    def cohort_inputs(self):
+    def legion_inputs(self):
         vbox_all = QVBoxLayout()
 
         hbox_inputs = QHBoxLayout()
@@ -306,23 +306,23 @@ class UI(QMainWindow):
 
         return vbox
 
-    def calc_cohort(self):
+    def calc_legion(self):
         hbox_info = QHBoxLayout()
 
-        label = QLabel("Optimal Cohort Size:")
+        label = QLabel("Optimal Legion Size:")
         label.setFont(QFont("Times", 10))
         label.setMaximumWidth(150)
 
-        self.cohort_size.setFont(QFont("Times", 10))
-        self.cohort_size.setMaximumWidth(100)
+        self.legion_size.setFont(QFont("Times", 10))
+        self.legion_size.setMaximumWidth(100)
 
 
-        calculate = QPushButton("Calculate Cohort Sizes")
-        calculate.clicked.connect(self.load_optimal_cohorts)
+        calculate = QPushButton("Calculate Legion Sizes")
+        calculate.clicked.connect(self.load_optimal_legions)
 
         hbox_info.addWidget(calculate)
         hbox_info.addWidget(label)
-        hbox_info.addWidget(self.cohort_size)
+        hbox_info.addWidget(self.legion_size)
 
         return hbox_info
 
@@ -462,7 +462,7 @@ class UI(QMainWindow):
         except:
             print("Error Opening File")# Maybe put an actual error message here eventually about opening files
 
-    def load_optimal_cohorts(self):
+    def load_optimal_legions(self):
 
         self.clear_bg_table()
 
@@ -471,9 +471,9 @@ class UI(QMainWindow):
         # Creates the randomized student number
         # and randomizes how many students are in programs
         program_count = random_students()
-        self.cohort_size.setText("6")
+        self.legion_size.setText("6")
 
-        cohort_dict = create_cohort_dict(program_count)
+        legion_dict = create_legion_dict(program_count)
 
         # Adding everything to tableview
 
@@ -486,21 +486,21 @@ class UI(QMainWindow):
         self.bg_calc_table.setHorizontalHeaderLabels(table_columns)
 
         # Create Rows
-        table_rows = ["Students in Program", "Amount of Cohorts", "Cohort sizes", ""]
+        table_rows = ["Students in Program", "Amount of Legions", "Legion sizes", ""]
 
         self.bg_calc_table.setRowCount(len(table_rows))
         self.bg_calc_table.setVerticalHeaderLabels(table_rows)
 
-        # Enter students in program / amount of cohorts / cohort sizes
+        # Enter students in program / amount of legions / legion sizes
         for row in range(3):
             for program in range(len(table_columns)):
                 match row:
                     case 0:
                         self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(program_count[table_columns[program]])))
                     case 1:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(len(cohort_dict[table_columns[program]]))))
+                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(len(legion_dict[table_columns[program]]))))
                     case 2:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(cohort_dict[table_columns[program]])))
+                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(legion_dict[table_columns[program]])))
 
 
         # Total Students
