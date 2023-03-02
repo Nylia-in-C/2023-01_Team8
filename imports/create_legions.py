@@ -1,4 +1,4 @@
-# module for creating cohort objects from parsed file data
+# module for creating legion objects from parsed file data
 # for right now, we're assuming that the number of students in each program is passed 
 # as a dictionary. eg: {'PM': 17, 'BA': 20, 'GLM': 14, 'FS': 19, 'DXD': 18, 'BK': 18}
 # Term IDs are hardcoded for now, and will need to change once we implement file upload/parsing
@@ -7,7 +7,7 @@ import random
 
 # constants
 CLASSROOMS = [36, 36, 24, 24, 24, 40, 30, 30, 30,36,36]
-OPTIMAL_SIZES = [6, 4, 5]       # top 3 cohort sizes ordered from best to worst
+OPTIMAL_SIZES = [6, 4, 5]       # top 3 legion sizes ordered from best to worst
 
 # testing only
 TERM_ID    = "01"
@@ -27,27 +27,27 @@ def random_students():
     return counts
 
 #This isnt being used, but we'll keep it on the off-chance that the classroom sizes change
-def get_optimal_cohort_size(program_count, class_sizes):
+def get_optimal_legion_size(program_count, class_sizes):
     '''
-    returns the optimal cohort size based on how many classroom seats are left 
+    returns the optimal legion size based on how many classroom seats are left 
     unused, and how well the number of students in a given program divide 
-    into cohorts of that size.
+    into legions of that size.
     '''
-    cohorts = []
-    for cohort_size in range(6, min(program_count.values()) + 1):
-        # total number of unused class seats for a given cohort size
-        CR_sum = sum([(class_size % cohort_size ) for class_size in class_sizes])
-        # total number of extra students not in a cohort
-        SR_sum = sum([min((count % cohort_size), cohort_size-(count % cohort_size)) 
+    legions = []
+    for legion_size in range(6, min(program_count.values()) + 1):
+        # total number of unused class seats for a given legion size
+        CR_sum = sum([(class_size % legion_size ) for class_size in class_sizes])
+        # total number of extra students not in a legion
+        SR_sum = sum([min((count % legion_size), legion_size-(count % legion_size)) 
                       for count in program_count.values()])
         
-        # add total remainders for each cohort size to list (necessary for sorting)
-        cohorts.append((cohort_size, (CR_sum + SR_sum)))
+        # add total remainders for each legion size to list (necessary for sorting)
+        legions.append((legion_size, (CR_sum + SR_sum)))
         
-    # sort cohorts from lowest to highest remainders
-    cohorts.sort(key=lambda x: x[1])
+    # sort legions from lowest to highest remainders
+    legions.sort(key=lambda x: x[1])
     
-    return cohorts
+    return legions
 
 def partition_students(count):
     '''
@@ -70,9 +70,9 @@ def partition_students(count):
     return None
 
 
-def create_cohort_dict(students):
+def create_legion_dict(students):
     '''
-    Calls the `partition_students` function to create cohort sizes for each 
+    Calls the `partition_students` function to create legion sizes for each 
     program. Returns a dictionary mapping programIDs to integer lists
     '''
     result = {}
@@ -80,19 +80,19 @@ def create_cohort_dict(students):
         result[program] = partition_students(count)
     return result
 
-def make_cohorts():
+def make_legions():
 #===testing purposes only=======================================================
     program_count = random_students()
     print(f"program counts: {program_count}\n")
     
-    res = create_cohort_dict(program_count)
+    res = create_legion_dict(program_count)
     print(res)
     
     
-    #TODO: make cohort objects directly, instead of dictionaries first (maybe)
+    #TODO: make legion objects directly, instead of dictionaries first (maybe)
 
     
 #===============================================================================
     
 if __name__ == '__main__':
-    make_cohorts()
+    make_legions()

@@ -3,10 +3,10 @@
 # Imports
 import random
 from classes.classrooms import *
-from classes.cohorts    import *
+from classes.legions    import *
 from classes.courses    import *
 from classes.programs   import *
-from create_cohorts     import *
+from create_legions     import *
 
 #===================================================================================================
 # Setup
@@ -133,25 +133,25 @@ def findRoom(totalStudents, course):
     
     return bestRoom
 
-def splitCohorts(cohorts):
+def splitLegions(legions):
     """
-    Split a list of cohorts into 2 lists of cohorts
+    Split a list of legions into 2 lists of legions
     """
     list1 = []
     list2 = []
-    for i in range(len(cohorts)):
-        if i%2 == 0: list1.append(cohorts[i])
-        else:        list2.append(cohorts[i])
+    for i in range(len(legions)):
+        if i%2 == 0: list1.append(legions[i])
+        else:        list2.append(legions[i])
     
     return (list1, list2)
 
-def bookCohorts(cohorts, totalStudents, course):
+def bookLegions(legions, totalStudents, course):
     """
     For use in fillClassrooms()
     totalStudents is an int representing all students that must take that course
     program is a string id of a program and term, maybe make it an object later
 
-    Finds the most efficient way to store the cohorts into a classroom
+    Finds the most efficient way to store the legions into a classroom
     """
     room = findRoom(totalStudents, course)
 
@@ -159,25 +159,25 @@ def bookCohorts(cohorts, totalStudents, course):
         # There are no classrooms with enough hours and capacity to fit the students
         # Split into two and try again
         # *** Needs work, is not efficient if more than one split is required ***
-        splitGroups = splitCohorts(cohorts)
+        splitGroups = splitLegions(legions)
 
         totalStudents0 = 0
-        for cohortSize in splitGroups[0]:
-            totalStudents0 += cohortSize
+        for legionSize in splitGroups[0]:
+            totalStudents0 += legionSize
         totalStudents1 = 0
-        for cohortSize in splitGroups[1]:
-            totalStudents1 += cohortSize
+        for legionSize in splitGroups[1]:
+            totalStudents1 += legionSize
         
-        bookCohorts(splitGroups[0], totalStudents0, course)
-        bookCohorts(splitGroups[1], totalStudents1, course)
+        bookLegions(splitGroups[0], totalStudents0, course)
+        bookLegions(splitGroups[1], totalStudents1, course)
         return
         
     roomHours[room.ID] += course.termHours
     roomFill[room.ID].append(totalStudents)
 
-def fillClassrooms(cohorts):
+def fillClassrooms(legions):
     """
-    Fills classrooms with cohorts in courses
+    Fills classrooms with legions in courses
     Does not make a schedule, only checks if all students can fit
 
     Schedules one room until it is completely booked before moving on to the next
@@ -186,16 +186,16 @@ def fillClassrooms(cohorts):
     #for program in ["PM01", "PM02", "PM03", "BA01", "BA02", "BA03", "GLM01", "GLM02", "GLM03"]:
 
         totalStudents = 0
-        for cohortSize in cohorts[program]:
-            totalStudents += cohortSize
+        for legionSize in legions[program]:
+            totalStudents += legionSize
         
         for course in programCoursesByTerm[program]:
-            bookCohorts(cohorts[program], totalStudents, course)
+            bookLegions(legions[program], totalStudents, course)
         
 #===================================================================================================
 if __name__ == '__main__':
-    cohorts = create_cohort_dict(random_students_by_term())
-    fillClassrooms(cohorts)
+    legions = create_legion_dict(random_students_by_term())
+    fillClassrooms(legions)
 
     print(roomFill, roomHours, ghostRooms, sep = "\n")
 
