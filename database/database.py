@@ -6,7 +6,7 @@ import os, sys
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
-from imports.classes.cohorts import Cohort
+from imports.classes.legions import Legion
 from imports.classes.programs import Program
 from imports.classes.classrooms import Classroom
 from imports.classes.courses import Course
@@ -45,10 +45,10 @@ def close_connection(conn):
 
     return 
 
-def addCohortItem(conn, cohort ):
+def addLegionItem(conn, legion ):
      #add item to table from passed connection object and SQlite statement
     try:
-        rowString = "INSERT INTO COHORT (ProgID, TermID, CorhortID, Name, Count) VALUES (" + cohort.createCohortItemInfo() + ")"
+        rowString = "INSERT INTO LEGION (ProgID, TermID, CorhortID, Name, Count) VALUES (" + legion.createLegionItemInfo() + ")"
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -56,9 +56,9 @@ def addCohortItem(conn, cohort ):
     except Exception as e:
         print("Issues inserting into table: ", e)
     return 
-def readCohortItem(conn, cohortName):
+def readLegionItem(conn, legionName):
     try:
-        queryString = f"Select * from COHORT where Name = '{cohortName}' "
+        queryString = f"Select * from LEGION where Name = '{legionName}' "
         cur = conn.cursor()
         cur.execute(queryString)
         rows = cur.fetchall()
