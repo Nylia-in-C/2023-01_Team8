@@ -13,7 +13,8 @@ import datetime
 
 table_columns = []
 LEFT_MAX_WIDTH = 450
-
+ROOMS = ['11-533', '11-534', '11-560', '11-562', '11-564', '11-458',
+             '11-430', '11-320']
 class UI(QMainWindow):
 
     def __init__(self):
@@ -34,14 +35,11 @@ class UI(QMainWindow):
         and giving proper settings (i.e. un-editable, resize to width etc)
         '''
         self.main_table = QTableWidget()
-        self.bg_calc_table = QTableWidget()
 
         self.main_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.main_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.bg_calc_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # Make table un-editable
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.bg_calc_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         '''
         Layouts containing the term inputs
@@ -88,19 +86,15 @@ class UI(QMainWindow):
         # Create tabs
         tabs = QTabWidget()
         tab1 = QWidget()
-        tab2 = QWidget()
 
         #TODO Bring back these tabs. Just hiding it for sprint 1.
         tabs.addTab(tab1, "Schedule")
-        tabs.addTab(tab2, "Legion Calculations")
 
         self.create_schedule_base()
 
         main_table_box.addWidget(self.main_table)
-        legion_calc_box.addWidget(self.bg_calc_table)
 
         tab1.setLayout(main_table_box)
-        tab2.setLayout(legion_calc_box)
 
         return tabs
 
@@ -163,7 +157,6 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addLayout(self.calc_legion())
 
         width_limit.setLayout(vbox)
 
@@ -306,26 +299,6 @@ class UI(QMainWindow):
 
         return vbox
 
-    def calc_legion(self):
-        hbox_info = QHBoxLayout()
-
-        label = QLabel("Optimal Legion Size:")
-        label.setFont(QFont("Times", 10))
-        label.setMaximumWidth(150)
-
-        self.legion_size.setFont(QFont("Times", 10))
-        self.legion_size.setMaximumWidth(100)
-
-
-        calculate = QPushButton("Calculate Legion Sizes")
-        calculate.clicked.connect(self.load_optimal_legions)
-
-        hbox_info.addWidget(calculate)
-        hbox_info.addWidget(label)
-        hbox_info.addWidget(self.legion_size)
-
-        return hbox_info
-
     '''
     Helper Functions
 
@@ -461,47 +434,3 @@ class UI(QMainWindow):
 
         except:
             print("Error Opening File")# Maybe put an actual error message here eventually about opening files
-
-    def load_optimal_legions(self):
-
-        self.clear_bg_table()
-
-        # This is a simulated event so far
-
-        # Creates the randomized student number
-        # and randomizes how many students are in programs
-        program_count = random_students()
-        self.legion_size.setText("6")
-
-        legion_dict = create_legion_dict(program_count)
-
-        # Adding everything to tableview
-
-        # Create Columns
-        table_columns.clear()
-        for programs in program_count.keys():
-            table_columns.append(programs)
-
-        self.bg_calc_table.setColumnCount(len(table_columns))
-        self.bg_calc_table.setHorizontalHeaderLabels(table_columns)
-
-        # Create Rows
-        table_rows = ["Students in Program", "Amount of Legions", "Legion sizes", ""]
-
-        self.bg_calc_table.setRowCount(len(table_rows))
-        self.bg_calc_table.setVerticalHeaderLabels(table_rows)
-
-        # Enter students in program / amount of legions / legion sizes
-        for row in range(3):
-            for program in range(len(table_columns)):
-                match row:
-                    case 0:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(program_count[table_columns[program]])))
-                    case 1:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(len(legion_dict[table_columns[program]]))))
-                    case 2:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(legion_dict[table_columns[program]])))
-
-
-        # Total Students
-        self.bg_calc_table.setItem(3, 0, QTableWidgetItem("Total Students: " + str(sum(program_count.values()))))
