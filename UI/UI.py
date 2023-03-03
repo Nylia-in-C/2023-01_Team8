@@ -8,6 +8,7 @@ from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 
+import imports.scheduler
 import datetime
 
 table_columns = []
