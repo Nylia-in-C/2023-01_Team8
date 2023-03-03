@@ -2,18 +2,22 @@
 
 import os
 
+from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
-from imports.create_legions import *
 
+import imports.scheduler
 import datetime
+
+BG_COLOURS = QtGui.QColor.colorNames()
 
 table_columns = []
 LEFT_MAX_WIDTH = 450
-
+ROOMS = ['11-533', '11-534', '11-560', '11-562', '11-564', '11-458',
+             '11-430', '11-320']
 class UI(QMainWindow):
 
     def __init__(self):
@@ -27,21 +31,18 @@ class UI(QMainWindow):
         self.file_path = ""
         self.file_label = QLabel()
         self.legion_size = QLabel()
-
+        self.select_room = QComboBox()
 
         '''
         Creating tables for each tab
         and giving proper settings (i.e. un-editable, resize to width etc)
         '''
         self.main_table = QTableWidget()
-        self.bg_calc_table = QTableWidget()
 
         self.main_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.main_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.bg_calc_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # Make table un-editable
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.bg_calc_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         '''
         Layouts containing the term inputs
@@ -83,24 +84,18 @@ class UI(QMainWindow):
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
         main_table_box = QVBoxLayout(self)
-        legion_calc_box = QVBoxLayout(self)
 
         # Create tabs
         tabs = QTabWidget()
         tab1 = QWidget()
-        tab2 = QWidget()
 
-        #TODO Bring back these tabs. Just hiding it for sprint 1.
         tabs.addTab(tab1, "Schedule")
-        tabs.addTab(tab2, "Legion Calculations")
 
         self.create_schedule_base()
 
         main_table_box.addWidget(self.main_table)
-        legion_calc_box.addWidget(self.bg_calc_table)
 
         tab1.setLayout(main_table_box)
-        tab2.setLayout(legion_calc_box)
 
         return tabs
 
@@ -128,6 +123,11 @@ class UI(QMainWindow):
         self.main_table.setRowCount(len(times))
         self.main_table.setVerticalHeaderLabels(times)
 
+        self.main_table.setShowGrid(False)
+
+        # Fill with empty items to change background colours later
+        self.reset_table()
+
 
     # Creates the bottom layout where most user interaction takes place
     def create_leftlayout(self):
@@ -150,6 +150,10 @@ class UI(QMainWindow):
         font.setPointSize(12)
         input_title.setFont(font)
 
+        create_sched = QPushButton("Create Schedule")
+        create_sched.clicked.connect(self.create_schedule)
+        self.select_room.addItems(ROOMS)
+
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
@@ -163,7 +167,9 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addLayout(self.calc_legion())
+        vbox.addWidget(create_sched)
+        vbox.addWidget(self.select_room)
+
 
         width_limit.setLayout(vbox)
 
@@ -306,26 +312,6 @@ class UI(QMainWindow):
 
         return vbox
 
-    def calc_legion(self):
-        hbox_info = QHBoxLayout()
-
-        label = QLabel("Optimal Legion Size:")
-        label.setFont(QFont("Times", 10))
-        label.setMaximumWidth(150)
-
-        self.legion_size.setFont(QFont("Times", 10))
-        self.legion_size.setMaximumWidth(100)
-
-
-        calculate = QPushButton("Calculate Legion Sizes")
-        calculate.clicked.connect(self.load_optimal_legions)
-
-        hbox_info.addWidget(calculate)
-        hbox_info.addWidget(label)
-        hbox_info.addWidget(self.legion_size)
-
-        return hbox_info
-
     '''
     Helper Functions
 
@@ -333,6 +319,21 @@ class UI(QMainWindow):
     # or functions that are called repeatedly
     # after the initial startup
     '''
+
+    def reset_table(self):
+        # Use this to populate table with values to allow
+        # Background colouring
+
+        rows = self.main_table.rowCount()
+        columns = self.main_table.columnCount()
+
+        for row in range(rows):
+            for column in range(columns):
+                placeholder = QTableWidgetItem()
+                placeholder.setTextAlignment(Qt.AlignCenter)
+                placeholder.setBackground(QtGui.QColor("lightGray"))
+                self.main_table.setItem(row, column, placeholder)
+
     def retrieve_term_inputs(self, layout):
 
         '''
@@ -353,46 +354,50 @@ class UI(QMainWindow):
         for each_field in range(input_fields):
             print(layout.itemAt(each_field).widget().value())
 
-    def create_db_column_headers(self, cursor_obj):
-        table_columns.clear()
-        all_columns = cursor_obj.description
-        for column_name in all_columns:
-            table_columns.append(column_name[0])
-
-        self.bg_calc_table.setColumnCount(len(table_columns))
-        self.bg_calc_table.setHorizontalHeaderLabels(table_columns)
-        self.bg_calc_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-    # Load data into tableview
-    # row_data is a list of tuples generated from
-    # a cursor object calling fetchall()
-    def load_db(self, row_data):
-
-        self.bg_calc_table.setRowCount(len(row_data))
-        columns = self.bg_calc_table.columnCount()
-
-        for each_row in range(len(row_data)):
-            for each_column in range(columns):
-                 self.bg_calc_table.setItem(each_row, each_column, QTableWidgetItem(str(row_data[each_row][each_column])))
-
-
-    '''
-    Table Clearing functions
-    '''
-    def clear_bg_table(self):
-        self.bg_calc_table.clear()
-        self.bg_calc_table.setColumnCount(0)
-        self.bg_calc_table.setRowCount(0)
-
-    def clear_main_table(self):
-        self.main_table.clear()
-        self.main_table.setColumnCount(0)
-        self.main_table.setRowCount(0)
-
 
     '''
     Action Event functions
     '''
+
+    def create_schedule(self):
+        room_requested = self.select_room.currentText()
+
+        # Clear any values from the table
+        # Fresh Start
+
+        self.reset_table()
+
+        # Call upon the schedule creation functions, hopefully will
+        # be able to just read from the database eventually.
+
+        course_hours = imports.scheduler.get_course_hours()
+        schedule = imports.scheduler.create_term_schedule(course_hours)
+
+        # Note: Schedule is form of - schedule[day][room]
+        # Be advised that if [day] is an even number
+        # That is monday, odd numbers are wednesday
+
+        course = ""
+        colour_index = -1
+
+        for day in range(2):
+            day_list = schedule[day][room_requested].tolist()
+            for cell in range(self.main_table.rowCount()):
+
+                if day_list[cell] == "":
+                    continue
+                elif day_list[cell] != "" and course == day_list[cell]:
+                    #TODO: Remove the *2 on the days, only there since we dont have values for tuesday / thursday yet
+                    self.main_table.item(cell,day*2).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+                    if cell == 3:
+                        self.main_table.item(cell, day*2).setText(day_list[cell])
+
+                else:
+                    course = day_list[cell]
+                    colour_index++ 1
+                    self.main_table.item(cell, day*2).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+
+
 
     # Action event for creating template file
     def create_template(self):
@@ -461,47 +466,3 @@ class UI(QMainWindow):
 
         except:
             print("Error Opening File")# Maybe put an actual error message here eventually about opening files
-
-    def load_optimal_legions(self):
-
-        self.clear_bg_table()
-
-        # This is a simulated event so far
-
-        # Creates the randomized student number
-        # and randomizes how many students are in programs
-        program_count = random_students()
-        self.legion_size.setText("6")
-
-        legion_dict = create_legion_dict(program_count)
-
-        # Adding everything to tableview
-
-        # Create Columns
-        table_columns.clear()
-        for programs in program_count.keys():
-            table_columns.append(programs)
-
-        self.bg_calc_table.setColumnCount(len(table_columns))
-        self.bg_calc_table.setHorizontalHeaderLabels(table_columns)
-
-        # Create Rows
-        table_rows = ["Students in Program", "Amount of Legions", "Legion sizes", ""]
-
-        self.bg_calc_table.setRowCount(len(table_rows))
-        self.bg_calc_table.setVerticalHeaderLabels(table_rows)
-
-        # Enter students in program / amount of legions / legion sizes
-        for row in range(3):
-            for program in range(len(table_columns)):
-                match row:
-                    case 0:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(program_count[table_columns[program]])))
-                    case 1:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(len(legion_dict[table_columns[program]]))))
-                    case 2:
-                        self.bg_calc_table.setItem(row, program, QTableWidgetItem(str(legion_dict[table_columns[program]])))
-
-
-        # Total Students
-        self.bg_calc_table.setItem(3, 0, QTableWidgetItem("Total Students: " + str(sum(program_count.values()))))

@@ -2,7 +2,7 @@ import math
 import datetime
 import pprint
 import pandas as pd
-from classes.courses import *
+from imports.classes.courses import *
 
 
 # Dummy Data ===================================================================
