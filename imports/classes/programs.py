@@ -37,7 +37,7 @@ class Program:
         "ProgID, Courses"
         Passed to database to load program into the database.
         """
-        return ( self.ID, self.courses )
+        return ( self.ID, self.courses)
        
         #testing purposes
     def printPrograms(self):
@@ -70,12 +70,16 @@ class Cohort(Program):
     def __post_init__(self):
         Program.__post_init__(self)
 
-        if self.term not in ["01", "02", "03"]:
-            self.term = self.legions[0].termID
+        # if self.term not in ["01", "02", "03"]:
+        #     self.term = self.legions[0].termID
+        #print("\nID: ", self.ID, "\ncourses: ", self.courses,"\nlegions: ", self.legions, "\nterm: ", self.term, "\ncohortID: ", self.cohortID, "")
+
 
         if self.cohortID < 1:
             cohortCounts[self.ID + self.term] += 1
             self.cohortID = "{:02d}".format(cohortCounts[self.ID + self.term])
+
+
 
     def __repr__(self):
         return f"{self.ID}{self.term}{self.cohortID} legions = {self.legions}"
@@ -87,11 +91,31 @@ class Cohort(Program):
 
         self.legions is a list of legion objects and should be handled accordingly
         """
+        legionString = ""
+        i = len(self.legions)-1
+        for Leg in self.legions:
+            if i==0:
+                legionString = legionString + self.legions[i]
+                i=i-1
+            else:
+                legionString = legionString + self.legions[i] + ', '
+                i = i-1
+
+        courseString = ""
+        i = len(self.courses)-1
+        for Leg in self.courses:
+            if i==0:
+                courseString = courseString + self.courses[i]
+                i=i-1
+            else:
+                courseString = courseString + self.courses[i] + ', '
+                i = i-1
         # May need to expand on self.legions, as each legion will need to be loaded into the database
-        return ( self.ID, self.term, self.cohortID, self.legions, self.courses )
+        
+        return ( self.ID, self.term, self.cohortID, legionString, courseString )
 
          
 #testing purposes
-# Dummy = Program('BKC', ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
+# Dummy = Program('BK', ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
 #             "ACCT 0208", "ACCT 9901"])      
 # Dummy.printPrograms() 
