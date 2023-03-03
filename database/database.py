@@ -8,8 +8,10 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 from imports.classes.legions import Legion
 from imports.classes.programs import Program
+from imports.classes.programs import Cohort
 from imports.classes.classrooms import Classroom
 from imports.classes.courses import Course
+from imports.classes.courses import Lecture
 
 
 def create_connection(db_file):
@@ -119,6 +121,7 @@ def readClassroomItem(conn, ClassID):
     except Exception as e:
         print("Issues reading from table: ", e)
     return 
+
 def addCourseItem(conn,course):
     courseObject = course.createCourseItemInfo()
     #CourseID, title, termHours, duration, isCore, isOnline, hasLab, preReq 
@@ -130,9 +133,8 @@ def addCourseItem(conn,course):
     isOnline = courseObject[5]
     hasLab = courseObject[6]
     preReq = courseObject[7]
-
     try:
-        rowString = f"INSERT INTO COURSES (CourseID, title, termHours, duration, isCore, isOnline, hasLab, preReqs) VALUES ('{CourseID}','{title}',{termHours},{duration} ,{isCore}, {isOnline},  {hasLab}, '{preReq}')" 
+        rowString = f"INSERT INTO COURSES (CourseID, Title, TermHours, Duration, isCore, isOnline, hasLab, preReqs) VALUES ('{CourseID}','{title}',{termHours},{duration} ,{isCore}, {isOnline},  {hasLab}, '{preReq}')" 
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -151,7 +153,35 @@ def readCourseItem(conn, CourseID):
     except Exception as e:
         print("Issues reading from table: ", e)
     return
-
+def addCohortItem(conn,cohort):
+    cohortObject = cohort.createCohortItemInfo()
+    cid = cohortObject[0]
+    term = cohortObject[1]
+    cohortID = cohortObject[2]
+    legionStr = cohortObject[3]
+    courses = cohortObject[4]
+   
+    try:
+        rowString = f"INSERT INTO COHORT (CID, Term, CohortID, Legions, Courses) VALUES ('{cid}','{term}',{cohortID},'{legionStr}' ,'{courses}')" 
+        print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+        print("Row added successfully")
+    except Exception as e:
+            print("Issues inserting into table:", e)
+    return
+def readCohortItem(conn, cid):
+    try:
+        queryString = f"Select * from COHORT where CID = '{cid}'"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return
+     
 def mainTest():
     #main function to connect to database and test helper functions
     
@@ -160,11 +190,69 @@ def mainTest():
 
     if conn is not None: 
         print('success')
-        # Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, 'CMSK 1052, CMSK 0157')  
-        # #Dummy.printCourse()    
-        # addCourseItem(conn,Dummy)
-        readCourseItem(conn, 'CMSK 1053')
+        LEGIONSTableCols = """ CREATE TABLE IF NOT EXISTS LEGIONS (
+                    ProgID VARCHAR(100) NOT NULL,
+                    TermID INT NOT NULL,
+                    CorhortID INT NOT NULL,
+                    Name VARCHAR(100) NOT NULL,
+                    Count INT
+                ); """
+        COURSESTableCols = """ CREATE TABLE IF NOT EXISTS COURSES (
+                    CourseID VARCHAR(100) NOT NULL,
+                    Title VARCHAR(100) NOT NULL,
+                    TermHours INT NOT NULL,
+                    Duration INT NOT NULL,
+                    isCore BIT NOT NULL,
+                    isOnline BIT NOT NULL,
+                    hasLab BIT NOT NULL, 
+                    PreReqs VARCHAR(200)
+                ); """ 
+        PROGRAMSTableCols = """ CREATE TABLE IF NOT EXISTS PROGRAMS (
+                    ProgID VARCHAR(100) NOT NULL,
+                   CourseID VARCHAR(100) NOT NULL 
+                ); """
+        CLASSROOMSTableCols = """ CREATE TABLE IF NOT EXISTS CLASSROOMS (
+                    ClassID VARCHAR(100) NOT NULL,
+                    Capacity INT NOT NULL,
+                    IsLab BIT NOT NULL
+                ); """
+        LECTURETableCols = """ CREATE TABLE IF NOT EXISTS LECTURE (
+                    CourseID VARCHAR(100) NOT NULL,
+                    Title VARCHAR(100) NOT NULL,
+                    Corhort VARCHAR(100) NOT NULL,
+                    Room VARCHAR(100) NOT NULL,
+                    TermHours INT NOT NULL,
+                    Duration INT NOT NULL, 
+                    StartWeek VARCHAR(100) NOT NULL,
+                    StartDay VARCHAR(100) NOT NULL,
+                    StartTime VARCHAR(100) NOT NULL,
+                    isCore BIT NOT NULL,
+                    isOnline BIT NOT NULL,
+                    hasLab BIT NOT NULL,
+                    PreReqs VARCHAR(200)
+                ); """
+        COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
+                    CID VARCHAR(100) NOT NULL,
+                    Term VARCHAR(100) NOT NULL,
+                    CohortID INT NOT NULL,
+                    Legions VARCHAR(200) NOT NULL,
+                    Courses VARCHAR(200)
+                ); """
+        
+        create_table(conn, COHORTTableCols)
+        create_table(conn, COURSESTableCols)
+        create_table(conn, LECTURETableCols)
+        create_table(conn, PROGRAMSTableCols)
+        create_table(conn, CLASSROOMSTableCols)
+        create_table(conn, LEGIONSTableCols)   
 
+        # courseDummy = Course('CMSK 1053', 'testname',100,23,1,1,0,["CMSK 1052", "CMSK 0157"])
+        # addCourseItem(conn, courseDummy)
+        # programDummy = Program('FS',["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"])
+        # addProgramItem(conn, programDummy)
+        #CohortDummy = Cohort('FS',["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"], ["11","10","9"] , '01', 0)  
+        #addCohortItem(conn,CohortDummy)
+        readCohortItem(conn, 'FS')
     else: 
          print("Could not connect to database")
   
