@@ -25,13 +25,13 @@ pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35, 0, True, False
 pcom_0109 = Course('PCOM 0109', 'The Job Hunt in Canada', 14, 0, True, False, False)
 
 term_courses = {
-    1: [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235],
-    2: [pcom_0102, pcom_0201, pcom_0108],
-    3: [pcom_0202, pcom_0103, pcom_0109], 
+    # fall semester has term 1 and term 3 courses
+    1: [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0202, pcom_0103, pcom_0109],
+    # winter semester has term 1 and 2 courses
+    2: [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102, pcom_0201, pcom_0108],
+    # spring/summer semester has term 2 and 3 courses
+    3: [pcom_0102, pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109], 
 }
-
-course_list = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102, 
-               pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109]
 
 room_list = ['11-533', '11-534', '11-560', '11-562', '11-564', '11-458', 
              '11-430', '11-320']
@@ -61,7 +61,7 @@ def create_empty_schedule():
     return sched
     
 
-def get_course_hours():
+def get_course_hours(course_list):
     '''
     Create a dictionary that will be used to keep track of how many lecture hours
     a given course has, and how many hours it has left
@@ -132,19 +132,19 @@ def create_day_schedule(course_hours):
 
 def create_term_schedule(course_hours):
     
-    full_schedule = []
+    full_schedule = {}
 
     for i in range(26):
         curr_day = create_day_schedule(course_hours)
-        if (i % 2 == 0):
-            print(f"\n\t\t\tMONDAY (day {i+1})")
-        else:
-            print(f"\n\t\t\tWEDNESDAY (day {i+1})")
-        print(curr_day)
+        
         course_hours = update_course_hours(course_hours, curr_day)
-        print("\n\n")
-        pprint.pprint(course_hours)
-        full_schedule.append(curr_day)        
+        
+        # add place holders to `full_schedule` dict to avoid duplicates
+        if any(curr_day.equals(day_sched) for day_sched in list(full_schedule.values())):
+            full_schedule[f"day {i+1}"] = "-"
+            
+        else:
+            full_schedule[f"day {i+1}"] = curr_day      
 
     
     return full_schedule
@@ -171,12 +171,18 @@ def create_term_schedule(course_hours):
 #     return -1
 
 if __name__ == '__main__':
+    print("Enter a number for the term you want to generate a schedule for: \
+          \n1. Fall \n2. Winter \n3. Spring/Summer")
+    term = int(input())
+    course_list = term_courses[term]
     
-    # KENNETH: see lines 119, 129, https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html
-    
-    course_hours = get_course_hours()
+    course_hours = get_course_hours(course_list)
     schedule = create_term_schedule(course_hours)
-
+    
+    for day, sched in schedule.items():
+        if not (isinstance(sched, str)):
+            print(f"\n\n{day}: \n {sched}")
+            
     
     
     #TODO: 
@@ -184,5 +190,4 @@ if __name__ == '__main__':
     #   - after creating schedule, make sure no students (in either program) will have a scheduling conflict (try to use LP so this isnt super slow)
     #   - account for labs
     #   - check for other constraints (gap between online & in person, specific time slot reqs, etc.)
-    
- 
+
