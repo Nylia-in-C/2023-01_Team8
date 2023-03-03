@@ -2,6 +2,7 @@
 
 import os
 
+from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -10,6 +11,8 @@ from openpyxl.workbook import Workbook
 
 import imports.scheduler
 import datetime
+
+BG_COLOURS = QtGui.QColor.colorNames()
 
 table_columns = []
 LEFT_MAX_WIDTH = 450
@@ -81,7 +84,6 @@ class UI(QMainWindow):
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
         main_table_box = QVBoxLayout(self)
-        legion_calc_box = QVBoxLayout(self)
 
         # Create tabs
         tabs = QTabWidget()
@@ -121,6 +123,12 @@ class UI(QMainWindow):
         self.main_table.setRowCount(len(times))
         self.main_table.setVerticalHeaderLabels(times)
 
+        self.main_table.setShowGrid(False)
+
+        # Fill with empty items to change background colours later
+        self.fill_table()
+
+
 
     # Creates the bottom layout where most user interaction takes place
     def create_leftlayout(self):
@@ -143,8 +151,9 @@ class UI(QMainWindow):
         font.setPointSize(12)
         input_title.setFont(font)
 
-        for room in range(len(ROOMS)):
-            self.select_room.addItem(ROOMS[room])
+        create_sched = QPushButton("Create Schedule")
+        create_sched.clicked.connect(self.create_schedule)
+        self.select_room.addItems(ROOMS)
 
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
@@ -159,6 +168,7 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(create_sched)
         vbox.addWidget(self.select_room)
 
 
@@ -310,6 +320,20 @@ class UI(QMainWindow):
     # or functions that are called repeatedly
     # after the initial startup
     '''
+
+    def fill_table(self):
+        # Use this to populate table with values to allow
+        # Background colouring
+
+        rows = self.main_table.rowCount()
+        columns = self.main_table.columnCount()
+
+        for row in range(rows):
+            for column in range(columns):
+                placeholder = QTableWidgetItem()
+                placeholder.setTextAlignment(Qt.AlignCenter)
+                self.main_table.setItem(row, column, placeholder)
+
     def retrieve_term_inputs(self, layout):
 
         '''
@@ -343,6 +367,44 @@ class UI(QMainWindow):
     '''
     Action Event functions
     '''
+
+    def create_schedule(self):
+        room_requested = self.select_room.currentText()
+
+        # Clear any values from the table
+        # Fresh Start
+
+
+        # Call upon the schedule creation functions, hopefully will
+        # be able to just read from the database eventually.
+
+        course_hours = imports.scheduler.get_course_hours()
+        schedule = imports.scheduler.create_term_schedule(course_hours)
+
+        # Note: Schedule is form of - schedule[day][room]
+        # Be advised that if [day] is an even number
+        # That is monday, odd numbers are wednesday
+
+        day_list = schedule[0][room_requested].tolist()
+
+        course = ""
+        colour_index = 0
+
+        for cell in range(self.main_table.rowCount()):
+
+            if day_list[cell] == "":
+                continue
+            elif day_list[cell] != "" and course == day_list[cell]:
+                self.main_table.item(cell, 0).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+                if cell == 3:
+                    self.main_table.item(cell, 0).setText(day_list[cell])
+
+            else:
+                course = day_list[cell]
+                colour_index++ 1
+                self.main_table.item(cell, 0).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+
+
 
     # Action event for creating template file
     def create_template(self):
