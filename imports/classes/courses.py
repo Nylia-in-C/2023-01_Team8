@@ -74,8 +74,8 @@ class Lecture(Course):
     and due to it being a subclass, all fields in the Lecture class are after the fields in the Courses class.
     If anyone has the knowledge, time, and desire to fix this be my guest.
     """
-    cohort: Cohort = field(default_factory=Cohort)
-    room: Classroom = field(default_factory=Classroom)
+    cohort: str = ""
+    room: str = ""
     startWeek: int = 0
     startDay: str = ""
     startTime: str = ""

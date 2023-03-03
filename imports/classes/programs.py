@@ -65,21 +65,10 @@ class Cohort(Program):
     """
     legions: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
     term: str = ""
-    cohortID: int = 0
+    cohortID: str = ""
 
     def __post_init__(self):
         Program.__post_init__(self)
-
-        # if self.term not in ["01", "02", "03"]:
-        #     self.term = self.legions[0].termID
-        #print("\nID: ", self.ID, "\ncourses: ", self.courses,"\nlegions: ", self.legions, "\nterm: ", self.term, "\ncohortID: ", self.cohortID, "")
-
-
-        if self.cohortID < 1:
-            cohortCounts[self.ID + self.term] += 1
-            self.cohortID = "{:02d}".format(cohortCounts[self.ID + self.term])
-
-
 
     def __repr__(self):
         return f"{self.ID}{self.term}{self.cohortID} legions = {self.legions}"
