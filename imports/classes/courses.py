@@ -100,7 +100,7 @@ class Lecture(Course):
 
 
 #testing purposes
-Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])      
-Dummy.printCourse()
+# Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])
+# Dummy.printCourse()
 # subDummy = Section('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])
 # print(subDummy)

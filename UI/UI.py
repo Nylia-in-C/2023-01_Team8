@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
-from imports.create_legions import *
 
 import datetime
 
@@ -28,7 +27,7 @@ class UI(QMainWindow):
         self.file_path = ""
         self.file_label = QLabel()
         self.legion_size = QLabel()
-
+        self.select_room = QComboBox()
 
         '''
         Creating tables for each tab
@@ -87,7 +86,6 @@ class UI(QMainWindow):
         tabs = QTabWidget()
         tab1 = QWidget()
 
-        #TODO Bring back these tabs. Just hiding it for sprint 1.
         tabs.addTab(tab1, "Schedule")
 
         self.create_schedule_base()
@@ -144,6 +142,9 @@ class UI(QMainWindow):
         font.setPointSize(12)
         input_title.setFont(font)
 
+        for room in range(len(ROOMS)):
+            self.select_room.addItem(ROOMS[room])
+
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
@@ -157,6 +158,8 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(self.select_room)
+
 
         width_limit.setLayout(vbox)
 
@@ -326,36 +329,9 @@ class UI(QMainWindow):
         for each_field in range(input_fields):
             print(layout.itemAt(each_field).widget().value())
 
-    def create_db_column_headers(self, cursor_obj):
-        table_columns.clear()
-        all_columns = cursor_obj.description
-        for column_name in all_columns:
-            table_columns.append(column_name[0])
-
-        self.bg_calc_table.setColumnCount(len(table_columns))
-        self.bg_calc_table.setHorizontalHeaderLabels(table_columns)
-        self.bg_calc_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-    # Load data into tableview
-    # row_data is a list of tuples generated from
-    # a cursor object calling fetchall()
-    def load_db(self, row_data):
-
-        self.bg_calc_table.setRowCount(len(row_data))
-        columns = self.bg_calc_table.columnCount()
-
-        for each_row in range(len(row_data)):
-            for each_column in range(columns):
-                 self.bg_calc_table.setItem(each_row, each_column, QTableWidgetItem(str(row_data[each_row][each_column])))
-
-
     '''
     Table Clearing functions
     '''
-    def clear_bg_table(self):
-        self.bg_calc_table.clear()
-        self.bg_calc_table.setColumnCount(0)
-        self.bg_calc_table.setRowCount(0)
 
     def clear_main_table(self):
         self.main_table.clear()
