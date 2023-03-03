@@ -126,8 +126,7 @@ class UI(QMainWindow):
         self.main_table.setShowGrid(False)
 
         # Fill with empty items to change background colours later
-        self.fill_table()
-
+        self.reset_table()
 
 
     # Creates the bottom layout where most user interaction takes place
@@ -321,7 +320,7 @@ class UI(QMainWindow):
     # after the initial startup
     '''
 
-    def fill_table(self):
+    def reset_table(self):
         # Use this to populate table with values to allow
         # Background colouring
 
@@ -332,6 +331,7 @@ class UI(QMainWindow):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
+                placeholder.setBackground(QtGui.QColor("lightGray"))
                 self.main_table.setItem(row, column, placeholder)
 
     def retrieve_term_inputs(self, layout):
@@ -354,15 +354,6 @@ class UI(QMainWindow):
         for each_field in range(input_fields):
             print(layout.itemAt(each_field).widget().value())
 
-    '''
-    Table Clearing functions
-    '''
-
-    def clear_main_table(self):
-        self.main_table.clear()
-        self.main_table.setColumnCount(0)
-        self.main_table.setRowCount(0)
-
 
     '''
     Action Event functions
@@ -374,6 +365,7 @@ class UI(QMainWindow):
         # Clear any values from the table
         # Fresh Start
 
+        self.reset_table()
 
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
@@ -385,24 +377,25 @@ class UI(QMainWindow):
         # Be advised that if [day] is an even number
         # That is monday, odd numbers are wednesday
 
-        day_list = schedule[0][room_requested].tolist()
-
         course = ""
-        colour_index = 0
+        colour_index = -1
 
-        for cell in range(self.main_table.rowCount()):
+        for day in range(2):
+            day_list = schedule[day][room_requested].tolist()
+            for cell in range(self.main_table.rowCount()):
 
-            if day_list[cell] == "":
-                continue
-            elif day_list[cell] != "" and course == day_list[cell]:
-                self.main_table.item(cell, 0).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
-                if cell == 3:
-                    self.main_table.item(cell, 0).setText(day_list[cell])
+                if day_list[cell] == "":
+                    continue
+                elif day_list[cell] != "" and course == day_list[cell]:
+                    #TODO: Remove the *2 on the days, only there since we dont have values for tuesday / thursday yet
+                    self.main_table.item(cell,day*2).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+                    if cell == 3:
+                        self.main_table.item(cell, day*2).setText(day_list[cell])
 
-            else:
-                course = day_list[cell]
-                colour_index++ 1
-                self.main_table.item(cell, 0).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+                else:
+                    course = day_list[cell]
+                    colour_index++ 1
+                    self.main_table.item(cell, day*2).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
 
 
 

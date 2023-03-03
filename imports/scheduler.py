@@ -136,11 +136,11 @@ def create_term_schedule(course_hours):
 
     for i in range(26):
         curr_day = create_day_schedule(course_hours)
-        # if (i % 2 == 0):
-        #     print(f"\n\t\t\tMONDAY (day {i+1})")
-        # else:
-        #     print(f"\n\t\t\tWEDNESDAY (day {i+1})")
-        # print(curr_day)
+        if (i % 2 == 0):
+            print(f"\n\t\t\tMONDAY (day {i+1})")
+        else:
+            print(f"\n\t\t\tWEDNESDAY (day {i+1})")
+        print(curr_day)
         course_hours = update_course_hours(course_hours, curr_day)
         print("\n\n")
         pprint.pprint(course_hours)
