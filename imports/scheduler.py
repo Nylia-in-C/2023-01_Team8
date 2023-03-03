@@ -176,8 +176,6 @@ if __name__ == '__main__':
     term = int(input())
     course_list = term_courses[term]
     
-    # KENNETH: see lines 119, 129, https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html
-    
     course_hours = get_course_hours(course_list)
     schedule = create_term_schedule(course_hours)
     
