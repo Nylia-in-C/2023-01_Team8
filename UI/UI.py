@@ -2,6 +2,7 @@
 
 import os
 
+import pandas as pd
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -370,32 +371,49 @@ class UI(QMainWindow):
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
 
-        course_hours = imports.scheduler.get_course_hours()
-        schedule = imports.scheduler.create_term_schedule(course_hours)
+        # Term courses[1] is placeholder for the time being.
+        course_list = imports.scheduler.term_courses[1]
 
-        # Note: Schedule is form of - schedule[day][room]
-        # Be advised that if [day] is an even number
+        course_hours = imports.scheduler.get_course_hours(course_list)
+        schedule = imports.scheduler.create_term_schedule(course_hours, course_list)
+
+        # Note: Schedule is form of - schedule[day #][room]
+        # Be advised that if [day #] is an even number
         # That is monday, odd numbers are wednesday
 
+        # Note: If schedule at a specific day is empty, that means it hasn't changed from the last
+        # day. Only days with dataframe objects indicate a change.
         course = ""
         colour_index = -1
 
+        # This dictionary will hold the course name (key)
+        # and the colour (value) for easier distinction between same courses, and different ones
+        course_colour = {}
+
         for day in range(2):
-            day_list = schedule[day][room_requested].tolist()
+            if isinstance(schedule["day " + str(day + 1)], pd.DataFrame):
+                prev_key = "day " + str(day + 1)
+
+            day_list = schedule[prev_key][room_requested].tolist()
+            day_list[10] = "bcom test"
+
             for cell in range(self.main_table.rowCount()):
 
                 if day_list[cell] == "":
                     continue
                 elif day_list[cell] != "" and course == day_list[cell]:
                     #TODO: Remove the *2 on the days, only there since we dont have values for tuesday / thursday yet
-                    self.main_table.item(cell,day*2).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+                    self.main_table.item(cell,day*2).setBackground(QtGui.QColor(course_colour[course]))
                     if cell == 3:
                         self.main_table.item(cell, day*2).setText(day_list[cell])
 
                 else:
                     course = day_list[cell]
-                    colour_index++ 1
-                    self.main_table.item(cell, day*2).setBackground(QtGui.QColor(BG_COLOURS[colour_index]))
+                    if course not in course_colour.keys():
+
+                        colour_index += 1
+                        course_colour[course] = BG_COLOURS[colour_index]
+                    self.main_table.item(cell, day*2).setBackground(QtGui.QColor(course_colour[course]))
 
 
 

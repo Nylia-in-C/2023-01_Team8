@@ -93,7 +93,7 @@ def update_course_hours(course_hours, sched):
 
     return course_hours
 
-def create_day_schedule(course_hours):
+def create_day_schedule(course_hours, course_list):
     '''
     This function takes an empty dataframe representing the schedule for a given day,
     and adds 3 lecture groups for each course, starting with the ones that have 
@@ -130,12 +130,12 @@ def create_day_schedule(course_hours):
     
     return sched
 
-def create_term_schedule(course_hours):
+def create_term_schedule(course_hours, course_list):
     
     full_schedule = {}
 
     for i in range(26):
-        curr_day = create_day_schedule(course_hours)
+        curr_day = create_day_schedule(course_hours, course_list)
         
         course_hours = update_course_hours(course_hours, curr_day)
         
@@ -177,7 +177,10 @@ if __name__ == '__main__':
     course_list = term_courses[term]
     
     course_hours = get_course_hours(course_list)
-    schedule = create_term_schedule(course_hours)
+    # Modification by Kenneth - Couldn't run this function without passing the course list
+    # Since it couldnt be referenced form the UI file. just added course list as a parameter
+    # That gets passed down the function.
+    schedule = create_term_schedule(course_hours,course_list)
     
     for day, sched in schedule.items():
         if not (isinstance(sched, str)):
