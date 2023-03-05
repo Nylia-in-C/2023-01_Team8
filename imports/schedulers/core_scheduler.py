@@ -2,11 +2,10 @@ import math
 import datetime
 import pprint
 import pandas as pd
-from classes.courses import *
-from classes.classrooms import *
 import string
-
-
+from typing import *
+from imports.classes.courses import *
+from imports.classes.classrooms import *
 
 #initialize objects/dummy data==================================================
 
@@ -26,24 +25,53 @@ pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 2, True, False, False)
 pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33, 1.5, True, False, False)
 pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35, 1.5, True, False, False)
 pcom_0109_module_1 = Course('PCOM 0109 Module 1', 'Resume and Cover Letter', 8, 2, True, False, False)
-pcom_0109_module_2 = Course('PCOM 0109 Module 2', 'Resume and Cover Letter', 8, 2, True, False, False)
+pcom_0109_module_2 = Course('PCOM 0109 Module 2', 'Interview Practice', 6, 2, True, False, False)
 
+# term 1 BCOM core courses
+pcom_0203 = Course('PCOM 0203', 'Effective Professional Writing', 15, 1.5, True, False, False)
+supr_0751 = Course('SUPR 0751', 'Fundamentals of Management and Supervision', 7, 2, True, False, False)
+pcom_0204 = Course('PCOM 0204', 'Business Persuasion and Research', 35, 1.5, True, False, False)
+supr_0837 = Course('SUPR 0837', 'Building an Engaged Workforce', 7, 2, True, False, False)
+supr_0841 = Course('SUPR 0841', 'Change Management Fundamentals', 7, 2, True, False, False)
+cmsk_0237 = Course('CMSK 0237', 'Google Suite Essentials', 12, 1.5, True, True, False)
+
+# term 2 BCOM core courses
+supr_0821 = Course('SUPR_0821', 'Foundations of Leadership 1', 7, 2, True, False, False)
+supr_0822 = Course('SUPR_0822', 'Foundations of Leadership 1', 7, 2, True, False, False)
+supr_0718 = Course('SUPR_0718', 'Effective Professional Writing', 7, 2, True, False, False)
+supr_0836 = Course('SUPR_0836', 'Effective Professional Writing', 7, 2, True, False, False) 
+pcom_0106 = Course('PCOM_0106', 'Effective Professional Writing', 34, 2, True, False, False)
+avdm_0199 = Course('AVDM_0199', 'Effective Professional Writing', 3, 1.5, True, True, False)  
+
+# term 3 BCOM core courses
+pcom_0205 = Course('PCOM_0205', 'Small Business and Entrpreneurship in Canada', 30, 3, True, False, False)
+pcom_TBD  = Course('PCOM_TBD',  'Story Telling (Public Speaking)', 21, 1.5, True, False, False)
+pcom_0207 = Course('PCOM_0207', 'Developing Your Emotional Intelligence', 6, 2, True, False, False)
+supr_0863 = Course('SUPR_0863', 'Design Thinking', 7, 2, True, False, False)
+pcom_0206 = Course('PCOM_0206', 'Fundamentals of Agile Methodology', 6, 3, True, False, False)
+#avdm_0260 = Course('PAVDM_0260', 'WordPress for Web Page Publishing', 6, 1.5, True, True, False)
 
 pcom_courses = {
     'term 1': [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235],
     'term 2': [pcom_0102, pcom_0201, pcom_0108],
-    'term 3': [pcom_0202, pcom_0103, pcom_0109_module_1, pcom_0109_module_2]
+    'term 3': [pcom_0202, pcom_0103, pcom_0109_module_1, pcom_0109_module_2],
+}
+
+bcom_courses = {
+    'term 1': [pcom_0203, supr_0751, pcom_0204, supr_0837, supr_0841, cmsk_0237],
+    'term 2': [supr_0821, supr_0822, supr_0718, supr_0836, pcom_0106, avdm_0199],
+    'term 3': [pcom_0205, pcom_TBD , pcom_0207, supr_0863, pcom_0206],
 }
 
 lab_courses = [pcom_0107, cmsk_0233, cmsk_0235, pcom_0108, pcom_0109_module_1]
 
 term_courses = {
     # fall semester has term 1 and term 3 courses
-    1: pcom_courses['term 1'] + pcom_courses['term 3'],
+    1: pcom_courses['term 1'] + bcom_courses['term 1'] + pcom_courses['term 3'] + bcom_courses['term 3'],
     # winter semester has term 1 and 2 courses
-    2: pcom_courses['term 1'] + pcom_courses['term 2'],
+    2: pcom_courses['term 1'] + bcom_courses['term 1'] + pcom_courses['term 2'] + bcom_courses['term 2'],
     # spring/summer semester has term 2 and 3 courses
-    3: pcom_courses['term 2'] + pcom_courses['term 3'], 
+    3: pcom_courses['term 2'] + bcom_courses['term 2'] + pcom_courses['term 3'] + bcom_courses['term 3'], 
 }
 
 room_533 = Classroom('11-533', 36, False)
@@ -59,16 +87,28 @@ room_532 = Classroom('11-532', 30, True )
 lecture_rooms = [room_533, room_534, room_560, room_562, room_564, room_458, room_430, room_320]
 lab_rooms = [room_532]
 
-# assuming ~70-90 new PCOM students/term requires 3 different lecture groups for each course
+# assuming ~70-90 new students/term requires 3 different lecture groups for each course
 COHORT_COUNT = 3
 # ==============================================================================
-def create_empty_schedule(room_tuple):
+def cohort_id_generator():
+    '''
+    Generator that yield a list of cohort IDs (Capital letters starting at A)
+    After each call the list is shifted (the last element is moved to the front)
+    This prevent scheduling conflicts for cohort groups
+    '''
+    cohortIDs = list(string.ascii_uppercase[:COHORT_COUNT])
+    while True:
+        yield cohortIDs
+        cohortIDs = [cohortIDs[-1]] + cohortIDs[:-1]
+        
+        
+def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
     '''
     This function creates an empty pandas dataframe to represent the schedule 
     for a single day. The column headers are room numbers and the row indexes 
     are times (half hour increments)
     '''
-    room_list = list(room_tuple)
+
     # 8 AM - 5 PM in half-hour increments 
     times = [datetime.time(i, j).strftime("%H:%M") for i in range (8, 18) for j in [0, 30]]
     times.append(datetime.time(5, 0).strftime("%H:%M"))
@@ -82,8 +122,8 @@ def create_empty_schedule(room_tuple):
             sched[room.ID] = [""] * 21
         
     return sched
-    
-def get_course_hours(lectures, labs):
+
+def get_course_hours(lectures: List[Course], labs: List[Course]) -> Tuple[Dict[str,int], Dict[str,int]]:
     '''
     Create 2 dictionaries that will be used to keep track of how many hours
     a given course has, and how many hours it has left. One dictionary handles
@@ -108,7 +148,7 @@ def get_course_hours(lectures, labs):
         
     return lecture_hours, lab_hours
 
-def update_course_hours(course_hours, prev_schedule):
+def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFrame) -> Dict[str, str]:
     '''
     Uses the previous day's schedule to update the remaining lecture hours for each course
     '''
@@ -136,7 +176,7 @@ def update_course_hours(course_hours, prev_schedule):
 
     return course_hours
 
-def create_day_schedule(course_hours, course_list, room_list):
+def create_day_schedule(course_hours: Dict[str, int], course_list: List[Course], room_list: List[Classroom]) -> pd.DataFrame:
     '''
     This function takes an empty dataframe representing the schedule for a given day,
     and adds 3 cohorts for each course, starting with the ones that have 
@@ -151,8 +191,8 @@ def create_day_schedule(course_hours, course_list, room_list):
 
     # sort course_list by required term hours (descending)
     course_list.sort(key=lambda x: x.termHours, reverse=True)
-
     
+    # schedule online courses first
     for index, room in enumerate(room_list):
         # if all courses have been scheduled, leave the leftover rooms empty
         if (index >= len(course_list)):
@@ -162,6 +202,7 @@ def create_day_schedule(course_hours, course_list, room_list):
             room_col_index = sched.columns.get_loc(room.ID + " (LAB)")
         else:
             room_col_index = sched.columns.get_loc(room.ID)
+        
         curr_course = course_list[index]
         
         hours_left = course_hours[curr_course.ID]['remaining']
@@ -175,22 +216,33 @@ def create_day_schedule(course_hours, course_list, room_list):
             # round up to the nearest half-hour
             blocks = math.ceil(hours_left / 0.5)
         
-        # add identifiers to differentiate between cohorts
-        # use built-in string library since we dont necessarily know how the number of cohorts
+        # add identifiers to differentiate cohorts
+        # using a generator to shift the cohort groups will prevent scheduling conflicts
+        # TODO: add checking for edge case: 
+        #          This wont prevent scheduling conflicts if theres only 1 or 2 cohorts 
+        cohort_IDs = next(id_generator)
         cohorts = []
-        for i in range(COHORT_COUNT):
-            cohort_str = curr_course.ID + "-" + string.ascii_uppercase[i]
+        for id in cohort_IDs:
+            cohort_str = curr_course.ID + "-" + id
             cohorts.extend([cohort_str] * blocks)
             
         # to prevent schedule conflicts, put lectures in the morning and labs in the evening
-        if room.isLab:
+        # TODO: schedule online courses in the most available room (in the evening)
+        if room.isLab or curr_course.isOnline:
             sched.iloc[-(blocks*COHORT_COUNT):, room_col_index] = cohorts
         else:
             sched.iloc[:(blocks*COHORT_COUNT), room_col_index] = cohorts
     
     return sched
 
-def create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms):
+def create_term_schedule(lecture_hours: Dict[str, int], lectures: List[Course], lecture_rooms: List[Classroom], 
+                         lab_hours: Dict[str, int], labs: List[Course], lab_rooms: List[Classroom]) -> Dict[str, pd.DataFrame]:
+    '''
+    Main schedule creation function that makes 26 single-day schedules (monday & wednesday, 13 weeks)
+    Lecture & Lab schedules are done seperately (easier to keep track of rooms this way), 
+    then joined into a single dataframe and stored in a dictionary. To make things easier, 
+    if the new schedule is the same as the previous day, '-' is added to the dict as a placeholder
+    '''
     
     full_schedule = {}
 
@@ -201,10 +253,12 @@ def create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs
         
         lab_sched = create_day_schedule(lab_hours, labs, lab_rooms)
         lab_hours = update_course_hours(lab_hours, lab_sched)
-        
+
         full_day_sched = lecture_sched.join(lab_sched)
         
         # add place holders to `full_schedule` dict to avoid duplicates
+        # TODO: try to find a way to check if the new schedule will be a duplicate of the previous one
+        #       before calling the above functions
         if any(full_day_sched.equals(day_sched) for day_sched in list(full_schedule.values())):
             full_schedule[f"day {i}"] = "-"
             
@@ -213,6 +267,20 @@ def create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs
 
     
     return full_schedule
+
+def validate_sched(full_schedule: Dict[str, pd.DataFrame]) -> bool:
+    '''
+    Takes the full term's schedule as a dictionary and checks that there are no 
+    scheduling conflicts (i.e. no cohort group is booked to 2 rooms at the same time)
+    '''
+    for day_num, sched in full_schedule.items():
+        # transpose schedule
+        # iterate time slots (now columns):
+        #   - create a list of cohorts scheduled in each room at curr_time_slot (e.g. pcom term 1 grpup A)
+        #   - if any group appears more than once, return false
+        pass
+    
+    return True
 
 
  # not being used, but we might need this in the future
@@ -236,6 +304,9 @@ def create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs
 #     return -1
 
 if __name__ == '__main__':
+    global id_generator 
+    id_generator = cohort_id_generator()
+    
     print("Enter a number for the term you want to generate a schedule for: \
           \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
@@ -255,7 +326,7 @@ if __name__ == '__main__':
     
     
     #TODO: 
-    #   - schedule BCOM
+    #   - write function to validate no scheduling conflicts (no 'horizontal' overlap between cohorts)
     #   - initialize course & classroom objects in seperate file
     #   - create lecture objects rather than creating/displaying dataframe (maybe)
 
