@@ -8,6 +8,7 @@ import string
 
 
 
+
 #initialize objects/dummy data==================================================
 
 # term 1 PCOM core courses
@@ -137,6 +138,7 @@ def update_course_hours(course_hours, prev_schedule):
     return course_hours
 
 def create_day_schedule(course_hours, course_list, room_list):
+
     '''
     This function takes an empty dataframe representing the schedule for a given day,
     and adds 3 cohorts for each course, starting with the ones that have 
@@ -190,11 +192,13 @@ def create_day_schedule(course_hours, course_list, room_list):
     
     return sched
 
+
 def create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms):
     
     full_schedule = {}
 
     for i in range(1, 27):
+
         
         lecture_sched = create_day_schedule(lecture_hours, lectures, lecture_rooms)
         lecture_hours = update_course_hours(lecture_hours, lecture_sched)
@@ -240,6 +244,7 @@ if __name__ == '__main__':
           \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
     
+
     # schedule lectures & labs seperately
     lectures = [course for course in term_courses[term] if course not in lab_courses]
     labs     = [course for course in term_courses[term] if course in lab_courses]
@@ -247,6 +252,7 @@ if __name__ == '__main__':
     lecture_hours, lab_hours = get_course_hours(lectures, labs)
     
     full_schedule = create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms)
+
     
     for day, sched in full_schedule.items():
         if not (isinstance(sched, str)):
