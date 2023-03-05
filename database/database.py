@@ -36,7 +36,17 @@ def create_table(conn, tableInfo):
         print(e)
 
     return 
+def delete_table(conn, title):
+   #deletes table from passed connection object and table title
+    tableDrop =  f"DROP TABLE {title}"
+    try:
+        c = conn.cursor()
+        c.execute(tableDrop)     
+        print("Table dropped successfully")
+    except Exception as e:
+        print(e)
 
+    return 
 def close_connection(conn):
     try:
         conn.commit()
@@ -46,11 +56,11 @@ def close_connection(conn):
         print("Error closing database file:", str(e))
 
     return 
-
+##########################start of Read/write helpers ###########################################
 def addLegionItem(conn, legion ):
-     #add item to table from passed connection object and SQlite statement
+     #add item to table from passed connection and Legion object
     try:
-        rowString = "INSERT INTO LEGION (ProgID, TermID, CorhortID, Name, Count) VALUES (" + legion.createLegionItemInfo() + ")"
+        rowString = "INSERT INTO LEGIONS (ProgID, TermID, CorhortID, Name, Count) VALUES (" + legion.createLegionItemInfo() + ")"
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -59,8 +69,10 @@ def addLegionItem(conn, legion ):
         print("Issues inserting into table: ", e)
     return 
 def readLegionItem(conn, legionName):
+     #reads legion item from DB 
+    #parameters:Connection string,  LegionName as string
     try:
-        queryString = f"Select * from LEGION where Name = '{legionName}' "
+        queryString = f"Select * from LEGIONS where Name = '{legionName}' "
         cur = conn.cursor()
         cur.execute(queryString)
         rows = cur.fetchall()
@@ -71,6 +83,7 @@ def readLegionItem(conn, legionName):
     return 
     
 def addProgramItem(conn, program):
+    #parameters: passed connection and program object
     #adds programID and CourseID into table, one courseID per row
     programObject = program.createProgramItemInfo()
     programID = programObject[0]
@@ -88,6 +101,8 @@ def addProgramItem(conn, program):
     return 
 
 def readProgramItem(conn, ProgID):
+     #reads Program item from DB 
+    #parameters:Connection string,  ProgID as a string
     try:
         queryString = f"Select * from PROGRAMS where ProgID = '{ProgID}'"
         cur = conn.cursor()
@@ -100,7 +115,7 @@ def readProgramItem(conn, ProgID):
     return 
 
 def addClassroomItem(conn, classroom ):
-     #add item to table from passed connection object and SQlite statement
+    #add item to table from passed connection and classroom object
     try:
         rowString = "INSERT INTO CLASSROOMS (ClassID , Capacity, IsLab) VALUES (" + classroom.createClassroomItemInfo() + ")"
         print(rowString)
@@ -111,6 +126,8 @@ def addClassroomItem(conn, classroom ):
         print("Issues inserting into table: ", e)
     return 
 def readClassroomItem(conn, ClassID):
+     #reads clasroom item from DB 
+    #parameters:Connection string, classID as string
     try:
         queryString = f"Select * from CLASSROOMS where ClassID = '{ClassID}'"
         cur = conn.cursor()
@@ -123,6 +140,7 @@ def readClassroomItem(conn, ClassID):
     return 
 
 def addCourseItem(conn,course):
+     #add item to table from passed connection and course object
     courseObject = course.createCourseItemInfo()
     #CourseID, title, termHours, duration, isCore, isOnline, hasLab, preReq 
     CourseID = courseObject[0]
@@ -143,6 +161,8 @@ def addCourseItem(conn,course):
             print("Issues inserting into table:", e)
     return 
 def readCourseItem(conn, CourseID):
+     #reads Course item from DB 
+    #parameters:Connection string, CourseID as string
     try:
         queryString = f"Select * from COURSES where CourseID = '{CourseID}'"
         cur = conn.cursor()
@@ -154,6 +174,7 @@ def readCourseItem(conn, CourseID):
         print("Issues reading from table: ", e)
     return
 def addCohortItem(conn,cohort):
+     #add item to table from passed connection and cohort object
     cohortObject = cohort.createCohortItemInfo()
     cid = cohortObject[0]
     term = cohortObject[1]
@@ -162,7 +183,7 @@ def addCohortItem(conn,cohort):
     courses = cohortObject[4]
    
     try:
-        rowString = f"INSERT INTO COHORT (CID, Term, CohortID, Legions, Courses) VALUES ('{cid}','{term}',{cohortID},'{legionStr}' ,'{courses}')" 
+        rowString = f"INSERT INTO COHORT (CID, Term, CohortID, Legions, Courses) VALUES ('{cid}','{term}',{cohortID},'{legionStr}','{courses}')" 
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -171,6 +192,8 @@ def addCohortItem(conn,cohort):
             print("Issues inserting into table:", e)
     return
 def readCohortItem(conn, cid):
+     #reads cohort item from DB 
+    #parameters:Connection string,  CID as string
     try:
         queryString = f"Select * from COHORT where CID = '{cid}'"
         cur = conn.cursor()
@@ -181,7 +204,61 @@ def readCohortItem(conn, cid):
     except Exception as e:
         print("Issues reading from table: ", e)
     return
-     
+def addLectureItem(conn, lecture):
+     #add item to table from passed connection and lecture object
+    lectureObject = lecture.createLectureItemInfo()
+    CourseID = lectureObject[0]
+    Title = lectureObject[1]
+    Cohort = lectureObject[2]
+    Room = lectureObject[3]
+    TermHours = lectureObject[4]
+    Duration = lectureObject[5]
+    StartWeek = lectureObject[6]
+    StartDay = lectureObject[7]
+    StartTime = lectureObject[8]
+    isCore = lectureObject[9]
+    isOnline = lectureObject[10]
+    hasLab = lectureObject[11]
+    PreReqs = lectureObject[12]
+    try:
+        rowString = f"INSERT INTO LECTURE (CourseID, Title, Cohort, Room, TermHours,Duration,StartWeek,StartDay,StartTime,isCore,isOnline,hasLab, PreReqs) \
+                        VALUES ('{CourseID}','{Title}',{Cohort},'{Room}' ,{TermHours}, {Duration}, {StartWeek}, '{StartDay}', '{StartTime}',{isCore},{isOnline},{hasLab},'{PreReqs}')" 
+        print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+        print("Row added successfully")
+    except Exception as e:
+            print("Issues inserting into table:", e)
+    return
+
+def readLectureItem(conn, CourseID, Corhort ):
+    #reads lecture item from DB 
+    #parameters:Connection string,  courseID and Cohort as strings
+    try:
+        queryString = f"Select * from LECTURE where CourseID = '{CourseID,}' and Corhort = {Corhort}"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return
+##########################End of Read/write helpers ###########################################
+
+def LegionsCount(conn,ProgID, TermID):
+    try:
+        queryString = f"Select COUNT(*) from LEGIONS where ProgID = '{ProgID,}' and TermID = {TermID}"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        count = cur.fetchall()
+        
+    except Exception as e:
+        print("Issues reading from table: ", e)
+
+    return count
+
+
 def mainTest():
     #main function to connect to database and test helper functions
     
@@ -190,9 +267,10 @@ def mainTest():
 
     if conn is not None: 
         print('success')
+      
         LEGIONSTableCols = """ CREATE TABLE IF NOT EXISTS LEGIONS (
                     ProgID VARCHAR(100) NOT NULL,
-                    TermID INT NOT NULL,
+                    TermID VARCHAR(100) NOT NULL,
                     CorhortID INT NOT NULL,
                     Name VARCHAR(100) NOT NULL,
                     Count INT
@@ -223,7 +301,7 @@ def mainTest():
                     Room VARCHAR(100) NOT NULL,
                     TermHours INT NOT NULL,
                     Duration INT NOT NULL, 
-                    StartWeek VARCHAR(100) NOT NULL,
+                    StartWeek INT NOT NULL,
                     StartDay VARCHAR(100) NOT NULL,
                     StartTime VARCHAR(100) NOT NULL,
                     isCore BIT NOT NULL,
@@ -250,9 +328,23 @@ def mainTest():
         # addCourseItem(conn, courseDummy)
         # programDummy = Program('FS',["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"])
         # addProgramItem(conn, programDummy)
-        #CohortDummy = Cohort('FS',["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"], ["11","10","9"] , '01', 0)  
-        #addCohortItem(conn,CohortDummy)
-        readCohortItem(conn, 'FS')
+        # CohortDummy = Cohort('FS',["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"], ["11","10","9"] , '01', 0)  
+        # addCohortItem(conn,CohortDummy)
+        # readCohortItem(conn, 'FS')
+        # LectureDummy = Lecture('AVDM 0165',"Test title", "cohort","room", 0, 1, 2,"startDay","start time", 1,0,1, ["CMSK 1052", "CMSK 0157"])  
+        # addLectureItem(conn,LectureDummy)
+        Legion1 = Legion('PM',"01", 0) 
+        Legion2 = Legion('BA',"01",2)  
+        Legion3 = Legion('PM',"01", 0)  
+        Legion4 = Legion('PM',"02", 0)  
+        Legion5 = Legion('PM',"01", 0)  
+        Legion6 = Legion('PM',"02", 0)   
+        addLegionItem(conn,Legion1)
+        addLegionItem(conn,Legion2)
+        addLegionItem(conn,Legion3)
+        addLegionItem(conn,Legion4)
+        addLegionItem(conn,Legion5)
+        addLegionItem(conn,Legion6)
     else: 
          print("Could not connect to database")
   
