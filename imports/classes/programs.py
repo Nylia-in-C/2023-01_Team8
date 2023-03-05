@@ -45,12 +45,14 @@ class Program:
 
 
 # Need to move this to the database
+'''
 cohortCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
                 "BA01" : 0, "BA02" : 0, "BA03" : 0,
                 "GLM01": 0, "GLM02": 0, "GLM03": 0, 
                 "FS01" : 0, "FS02" : 0, "FS03" : 0, 
                 "DXD01": 0, "DXD02": 0, "DXD03": 0,
                 "BK01" : 0, "BK02" : 0, "BK03" : 0 }
+'''
 
 # When database is implemented, needs to check if the 
 @dataclass
