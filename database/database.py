@@ -67,11 +67,27 @@ def makeLegion(conn,ProgID, TermID, numStudents):
     except Exception as e:
         print("Issues reading from table: ", e)
     if (legionID != 0):
-        legionID = legionID[0][0]
+        legionID = int(legionID[0][0]) + 1
     name = ProgID + TermID + "{:02d}".format(legionID)
     legionObj = Legion(ProgID,TermID, legionID, name, numStudents)
-    return legionObj 
-    
+    return legionObj
+
+def makeCohort(conn, ProgID, TermID, legions):
+    cohortID= 0
+    progTerm = ProgID + TermID
+    try:
+        queryString = f"Select COUNT(PID) from COHORT where PID = '{ProgID}' and Term = '{TermID}'"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        cohortID = cur.fetchall()
+    except Exception as e:
+        print("Issues reading from tableS: ", e)
+    if (cohortID != 0):
+        cohortID = int(cohortID[0][0]) + 1
+    cohortID = "{:02d}".format(cohortID)
+    cohortObj = Cohort(ProgID, [], legions, TermID, cohortID)
+    return cohortObj 
+
 ##########################start of Read/write helpers ###########################################
 def addLegionItem(conn,ProgID, TermID, numStudents):
      #add item to table from passed connection and Legion object
@@ -84,7 +100,7 @@ def addLegionItem(conn,ProgID, TermID, numStudents):
        # print("Row added successfully")
     except Exception as e:
         print("Issues inserting into table: ", e)
-    return 
+    return legion
 def readLegionItem(conn, legionName):
      #reads legion item from DB 
     #parameters:Connection string,  LegionName as string
@@ -186,24 +202,23 @@ def readCourseItem(conn, CourseID):
     except Exception as e:
         print("Issues reading from table: ", e)
     return
-def addCohortItem(conn,cohort):
+def addCohortItem(conn, ProgID, TermID, legions):
      #add item to table from passed connection and cohort object
+    cohort = makeCohort(conn, ProgID, TermID, legions)
     cohortObject = cohort.createCohortItemInfo()
-    pid = cohortObject[0]
-    term = cohortObject[1]
     cohortID = cohortObject[2]
     legionStr = cohortObject[3]
     courses = cohortObject[4]
    
     try:
-        rowString = f"INSERT INTO COHORT (PID, Term, CohortID, Legions, Courses) VALUES ('{pid}','{term}',{cohortID},'{legionStr}','{courses}')" 
+        rowString = f"INSERT INTO COHORT (PID, Term, CohortID, Legions, Courses) VALUES ('{ProgID}','{TermID}',{cohortID},'{legionStr}','{courses}')" 
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
         print("Row added successfully")
     except Exception as e:
             print("Issues inserting into table:", e)
-    return
+    return cohort
 def readCohortItem(conn, CohortID):
      #reads cohort item from DB 
     #parameters:Connection string,  CohortID as string
@@ -309,13 +324,13 @@ def mainTest():
                     PreReqs VARCHAR(200)
                 ); """
         COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
-                    CID VARCHAR(100) NOT NULL,
+                    PID VARCHAR(100) NOT NULL,
                     Term VARCHAR(100) NOT NULL,
                     CohortID INT NOT NULL,
                     Legions VARCHAR(200) NOT NULL,
                     Courses VARCHAR(200)
                 ); """
-        
+        #Changed CID to PID in Cohort Table creation, since it takes program and it was PID in addCohortItem. If database is complaining drop it and recreate
         
         
         create_table(connection, COHORTTableCols)
@@ -329,7 +344,11 @@ def mainTest():
         addLegionItem(connection,'BA',"01",2)
         addLegionItem(connection,'PM',"02", 0)
         addLegionItem(connection,'PM',"02", 0)
-        addLegionItem(connection,'PM',"02", 20)
+        print(addLegionItem(connection,'PM',"02", 20))
+
+        print(addCohortItem(connection, "PM", "01", ["PM01A, PM01B, PM01C"]))
+        print(addCohortItem(connection, "PM", "01", ["PM01D, PM01E, PM01F"]))
+        print(addCohortItem(connection, "PM", "02", ["PM01D, PM01E, PM01F"]))
 
     else: 
          print("Could not connect to database")
