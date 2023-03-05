@@ -18,8 +18,7 @@ BG_COLOURS = QtGui.QColor.colorNames()
 
 table_columns = []
 LEFT_MAX_WIDTH = 450
-ROOMS = ['11-533', '11-534', '11-560', '11-562', '11-564', '11-458',
-             '11-430', '11-320']
+ROOMS = []
 class UI(QMainWindow):
 
     def __init__(self):
@@ -154,6 +153,12 @@ class UI(QMainWindow):
 
         create_sched = QPushButton("Create Schedule")
         create_sched.clicked.connect(self.create_schedule)
+
+        for rooms in range(len(imports.scheduler.lecture_rooms)):
+            ROOMS.append(imports.scheduler.lecture_rooms[rooms].ID + " Capacity: " + str(imports.scheduler.lecture_rooms[rooms].capacity))
+        for rooms in range(len(imports.scheduler.lab_rooms)):
+            ROOMS.append("Lab " + imports.scheduler.lab_rooms[rooms].ID + " Capacity: " + str(imports.scheduler.lab_rooms[rooms].capacity))
+
         self.select_room.addItems(ROOMS)
 
         vbox.addWidget(title)
