@@ -5,14 +5,12 @@ from database.database import *
 from PyQt5.QtWidgets import *
 def main():
     database = r".\database\database.db"  #database.db file path 
-    conn = create_connection(database)
+    connection = create_connection(database)
     app = QApplication([])
     window = UI.UI()
     window.show()
     app.exec_()
 
-    
-
-    close_connection(conn)
+    close_connection(connection)
 if __name__ == "__main__":
     main()
