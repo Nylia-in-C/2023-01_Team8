@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
+from database.database import *
 
 import imports.scheduler
 import datetime
@@ -355,6 +356,20 @@ class UI(QMainWindow):
         for each_field in range(input_fields):
             print(layout.itemAt(each_field).widget().value())
 
+    def get_cohorts(self, semester):
+        database = r".\database\database.db"  # database.db file path
+        conn = create_connection(database)
+
+        readCohortItem(conn, semester)
+
+        close_connection(conn)
+
+
+
+
+
+
+
 
     '''
     Action Event functions
@@ -362,6 +377,8 @@ class UI(QMainWindow):
 
     def create_schedule(self):
         room_requested = self.select_room.currentText()
+
+        self.get_cohorts()
 
         # Clear any values from the table
         # Fresh Start
