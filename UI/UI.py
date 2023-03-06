@@ -13,8 +13,9 @@ from openpyxl.workbook import Workbook
 import database.database
 from database.database import *
 
-import imports.scheduler
+import imports.schedulers.core_scheduler
 import datetime
+
 
 BG_COLOURS = QtGui.QColor.colorNames()
 
@@ -159,10 +160,10 @@ class UI(QMainWindow):
 
         #TODO Currently reading from the schedulers dummy values. Need to change to read from database, shouldnt be too much.
 
-        for rooms in range(len(imports.scheduler.lecture_rooms)):
-            LEC_ROOMS.append(imports.scheduler.lecture_rooms[rooms].ID + " Capacity: " + str(imports.scheduler.lecture_rooms[rooms].capacity))
-        for rooms in range(len(imports.scheduler.lab_rooms)):
-            LAB_ROOMS.append(imports.scheduler.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.scheduler.lab_rooms[rooms].capacity))
+        for rooms in range(len(imports.schedulers.core_scheduler.lecture_rooms)):
+            LEC_ROOMS.append(imports.schedulers.core_scheduler.lecture_rooms[rooms].ID + " Capacity: " + str(imports.schedulers.core_scheduler.lecture_rooms[rooms].capacity))
+        for rooms in range(len(imports.schedulers.core_scheduler.lab_rooms)):
+            LAB_ROOMS.append(imports.schedulers.core_scheduler.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.schedulers.core_scheduler.lab_rooms[rooms].capacity))
 
         self.select_room.addItems(LEC_ROOMS)
         self.select_room.addItems(LAB_ROOMS)
@@ -421,11 +422,11 @@ class UI(QMainWindow):
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
 
-        lectures = [course for course in imports.scheduler.term_courses[1] if course not in imports.scheduler.lab_courses]
-        labs = [course for course in imports.scheduler.term_courses[1] if course in imports.scheduler.lab_courses]
+        lectures = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course not in imports.schedulers.core_scheduler.lab_courses]
+        labs = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course in imports.schedulers.core_scheduler.lab_courses]
 
-        lec_hours, lab_hours = imports.scheduler.get_course_hours(lectures, labs)
-        schedule = imports.scheduler.create_term_schedule(lec_hours, lectures, imports.scheduler.lecture_rooms, lab_hours, labs, imports.scheduler.lab_rooms)
+        lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
+        schedule = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.core_scheduler.lecture_rooms, lab_hours, labs, imports.schedulers.core_scheduler.lab_rooms)
 
         # Note: Schedule is form of - schedule[day #][room]
         # Be advised that if [day #] is an even number
@@ -440,6 +441,7 @@ class UI(QMainWindow):
         # This dictionary will hold the course name (key)
         # and the colour (value) for easier distinction between same courses, and different ones
         course_colour = {}
+
 
         for day in range(2):
             new_class = 0
