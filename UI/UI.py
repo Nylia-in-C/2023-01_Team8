@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
+
+import database.database
 from database.database import *
 
 import imports.scheduler
@@ -18,7 +20,8 @@ BG_COLOURS = QtGui.QColor.colorNames()
 
 table_columns = []
 LEFT_MAX_WIDTH = 450
-ROOMS = []
+LEC_ROOMS = []
+LAB_ROOMS = []
 class UI(QMainWindow):
 
     def __init__(self):
@@ -154,12 +157,15 @@ class UI(QMainWindow):
         create_sched = QPushButton("Create Schedule")
         create_sched.clicked.connect(self.create_schedule)
 
-        for rooms in range(len(imports.scheduler.lecture_rooms)):
-            ROOMS.append(imports.scheduler.lecture_rooms[rooms].ID + " Capacity: " + str(imports.scheduler.lecture_rooms[rooms].capacity))
-        for rooms in range(len(imports.scheduler.lab_rooms)):
-            ROOMS.append("Lab " + imports.scheduler.lab_rooms[rooms].ID + " Capacity: " + str(imports.scheduler.lab_rooms[rooms].capacity))
+        #TODO Currently reading from the schedulers dummy values. Need to change to read from database, shouldnt be too much.
 
-        self.select_room.addItems(ROOMS)
+        for rooms in range(len(imports.scheduler.lecture_rooms)):
+            LEC_ROOMS.append(imports.scheduler.lecture_rooms[rooms].ID + " Capacity: " + str(imports.scheduler.lecture_rooms[rooms].capacity))
+        for rooms in range(len(imports.scheduler.lab_rooms)):
+            LAB_ROOMS.append(imports.scheduler.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.scheduler.lab_rooms[rooms].capacity))
+
+        self.select_room.addItems(LEC_ROOMS)
+        self.select_room.addItems(LAB_ROOMS)
 
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
@@ -176,7 +182,6 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(create_sched)
         vbox.addWidget(self.select_room)
-
 
         width_limit.setLayout(vbox)
 
@@ -362,10 +367,10 @@ class UI(QMainWindow):
             print(layout.itemAt(each_field).widget().value())
 
     def get_cohorts(self, semester):
-        database = r".\database\database.db"  # database.db file path
-        conn = create_connection(database)
+        db = r".\database\database.db"  # database.db file path
+        conn = create_connection(db)
 
-        readCohortItem(conn, semester)
+        database.database.readCohortItem()
 
         close_connection(conn)
 
@@ -381,9 +386,10 @@ class UI(QMainWindow):
     '''
 
     def create_schedule(self):
-        room_requested = self.select_room.currentText()
+        room_requested = self.select_room.currentText().split(" ")[0]
 
-        self.get_cohorts()
+        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+            room_requested = room_requested + " (LAB)"
 
         # Clear any values from the table
         # Fresh Start
@@ -393,11 +399,11 @@ class UI(QMainWindow):
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
 
-        # Term courses[1] is placeholder for the time being.
-        course_list = imports.scheduler.term_courses[1]
+        lectures = [course for course in imports.scheduler.term_courses[1] if course not in imports.scheduler.lab_courses]
+        labs = [course for course in imports.scheduler.term_courses[1] if course in imports.scheduler.lab_courses]
 
-        course_hours = imports.scheduler.get_course_hours(course_list)
-        schedule = imports.scheduler.create_term_schedule(course_hours, course_list)
+        lec_hours, lab_hours = imports.scheduler.get_course_hours(lectures, labs)
+        schedule = imports.scheduler.create_term_schedule(lec_hours, lectures, imports.scheduler.lecture_rooms, lab_hours, labs, imports.scheduler.lab_rooms)
 
         # Note: Schedule is form of - schedule[day #][room]
         # Be advised that if [day #] is an even number
@@ -406,6 +412,7 @@ class UI(QMainWindow):
         # Note: If schedule at a specific day is empty, that means it hasn't changed from the last
         # day. Only days with dataframe objects indicate a change.
         course = ""
+
         colour_index = -1
 
         # This dictionary will hold the course name (key)
@@ -413,11 +420,11 @@ class UI(QMainWindow):
         course_colour = {}
 
         for day in range(2):
+            new_class = 0
             if isinstance(schedule["day " + str(day + 1)], pd.DataFrame):
                 prev_key = "day " + str(day + 1)
 
             day_list = schedule[prev_key][room_requested].tolist()
-            day_list[10] = "bcom test"
 
             for cell in range(self.main_table.rowCount()):
 
@@ -426,13 +433,14 @@ class UI(QMainWindow):
                 elif day_list[cell] != "" and course == day_list[cell]:
                     #TODO: Remove the *2 on the days, only there since we dont have values for tuesday / thursday yet
                     self.main_table.item(cell,day*2).setBackground(QtGui.QColor(course_colour[course]))
-                    if cell == 3:
+                    if new_class == 1:
                         self.main_table.item(cell, day*2).setText(day_list[cell])
+                        new_class = 0
 
                 else:
                     course = day_list[cell]
+                    new_class = 1
                     if course not in course_colour.keys():
-
                         colour_index += 1
                         course_colour[course] = BG_COLOURS[colour_index]
                     self.main_table.item(cell, day*2).setBackground(QtGui.QColor(course_colour[course]))
