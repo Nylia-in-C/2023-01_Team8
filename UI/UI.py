@@ -19,10 +19,15 @@ import datetime
 
 BG_COLOURS = QtGui.QColor.colorNames()
 
-table_columns = []
 LEFT_MAX_WIDTH = 450
 LEC_ROOMS = []
 LAB_ROOMS = []
+global SCHEDULE
+WEEK = 0
+PREV_KEY = ""
+POST_KEY = ""
+global COURSE_COLOUR
+
 class UI(QMainWindow):
 
     def __init__(self):
@@ -38,6 +43,11 @@ class UI(QMainWindow):
         self.legion_size = QLabel()
         self.select_room = QComboBox()
         self.week_label = QLabel()
+        font = QFont()
+        font.setPointSize(16)
+        self.week_label.setFont(font)
+        self.week_label.setAlignment(Qt.AlignCenter)
+
 
         '''
         Creating tables for each tab
@@ -105,6 +115,7 @@ class UI(QMainWindow):
 
         left = QPushButton("<--")
         right = QPushButton("-->")
+        right.clicked.connect(self.forward_week)
 
         week_choose.addWidget(left)
         week_choose.addWidget(self.week_label)
@@ -413,16 +424,105 @@ class UI(QMainWindow):
 
 
 
+    # weekday is 0 or 2, depending on if its monday or wednesday respectively
+    # eventually 1 and 3 for tuesday, thursday
+    def show_schedule(self, pd_dataframe, weekday):
 
+        course = ""
 
+        colour_index = -1
+
+        new_class = 0
+
+        day_list = pd_dataframe.tolist()
+
+        for cell in range(self.main_table.rowCount()):
+
+            if day_list[cell] == "":
+                continue
+            elif day_list[cell] != "" and course == day_list[cell]:
+                self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
+                if new_class == 1:
+                    self.main_table.item(cell, weekday).setText(day_list[cell])
+                    new_class = 0
+
+            else:
+                course = day_list[cell]
+                new_class = 1
+                if course not in COURSE_COLOUR.keys():
+                    colour_index += 1
+                    COURSE_COLOUR[course] = BG_COLOURS[colour_index]
+                self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
 
     '''
     Action Event functions
     '''
 
+    def forward_week(self):
+        global SCHEDULE
+        global WEEK
+        global PREV_KEY
+        global POST_KEY
+        global COURSE_COLOUR
+        COURSE_COLOUR = {}
+
+
+        # Only 13 weeks in a semester
+        if WEEK == 12:
+            return
+        WEEK += 1
+
+        room_requested = self.select_room.currentText().split(" ")[0]
+        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+            room_requested = room_requested + " (LAB)"
+
+        self.reset_table()
+
+        try:
+            # Find the next day that the schedule changes.
+            # Recall: Even numbers are monday, odd, wednesday
+            # When accessing from dataframe, odd is monday, even, wednesday
+
+            day = WEEK*2    # day will be the monday of that week
+            while not isinstance(SCHEDULE["day " + str(day + 1)], pd.DataFrame):
+                day += 1
+
+                # If R = 0, then go to the next week
+                if day % 2 != 0:
+                    WEEK += 1
+                    day = WEEK*2
+            self.week_label.setText("Week " + str(WEEK + 1))
+
+            global POST_KEY
+            POST_KEY = "day " + str(day + 1)
+
+            if day % 2 != 0:
+                # If the change day is wednesday
+                # Monday stays the same, wednesday changes
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+            elif day % 2 == 0 and isinstance(SCHEDULE["day " + str(day + 2)], pd.DataFrame):
+                # Change on monday and wednesday
+                PREV_KEY = POST_KEY
+                POST_KEY = "day " + str(day + 2)
+                print(PREV_KEY, POST_KEY)
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+            else:
+                # Change happens on a monday
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+        except:
+            print("error")
+
+
+
     def create_schedule(self):
         room_requested = self.select_room.currentText().split(" ")[0]
+        self.week_label.setText("Week 1")
+        global WEEK
+        WEEK = 0
 
         if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
@@ -439,7 +539,11 @@ class UI(QMainWindow):
         labs = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course in imports.schedulers.core_scheduler.lab_courses]
 
         lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
-        schedule = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.core_scheduler.lecture_rooms, lab_hours, labs, imports.schedulers.core_scheduler.lab_rooms)
+        global SCHEDULE
+        SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.core_scheduler.lecture_rooms, lab_hours, labs, imports.schedulers.core_scheduler.lab_rooms)
+
+        global PREV_KEY
+        PREV_KEY = "day 1"
 
         # Note: Schedule is form of - schedule[day #][room]
         # Be advised that if [day #] is an even number
@@ -447,40 +551,17 @@ class UI(QMainWindow):
 
         # Note: If schedule at a specific day is empty, that means it hasn't changed from the last
         # day. Only days with dataframe objects indicate a change.
-        course = ""
-
-        colour_index = -1
 
         # This dictionary will hold the course name (key)
         # and the colour (value) for easier distinction between same courses, and different ones
-        course_colour = {}
+        global COURSE_COLOUR
+        COURSE_COLOUR = {}
+
+        self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+        self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
 
 
-        for day in range(2):
-            new_class = 0
-            if isinstance(schedule["day " + str(day + 1)], pd.DataFrame):
-                prev_key = "day " + str(day + 1)
 
-            day_list = schedule[prev_key][room_requested].tolist()
-
-            for cell in range(self.main_table.rowCount()):
-
-                if day_list[cell] == "":
-                    continue
-                elif day_list[cell] != "" and course == day_list[cell]:
-                    #TODO: Remove the *2 on the days, only there since we dont have values for tuesday / thursday yet
-                    self.main_table.item(cell,day*2).setBackground(QtGui.QColor(course_colour[course]))
-                    if new_class == 1:
-                        self.main_table.item(cell, day*2).setText(day_list[cell])
-                        new_class = 0
-
-                else:
-                    course = day_list[cell]
-                    new_class = 1
-                    if course not in course_colour.keys():
-                        colour_index += 1
-                        course_colour[course] = BG_COLOURS[colour_index]
-                    self.main_table.item(cell, day*2).setBackground(QtGui.QColor(course_colour[course]))
 
 
 
