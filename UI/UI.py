@@ -37,6 +37,7 @@ class UI(QMainWindow):
         self.file_label = QLabel()
         self.legion_size = QLabel()
         self.select_room = QComboBox()
+        self.week_label = QLabel()
 
         '''
         Creating tables for each tab
@@ -100,6 +101,16 @@ class UI(QMainWindow):
 
         self.create_schedule_base()
 
+        week_choose = QHBoxLayout(self)
+
+        left = QPushButton("<--")
+        right = QPushButton("-->")
+
+        week_choose.addWidget(left)
+        week_choose.addWidget(self.week_label)
+        week_choose.addWidget(right)
+
+        main_table_box.addLayout(week_choose)
         main_table_box.addWidget(self.main_table)
 
         tab1.setLayout(main_table_box)
