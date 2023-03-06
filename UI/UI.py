@@ -11,7 +11,7 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from database.database import *
 
-import imports.scheduler
+import imports.schedulers.core_scheduler
 import datetime
 
 BG_COLOURS = QtGui.QColor.colorNames()
