@@ -486,33 +486,36 @@ class UI(QMainWindow):
 
             day = WEEK*2    # day will be the monday of that week
             while not isinstance(SCHEDULE["day " + str(day + 1)], pd.DataFrame):
-                day += 1
 
                 # If R = 0, then go to the next week
                 if day % 2 != 0:
                     WEEK += 1
                     day = WEEK*2
+
+                day += 1
+
             self.week_label.setText("Week " + str(WEEK + 1))
 
             global POST_KEY
             POST_KEY = "day " + str(day + 1)
-
             if day % 2 != 0:
                 # If the change day is wednesday
                 # Monday stays the same, wednesday changes
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+
             elif day % 2 == 0 and isinstance(SCHEDULE["day " + str(day + 2)], pd.DataFrame):
                 # Change on monday and wednesday
                 PREV_KEY = POST_KEY
                 POST_KEY = "day " + str(day + 2)
-                print(PREV_KEY, POST_KEY)
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
             else:
                 # Change happens on a monday
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+
+            PREV_KEY = POST_KEY
         except:
             print("error")
 
