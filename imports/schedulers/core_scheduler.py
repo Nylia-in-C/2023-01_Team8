@@ -247,6 +247,7 @@ def create_term_schedule(lecture_hours: Dict[str, int], lectures: List[Course], 
     full_schedule = {}
 
     for i in range(1, 27):
+
         
         lecture_sched = create_day_schedule(lecture_hours, lectures, lecture_rooms)
         lecture_hours = update_course_hours(lecture_hours, lecture_sched)
@@ -311,6 +312,7 @@ if __name__ == '__main__':
           \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
     
+
     # schedule lectures & labs seperately
     lectures = [course for course in term_courses[term] if course not in lab_courses]
     labs     = [course for course in term_courses[term] if course in lab_courses]
@@ -318,6 +320,7 @@ if __name__ == '__main__':
     lecture_hours, lab_hours = get_course_hours(lectures, labs)
     
     full_schedule = create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms)
+
     
     for day, sched in full_schedule.items():
         if not (isinstance(sched, str)):
