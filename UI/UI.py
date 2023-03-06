@@ -46,8 +46,10 @@ class UI(QMainWindow):
 
         self.main_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.main_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        # Make table un-editable
+        # Make table un-editable / un-targettable
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.main_table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.main_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         '''
         Layouts containing the term inputs
