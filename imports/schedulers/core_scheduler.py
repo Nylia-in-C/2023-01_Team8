@@ -110,16 +110,16 @@ def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
     '''
 
     # 8 AM - 5 PM in half-hour increments 
-    times = [datetime.time(i, j).strftime("%H:%M") for i in range (8, 18) for j in [0, 30]]
-    times.append(datetime.time(5, 0).strftime("%H:%M"))
+    times = [datetime.time(i, j).strftime("%H:%M") for i in range (8, 17) for j in [0, 30]]
+    times.append(datetime.time(17, 0).strftime("%H:%M"))
     
     sched = pd.DataFrame(index = times)
     
     for room in (room_list):
         if (room.isLab):
-            sched[f"{room.ID} (LAB)"] = [""] * 21
+            sched[f"{room.ID} (LAB)"] = [""] * 19
         else:
-            sched[room.ID] = [""] * 21
+            sched[room.ID] = [""] * 19
         
     return sched
 
