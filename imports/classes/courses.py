@@ -6,6 +6,8 @@
 from dataclasses import field, dataclass
 from imports.classes.programs import *
 from imports.classes.classrooms import *
+# from classes.programs import *
+# from classes.classrooms import *
 
 # Directed graph representing course prerequisites (might change to Course objects later)
 # note: only program-specific courses have prerequisites

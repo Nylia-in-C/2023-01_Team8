@@ -6,6 +6,12 @@ import string
 from typing import *
 from imports.classes.courses import *
 from imports.classes.classrooms import *
+# import os, sys
+# currentdir = os.path.dirname(os.path.realpath(__file__))
+# parentdir = os.path.dirname(currentdir)
+# sys.path.append(parentdir)
+# from classes.courses import *
+# from classes.classrooms import *
 
 #initialize objects/dummy data==================================================
 
