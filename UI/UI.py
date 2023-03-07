@@ -23,7 +23,7 @@ LEFT_MAX_WIDTH = 450
 LEC_ROOMS = []
 LAB_ROOMS = []
 global SCHEDULE
-WEEK = 0
+WEEK = 1
 PREV_KEY = ""
 POST_KEY = ""
 global COURSE_COLOUR
@@ -116,6 +116,7 @@ class UI(QMainWindow):
         left = QPushButton("<--")
         right = QPushButton("-->")
         right.clicked.connect(self.forward_week)
+        left.clicked.connect(self.back_week)
 
         week_choose.addWidget(left)
         week_choose.addWidget(self.week_label)
@@ -453,6 +454,80 @@ class UI(QMainWindow):
     Action Event functions
     '''
 
+    def back_week(self):
+        global SCHEDULE
+        global WEEK
+        global PREV_KEY
+        global POST_KEY
+        global COURSE_COLOUR
+        COURSE_COLOUR = {}
+
+        # Only 13 weeks in a semester
+        if WEEK == 1:
+            return
+        WEEK -= 1
+
+        room_requested = self.select_room.currentText().split(" ")[0]
+        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+            room_requested = room_requested + " (LAB)"
+
+        self.reset_table()
+
+        try:
+            # Find the next day that the schedule changes.
+            # When accessing from dataframe, odd is monday, even, wednesday
+
+            day = (WEEK * 2)  # day will be the wednesday of the previous week
+            while not isinstance(SCHEDULE["day " + str(day)], pd.DataFrame):
+
+                # If R != 0, then go to the previous week
+                if day % 2 != 0:
+                    WEEK -= 1
+                    day = (WEEK * 2)
+
+                day -= 1
+
+            self.week_label.setText("Week " + str(WEEK))
+
+            PREV_KEY = "day " + str(day)
+            if day % 2 != 0:
+                # If the change day is monday
+                # wednesday stays the same, monday changes
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
+                print("Monday change")
+
+            elif day % 2 == 0 and isinstance(SCHEDULE["day " + str(day - 1)], pd.DataFrame):
+                # Change on wednesday and monday
+                POST_KEY = PREV_KEY
+                PREV_KEY = "day " + str(day - 1)
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+                print("Both change")
+            else:
+                # Change happens on a Wednesday
+                POST_KEY = PREV_KEY
+
+                # Find the next previous change
+                _day = day - 1
+                _week = WEEK
+                while not isinstance(SCHEDULE["day " + str(_day)], pd.DataFrame):
+                    if _day % 2 != 0:
+                        _week -= 1
+                        _day = (_week * 2)
+
+                    _day -= 1
+
+                PREV_KEY = "day " + str(_day)
+                print(PREV_KEY)
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+                print("WEdnesdya change")
+                PREV_KEY = POST_KEY
+
+            POST_KEY = PREV_KEY
+        except:
+            print("error")
     def forward_week(self):
         global SCHEDULE
         global WEEK
@@ -463,7 +538,7 @@ class UI(QMainWindow):
 
 
         # Only 13 weeks in a semester
-        if WEEK == 12:
+        if WEEK == 13:
             return
         WEEK += 1
 
@@ -475,33 +550,31 @@ class UI(QMainWindow):
 
         try:
             # Find the next day that the schedule changes.
-            # Recall: Even numbers are monday, odd, wednesday
             # When accessing from dataframe, odd is monday, even, wednesday
 
-            day = WEEK*2    # day will be the monday of that week
-            while not isinstance(SCHEDULE["day " + str(day + 1)], pd.DataFrame):
+            day = (WEEK*2) - 1    # day will be the monday of the next week
+            while not isinstance(SCHEDULE["day " + str(day)], pd.DataFrame):
 
                 # If R = 0, then go to the next week
-                if day % 2 != 0:
+                if day % 2 == 0:
                     WEEK += 1
-                    day = WEEK*2
+                    day = (WEEK*2) - 2
 
                 day += 1
 
-            self.week_label.setText("Week " + str(WEEK + 1))
+            self.week_label.setText("Week " + str(WEEK))
 
-            global POST_KEY
-            POST_KEY = "day " + str(day + 1)
-            if day % 2 != 0:
+            POST_KEY = "day " + str(day)
+            if day % 2 == 0:
                 # If the change day is wednesday
                 # Monday stays the same, wednesday changes
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
 
-            elif day % 2 == 0 and isinstance(SCHEDULE["day " + str(day + 2)], pd.DataFrame):
+            elif day % 2 != 0 and isinstance(SCHEDULE["day " + str(day + 1)], pd.DataFrame):
                 # Change on monday and wednesday
                 PREV_KEY = POST_KEY
-                POST_KEY = "day " + str(day + 2)
+                POST_KEY = "day " + str(day + 1)
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
             else:
@@ -519,7 +592,7 @@ class UI(QMainWindow):
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
         global WEEK
-        WEEK = 0
+        WEEK = 1
 
         if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
