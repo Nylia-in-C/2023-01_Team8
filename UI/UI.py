@@ -495,7 +495,6 @@ class UI(QMainWindow):
                 # wednesday stays the same, monday changes
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
-                print("Monday change")
 
             elif day % 2 == 0 and isinstance(SCHEDULE["day " + str(day - 1)], pd.DataFrame):
                 # Change on wednesday and monday
@@ -503,7 +502,6 @@ class UI(QMainWindow):
                 PREV_KEY = "day " + str(day - 1)
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
-                print("Both change")
             else:
                 # Change happens on a Wednesday
                 POST_KEY = PREV_KEY
@@ -519,10 +517,8 @@ class UI(QMainWindow):
                     _day -= 1
 
                 PREV_KEY = "day " + str(_day)
-                print(PREV_KEY)
                 self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
                 self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
-                print("WEdnesdya change")
                 PREV_KEY = POST_KEY
 
             POST_KEY = PREV_KEY
