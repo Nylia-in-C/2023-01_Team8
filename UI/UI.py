@@ -432,8 +432,6 @@ class UI(QMainWindow):
 
         colour_index = -1
 
-        new_class = 0
-
         day_list = pd_dataframe.tolist()
 
         for cell in range(self.main_table.rowCount()):
@@ -442,16 +440,12 @@ class UI(QMainWindow):
                 continue
             elif day_list[cell] != "" and course == day_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
-                if new_class == 1:
-                    self.main_table.item(cell, weekday).setText(day_list[cell])
-                    new_class = 0
-
             else:
                 course = day_list[cell]
-                new_class = 1
                 if course not in COURSE_COLOUR.keys():
                     colour_index += 1
                     COURSE_COLOUR[course] = BG_COLOURS[colour_index]
+                self.main_table.item(cell, weekday).setText(day_list[cell])
                 self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
 
@@ -561,7 +555,10 @@ class UI(QMainWindow):
         COURSE_COLOUR = {}
 
         self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
-        self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
+        if isinstance(SCHEDULE["day 2"], pd.DataFrame):
+            self.show_schedule(SCHEDULE["day 2"][room_requested], 2)
+        else:
+            self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
 
 
 
