@@ -268,14 +268,14 @@ class UI(QMainWindow):
         vbox_labels = QVBoxLayout()
 
         vbox_labels.addWidget(QLabel())
-        vbox_labels.addWidget(QLabel("PCOM Students"))
-        vbox_labels.addWidget(QLabel("BCOM Students"))
-        vbox_labels.addWidget(QLabel("PM Students"))
-        vbox_labels.addWidget(QLabel("BA Students"))
-        vbox_labels.addWidget(QLabel("GLM Students"))
-        vbox_labels.addWidget(QLabel("FS Students"))
-        vbox_labels.addWidget(QLabel("DXD Students"))
-        vbox_labels.addWidget(QLabel("BKC Students"))
+        vbox_labels.addWidget(QLabel("PCOM"))
+        vbox_labels.addWidget(QLabel("BCOM"))
+        vbox_labels.addWidget(QLabel("PM"))
+        vbox_labels.addWidget(QLabel("BA"))
+        vbox_labels.addWidget(QLabel("GLM"))
+        vbox_labels.addWidget(QLabel("FS"))
+        vbox_labels.addWidget(QLabel("DXD"))
+        vbox_labels.addWidget(QLabel("BKC"))
         return vbox_labels
     def create_term1_inputs(self):
 
