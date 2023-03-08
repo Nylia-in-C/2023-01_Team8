@@ -2,8 +2,10 @@
 
 from UI import UI
 from PyQt5.QtWidgets import *
+
 def main():
 
+    #Set up GUI and run app
     app = QApplication([])
     window = UI.UI()
     window.show()
