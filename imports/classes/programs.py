@@ -89,7 +89,7 @@ class Cohort(Program):
                 legionString = legionString + self.legions[i]
                 i=i-1
             else:
-                legionString = legionString + self.legions[i] + ', '
+                legionString = legionString + self.legions[i] + '. '
                 i = i-1
 
         courseString = ""
@@ -99,7 +99,7 @@ class Cohort(Program):
                 courseString = courseString + self.courses[i]
                 i=i-1
             else:
-                courseString = courseString + self.courses[i] + ', '
+                courseString = courseString + self.courses[i] + '. '
                 i = i-1
         # May need to expand on self.legions, as each legion will need to be loaded into the database
         

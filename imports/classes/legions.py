@@ -33,5 +33,5 @@ class Legion:
         "ProgID, TermID, LegionID, Name, Count"
         Passed to database to load legion into the database.
         """
-        return f" '{self.programID}', {self.termID}, {self.legionID}, '{self.name}', {self.count} "
+        return f" '{self.programID}', '{self.termID}', {self.legionID}, '{self.name}', {self.count} "
     

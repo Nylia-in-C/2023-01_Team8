@@ -2,6 +2,8 @@ import math
 import datetime
 import pprint
 import pandas as pd
+from imports.classes.courses import *
+from imports.classes.classrooms import *
 import string
 from typing import *
 # import os, sys
@@ -265,14 +267,14 @@ def create_day_schedule(course_hours: Dict[str, int], course_list: List[Course],
     '''
     
     sched = create_empty_schedule(room_list)
-    
+
     # ignore courses that have been fully scheduled
     course_list = [course for course in course_list if 
                    course_hours[course.ID]['remaining'] > 0]
 
     # sort course_list by required term hours (descending)
     course_list.sort(key=lambda x: x.termHours, reverse=True)
-    
+
     # schedule online courses first
     for index, room in enumerate(room_list):
         # if all courses have been scheduled, leave the leftover rooms empty
@@ -285,7 +287,7 @@ def create_day_schedule(course_hours: Dict[str, int], course_list: List[Course],
             room_col_index = sched.columns.get_loc(room.ID)
         
         curr_course = course_list[index]
-        
+
         hours_left = course_hours[curr_course.ID]['remaining']
         duration   = curr_course.duration
 
@@ -313,7 +315,7 @@ def create_day_schedule(course_hours: Dict[str, int], course_list: List[Course],
             sched.iloc[-(blocks*COHORT_COUNT):, room_col_index] = cohorts
         else:
             sched.iloc[:(blocks*COHORT_COUNT), room_col_index] = cohorts
-    
+
     return sched
 
 def create_term_schedule(lecture_hours: Dict[str, int], lectures: List[Course], lecture_rooms: List[Classroom], 
@@ -326,13 +328,14 @@ def create_term_schedule(lecture_hours: Dict[str, int], lectures: List[Course], 
     '''
     
     full_schedule = {}
-
+    global id_generator
+    id_generator = cohort_id_generator()
     for i in range(1, 27):
 
-        
+
         lecture_sched = create_day_schedule(lecture_hours, lectures, lecture_rooms)
         lecture_hours = update_course_hours(lecture_hours, lecture_sched)
-        
+
         lab_sched = create_day_schedule(lab_hours, labs, lab_rooms)
         lab_hours = update_course_hours(lab_hours, lab_sched)
 
@@ -386,8 +389,7 @@ def validate_sched(full_schedule: Dict[str, pd.DataFrame]) -> bool:
 #     return -1
 
 if __name__ == '__main__':
-    global id_generator 
-    id_generator = cohort_id_generator()
+
     
     print("Enter a number for the term you want to generate a schedule for: \
           \n1. Fall \n2. Winter \n3. Spring/Summer")

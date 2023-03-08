@@ -9,17 +9,25 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
+
+import database.database
 from database.database import *
 
 import imports.schedulers.core_scheduler
 import datetime
 
+
 BG_COLOURS = QtGui.QColor.colorNames()
 
-table_columns = []
 LEFT_MAX_WIDTH = 450
-ROOMS = ['11-533', '11-534', '11-560', '11-562', '11-564', '11-458',
-             '11-430', '11-320']
+LEC_ROOMS = []
+LAB_ROOMS = []
+global SCHEDULE
+WEEK = 0
+PREV_KEY = ""
+POST_KEY = ""
+global COURSE_COLOUR
+
 class UI(QMainWindow):
 
     def __init__(self):
@@ -34,6 +42,12 @@ class UI(QMainWindow):
         self.file_label = QLabel()
         self.legion_size = QLabel()
         self.select_room = QComboBox()
+        self.week_label = QLabel()
+        font = QFont()
+        font.setPointSize(16)
+        self.week_label.setFont(font)
+        self.week_label.setAlignment(Qt.AlignCenter)
+
 
         '''
         Creating tables for each tab
@@ -43,8 +57,10 @@ class UI(QMainWindow):
 
         self.main_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.main_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        # Make table un-editable
+        # Make table un-editable / un-targettable
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.main_table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.main_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         '''
         Layouts containing the term inputs
@@ -95,6 +111,17 @@ class UI(QMainWindow):
 
         self.create_schedule_base()
 
+        week_choose = QHBoxLayout(self)
+
+        left = QPushButton("<--")
+        right = QPushButton("-->")
+        right.clicked.connect(self.forward_week)
+
+        week_choose.addWidget(left)
+        week_choose.addWidget(self.week_label)
+        week_choose.addWidget(right)
+
+        main_table_box.addLayout(week_choose)
         main_table_box.addWidget(self.main_table)
 
         tab1.setLayout(main_table_box)
@@ -154,7 +181,16 @@ class UI(QMainWindow):
 
         create_sched = QPushButton("Create Schedule")
         create_sched.clicked.connect(self.create_schedule)
-        self.select_room.addItems(ROOMS)
+
+        #TODO Currently reading from the schedulers dummy values. Need to change to read from database, shouldnt be too much.
+
+        for rooms in range(len(imports.schedulers.core_scheduler.lecture_rooms)):
+            LEC_ROOMS.append(imports.schedulers.core_scheduler.lecture_rooms[rooms].ID + " Capacity: " + str(imports.schedulers.core_scheduler.lecture_rooms[rooms].capacity))
+        for rooms in range(len(imports.schedulers.core_scheduler.lab_rooms)):
+            LAB_ROOMS.append(imports.schedulers.core_scheduler.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.schedulers.core_scheduler.lab_rooms[rooms].capacity))
+
+        self.select_room.addItems(LEC_ROOMS)
+        self.select_room.addItems(LAB_ROOMS)
 
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
@@ -171,7 +207,6 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(create_sched)
         vbox.addWidget(self.select_room)
-
 
         width_limit.setLayout(vbox)
 
@@ -233,14 +268,14 @@ class UI(QMainWindow):
         vbox_labels = QVBoxLayout()
 
         vbox_labels.addWidget(QLabel())
-        vbox_labels.addWidget(QLabel("PCOM Students"))
-        vbox_labels.addWidget(QLabel("BCOM Students"))
-        vbox_labels.addWidget(QLabel("PM Students"))
-        vbox_labels.addWidget(QLabel("BA Students"))
-        vbox_labels.addWidget(QLabel("GLM Students"))
-        vbox_labels.addWidget(QLabel("FS Students"))
-        vbox_labels.addWidget(QLabel("DXD Students"))
-        vbox_labels.addWidget(QLabel("BKC Students"))
+        vbox_labels.addWidget(QLabel("PCOM"))
+        vbox_labels.addWidget(QLabel("BCOM"))
+        vbox_labels.addWidget(QLabel("PM"))
+        vbox_labels.addWidget(QLabel("BA"))
+        vbox_labels.addWidget(QLabel("GLM"))
+        vbox_labels.addWidget(QLabel("FS"))
+        vbox_labels.addWidget(QLabel("DXD"))
+        vbox_labels.addWidget(QLabel("BKC"))
         return vbox_labels
     def create_term1_inputs(self):
 
@@ -333,7 +368,8 @@ class UI(QMainWindow):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
-                placeholder.setBackground(QtGui.QColor("lightGray"))
+                #placeholder.setBackground(QtGui.QColor("lightGray"))
+                placeholder.setBackground(QtGui.QColor('#fff2e6'))
                 self.main_table.setItem(row, column, placeholder)
 
     def retrieve_term_inputs(self, layout):
@@ -356,29 +392,138 @@ class UI(QMainWindow):
         for each_field in range(input_fields):
             print(layout.itemAt(each_field).widget().value())
 
-    def get_cohorts(self, semester):
-        database = r".\database\database.db"  # database.db file path
-        conn = create_connection(database)
 
-        readCohortItem(conn, semester)
+    # This function will store the input values
+    # into the database, after calling the create legions
+    # functions
+    #TODO: Not used atm, must be implemented
+    def store_legions(self):
+        db = r".\database\database.db"  # database.db file path
+        conn = create_connection(db)
+
+        programs = ["PCOM", "BCOM" , "PM",  "BA",  "GLM",  "FS" , "DXD",  "BKC"]
+
+        #TODO Need to get the legions made to parse the numbers to add to db
+        # Anything with a '/' is what needs to be obtained
+
+        # for each_field in range(8):
+        #
+        #     self.term_1_inputs.itemAt(each_field).widget().value()
+        #     # Calculate legions here
+        #     for each_legion in range(/legions):
+        #         database.database.addLegionItem(conn, programs[each_field], 1, /legion_num )
+        #
+        #     self.term_2_inputs.itemAt(each_field).widget().value()
+        #     for each_legion in range( / legions):
+        #         database.database.addLegionItem(conn, programs[each_field], 2, /legion_num)
+        #
+        #     self.term_3_inputs.itemAt(each_field).widget().value()
+        #     for each_legion in range( / legions):
+        #         database.database.addLegionItem(conn, programs[each_field], 3, /legion_num)
 
         close_connection(conn)
 
 
 
+    # weekday is 0 or 2, depending on if its monday or wednesday respectively
+    # eventually 1 and 3 for tuesday, thursday
+    def show_schedule(self, pd_dataframe, weekday):
 
+        course = ""
 
+        colour_index = -1
 
+        day_list = pd_dataframe.tolist()
+
+        for cell in range(self.main_table.rowCount()):
+
+            if day_list[cell] == "":
+                continue
+            elif day_list[cell] != "" and course == day_list[cell]:
+                self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
+            else:
+                course = day_list[cell]
+                if course not in COURSE_COLOUR.keys():
+                    colour_index += 1
+                    COURSE_COLOUR[course] = BG_COLOURS[colour_index]
+                self.main_table.item(cell, weekday).setText(day_list[cell])
+                self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
 
     '''
     Action Event functions
     '''
 
-    def create_schedule(self):
-        room_requested = self.select_room.currentText()
+    def forward_week(self):
+        global SCHEDULE
+        global WEEK
+        global PREV_KEY
+        global POST_KEY
+        global COURSE_COLOUR
+        COURSE_COLOUR = {}
 
-        self.get_cohorts()
+
+        # Only 13 weeks in a semester
+        if WEEK == 12:
+            return
+        WEEK += 1
+
+        room_requested = self.select_room.currentText().split(" ")[0]
+        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+            room_requested = room_requested + " (LAB)"
+
+        self.reset_table()
+
+        try:
+            # Find the next day that the schedule changes.
+            # Recall: Even numbers are monday, odd, wednesday
+            # When accessing from dataframe, odd is monday, even, wednesday
+
+            day = WEEK*2    # day will be the monday of that week
+            while not isinstance(SCHEDULE["day " + str(day + 1)], pd.DataFrame):
+
+                # If R = 0, then go to the next week
+                if day % 2 != 0:
+                    WEEK += 1
+                    day = WEEK*2
+
+                day += 1
+
+            self.week_label.setText("Week " + str(WEEK + 1))
+
+            global POST_KEY
+            POST_KEY = "day " + str(day + 1)
+            if day % 2 != 0:
+                # If the change day is wednesday
+                # Monday stays the same, wednesday changes
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+
+            elif day % 2 == 0 and isinstance(SCHEDULE["day " + str(day + 2)], pd.DataFrame):
+                # Change on monday and wednesday
+                PREV_KEY = POST_KEY
+                POST_KEY = "day " + str(day + 2)
+                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+            else:
+                # Change happens on a monday
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 0)
+                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+
+            PREV_KEY = POST_KEY
+        except:
+            print("error")
+
+
+
+    def create_schedule(self):
+        room_requested = self.select_room.currentText().split(" ")[0]
+        self.week_label.setText("Week 1")
+        global WEEK
+        WEEK = 0
+
+        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+            room_requested = room_requested + " (LAB)"
 
         # Clear any values from the table
         # Fresh Start
@@ -388,11 +533,15 @@ class UI(QMainWindow):
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
 
-        # Term courses[1] is placeholder for the time being.
-        course_list = imports.scheduler.term_courses[1]
+        lectures = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course not in imports.schedulers.core_scheduler.lab_courses]
+        labs = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course in imports.schedulers.core_scheduler.lab_courses]
 
-        course_hours = imports.scheduler.get_course_hours(course_list)
-        schedule = imports.scheduler.create_term_schedule(course_hours, course_list)
+        lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
+        global SCHEDULE
+        SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.core_scheduler.lecture_rooms, lab_hours, labs, imports.schedulers.core_scheduler.lab_rooms)
+
+        global PREV_KEY
+        PREV_KEY = "day 1"
 
         # Note: Schedule is form of - schedule[day #][room]
         # Be advised that if [day #] is an even number
@@ -400,37 +549,20 @@ class UI(QMainWindow):
 
         # Note: If schedule at a specific day is empty, that means it hasn't changed from the last
         # day. Only days with dataframe objects indicate a change.
-        course = ""
-        colour_index = -1
 
         # This dictionary will hold the course name (key)
         # and the colour (value) for easier distinction between same courses, and different ones
-        course_colour = {}
+        global COURSE_COLOUR
+        COURSE_COLOUR = {}
 
-        for day in range(2):
-            if isinstance(schedule["day " + str(day + 1)], pd.DataFrame):
-                prev_key = "day " + str(day + 1)
+        self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
+        if isinstance(SCHEDULE["day 2"], pd.DataFrame):
+            self.show_schedule(SCHEDULE["day 2"][room_requested], 2)
+        else:
+            self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
 
-            day_list = schedule[prev_key][room_requested].tolist()
-            day_list[10] = "bcom test"
 
-            for cell in range(self.main_table.rowCount()):
 
-                if day_list[cell] == "":
-                    continue
-                elif day_list[cell] != "" and course == day_list[cell]:
-                    #TODO: Remove the *2 on the days, only there since we dont have values for tuesday / thursday yet
-                    self.main_table.item(cell,day*2).setBackground(QtGui.QColor(course_colour[course]))
-                    if cell == 3:
-                        self.main_table.item(cell, day*2).setText(day_list[cell])
-
-                else:
-                    course = day_list[cell]
-                    if course not in course_colour.keys():
-
-                        colour_index += 1
-                        course_colour[course] = BG_COLOURS[colour_index]
-                    self.main_table.item(cell, day*2).setBackground(QtGui.QColor(course_colour[course]))
 
 
 
