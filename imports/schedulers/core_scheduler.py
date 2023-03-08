@@ -4,16 +4,17 @@ import pprint
 import pandas as pd
 import string
 from typing import *
-from imports.classes.courses import *
-from imports.classes.classrooms import *
 # import os, sys
 # currentdir = os.path.dirname(os.path.realpath(__file__))
 # parentdir = os.path.dirname(currentdir)
-# sys.path.append(parentdir)
-# from classes.courses import *
-# from classes.classrooms import *
+# grandparentdir = os.path.dirname(parentdir)
+# sys.path.append(grandparentdir)
+from imports.classes.courses import *
+from imports.classes.classrooms import *
 
 #initialize objects/dummy data==================================================
+
+# Core Courses------------------------------------------------------------------
 
 # term 1 PCOM core courses
 pcom_0101 = Course('PCOM 0101', 'Business Writing 1', 35, 1.5, True, False, False)
@@ -69,6 +70,69 @@ bcom_courses = {
     'term 3': [pcom_0205, pcom_TBD , pcom_0207, supr_0863, pcom_0206],
 }
 
+# Program Courses------------------------------------------------------------------
+# term 1 PM program courses
+prdv_0201 = Course("PRDV 0201", "NA", 21, 2, False, False, False)
+prdv_0202 = Course("PRDV 0202", "NA", 14, 2, False, False, False)
+prdv_0203 = Course("PRDV 0203", "NA", 21, 2, False, False, False)
+
+# term 2 PM program courses
+prdv_0204 = Course("PRDV 0204", "NA", 14, 2, False, False, False)
+prdv_0205 = Course("PRDV 0205", "NA", 21, 2, False, False, False)
+pcom_0130 = Course("PCOM 0130", "NA", 21, 2, False, False, False) #TODO: Schedule pcom_0130 halfway through term
+prdv_0206 = Course("PRDV 0206", "NA", 14, 2, False, False, False)
+
+# term 3 PM program courses
+prdv_0207 = Course("PRDV 0207", "NA", 14, 2, False, False, False)
+pcom_0131 = Course("PCOM 0131", "NA", 39, 2, False, False, False)
+
+# term 1 BA program courses
+prdv_0640 = Course("PRDV 0640", "NA", 21, 2, False, False, False)
+prdv_0652 = Course("PRDV 0652", "NA", 14, 2, False, False, False)
+prdv_0653 = Course("PRDV 0653", "NA", 21, 2, False, False, False)
+prdv_0642 = Course("PRDV 0642", "NA", 14, 2, False, False, False)
+
+# term 2 BA program courses
+prdv_0644 = Course("PRDV 0644", "NA", 21, 2, False, False, False)
+prdv_0648 = Course("PRDV 0648", "NA", 14, 2, False, False, False)
+pcom_0140 = Course("PCOM 0140", "NA", 35, 2, False, False, False) #TODO: Schedule pcom_0130 halfway through term
+
+# term 3 BA program courses
+prdv_0646 = Course("PRDV 0646", "NA", 14, 2, False, False, False)
+pcom_0141 = Course("PCOM 0141", "NA", 39, 3, False, False, False)
+
+# term 1 BK program courses
+acct_0201 = Course("ACCT 0201", "NA", 18, 2, False, False, False)
+acct_0202 = Course("ACCT 0202", "NA", 12, 2, False, False, False)
+acct_0203 = Course("ACCT 0203", "NA", 12, 2, False, False, False)
+
+# term 2 BK program courses
+acct_0206 = Course("ACCT 0206", "NA", 12, 2, False, False, False)
+acct_0210 = Course("ACCT 0210", "NA", 28, 2, False, False, True )
+acct_0211 = Course("ACCT 0211", "NA", 28, 2, False, False, True)
+
+# term 3 BK program courses
+acct_0208 = Course("ACCT 0208", "NA", 21, 2, False, False, True )
+acct_9901 = Course("ACCT 9901", "NA", 33, 2, False, False, True )
+
+pm_courses = {
+    'term 1': [prdv_0201, prdv_0202, prdv_0203],
+    'term 2': [prdv_0204, prdv_0205, pcom_0130, prdv_0206],
+    'term 3': [prdv_0207, pcom_0131],
+}
+
+ba_courses = {
+    'term 1': [prdv_0640, prdv_0652, prdv_0653, prdv_0642],
+    'term 2': [prdv_0644, prdv_0648, pcom_0140],
+    'term 3': [prdv_0646, pcom_0141],
+}
+
+bk_courses = {
+    'term 1': [acct_0201, acct_0202, acct_0203],
+    'term 2': [acct_0206, acct_0210, acct_0211],
+    'term 3': [acct_0208, acct_9901],
+}
+
 lab_courses = [pcom_0107, cmsk_0233, cmsk_0235, pcom_0108, pcom_0109_module_1]
 
 term_courses = {
@@ -78,6 +142,17 @@ term_courses = {
     2: pcom_courses['term 1'] + bcom_courses['term 1'] + pcom_courses['term 2'] + bcom_courses['term 2'],
     # spring/summer semester has term 2 and 3 courses
     3: pcom_courses['term 2'] + bcom_courses['term 2'] + pcom_courses['term 3'] + bcom_courses['term 3'], 
+}
+
+program_lab_courses = [acct_0210, acct_0211, acct_0208, acct_9901]
+
+program_term_courses = {
+    # fall semester has term 1 and term 3 courses
+    1: pm_courses['term 1'] + pm_courses['term 3'] + ba_courses['term 1'] + ba_courses['term 3'] + bk_courses['term 1'] + bk_courses['term 3'],
+    # winter semester has term 1 and 2 courses
+    2: pm_courses['term 1'] + pm_courses['term 2'] + ba_courses['term 1'] + ba_courses['term 2'] + bk_courses['term 1'] + bk_courses['term 2'],
+    # spring/summer semester has term 2 and 3 courses
+    3: pm_courses['term 2'] + pm_courses['term 3'] + ba_courses['term 2'] + ba_courses['term 3'] + bk_courses['term 2'] + bk_courses['term 3'], 
 }
 
 room_533 = Classroom('11-533', 36, False)
@@ -317,22 +392,43 @@ if __name__ == '__main__':
     print("Enter a number for the term you want to generate a schedule for: \
           \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
-    
 
-    # schedule lectures & labs seperately
-    lectures = [course for course in term_courses[term] if course not in lab_courses]
-    labs     = [course for course in term_courses[term] if course in lab_courses]
+    print("Enter a number for the Core Courses Schedule or the Program Schedule: \
+          \n1. Core \n2. Program")
+    CoreOrProgram = int(input())
     
-    lecture_hours, lab_hours = get_course_hours(lectures, labs)
-    
-    full_schedule = create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms)
+    if CoreOrProgram == 1:
+        print("==========================Monday Wednesday==========================")
 
+        # schedule lectures & labs seperately
+        lectures = [course for course in term_courses[term] if course not in lab_courses]
+        labs     = [course for course in term_courses[term] if course in lab_courses]
+        
+        lecture_hours, lab_hours = get_course_hours(lectures, labs)
+        
+        full_schedule = create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms)
+
+        
+        for day, sched in full_schedule.items():
+            if not (isinstance(sched, str)):
+                print(f"\n\n{day}: \n {sched}")
     
-    for day, sched in full_schedule.items():
-        if not (isinstance(sched, str)):
-            print(f"\n\n{day}: \n {sched}")
-            
-    
+    if CoreOrProgram == 2:
+        print("==========================Tuesday Thursday==========================")
+
+        # Program schedule
+        # program-lectures
+        program_lectures = [course for course in program_term_courses[term] if course not in lab_courses]
+        # program-hours
+        program_labs     = [course for course in program_term_courses[term] if course in program_lab_courses]
+
+        program_lecture_hours, program_lab_hours = get_course_hours(program_lectures, program_labs)
+
+        program_full_schedule = create_term_schedule(program_lecture_hours, program_lectures, lecture_rooms, program_lab_hours, program_labs, lab_rooms)
+
+        for day, sched in program_full_schedule.items():
+            if not (isinstance(sched, str)):
+                print(f"\n\n{day}: \n {sched}")
     
     #TODO: 
     #   - write function to validate no scheduling conflicts (no 'horizontal' overlap between cohorts)
