@@ -22,10 +22,13 @@ BG_COLOURS = QtGui.QColor.colorNames()
 LEFT_MAX_WIDTH = 450
 LEC_ROOMS = []
 LAB_ROOMS = []
-global SCHEDULE
+global CORE_SCHEDULE
+global PROG_SCHEDULE
 WEEK = 1
-PREV_KEY = ""
-POST_KEY = ""
+CORE_PREV = ""
+CORE_POST = ""
+PROG_PREV = ""
+PROG_POST = ""
 COLOUR_INDEX = -1
 global COURSE_COLOUR
 
@@ -47,10 +50,19 @@ def remove_colours():
     BG_COLOURS.remove("brown")
     BG_COLOURS.remove("beige")
     BG_COLOURS.remove("azure")
+    BG_COLOURS.remove("deeppink")
+    BG_COLOURS.remove("fuchsia")
+    BG_COLOURS.remove("hotpink")
+    BG_COLOURS.remove("magenta")
+    BG_COLOURS.remove("red")
+    BG_COLOURS.remove("pink")
+    BG_COLOURS.remove("mediumvioletred")
     _colours = BG_COLOURS.copy()
     for colour in range(len(_colours)):
         if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
             BG_COLOURS.remove(_colours[colour])
+
+    print(BG_COLOURS)
 class UI(QMainWindow):
 
     def __init__(self):
@@ -460,7 +472,8 @@ class UI(QMainWindow):
         course = ""
 
         day_list = pd_dataframe.tolist()
-
+        font = QFont()
+        font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
@@ -481,6 +494,7 @@ class UI(QMainWindow):
             else:
                 course = day_list[cell]
                 label_fill = QLabel(day_list[cell])
+                label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid black;"
                                          "border-width : 2px 2px 0px 2px;")
@@ -503,10 +517,12 @@ class UI(QMainWindow):
     '''
 
     def back_week(self):
-        global SCHEDULE
+        global CORE_SCHEDULE
         global WEEK
-        global PREV_KEY
-        global POST_KEY
+        global CORE_PREV
+        global CORE_POST
+        global PROG_PREV
+        global PROG_POST
 
         # Only 13 weeks in a semester
         if WEEK == 1:
@@ -517,14 +533,13 @@ class UI(QMainWindow):
         if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
-        self.reset_table()
-
         try:
             # Find the next day that the schedule changes.
             # When accessing from dataframe, odd is monday, even, wednesday
 
-            day = (WEEK * 2)  # day will be the wednesday of the previous week
-            while not isinstance(SCHEDULE["day " + str(day)], pd.DataFrame):
+            day = (WEEK * 2)  # day will be the wednesday / thursday of the previous week
+
+            while not (isinstance(CORE_SCHEDULE["day " + str(day)], pd.DataFrame) or isinstance(PROG_SCHEDULE["day " + str(day)], pd.DataFrame)):
 
                 # If R != 0, then go to the previous week
                 if day % 2 != 0:
@@ -534,47 +549,116 @@ class UI(QMainWindow):
                 day -= 1
 
             self.week_label.setText("Week " + str(WEEK))
+            self.reset_table()
+            CORE_PREV = "day " + str(day)
+            PROG_PREV = "day " + str(day)
 
-            PREV_KEY = "day " + str(day)
-            if day % 2 != 0:
-                # If the change day is monday
+            if day % 2 != 0 and isinstance(CORE_SCHEDULE[CORE_PREV], pd.DataFrame):
+                # If the change day is monday and core is changing
                 # wednesday stays the same, monday changes
-                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
-                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
 
-            elif day % 2 == 0 and isinstance(SCHEDULE["day " + str(day - 1)], pd.DataFrame):
-                # Change on wednesday and monday
-                POST_KEY = PREV_KEY
-                PREV_KEY = "day " + str(day - 1)
-                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
-                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
-            else:
-                # Change happens on a Wednesday
-                POST_KEY = PREV_KEY
+            elif day % 2 == 0 and isinstance(CORE_SCHEDULE[CORE_PREV], pd.DataFrame) and isinstance(CORE_SCHEDULE["day " + str(day - 1)], pd.DataFrame):
+                # Change on wednesday and monday core
+                CORE_POST = CORE_PREV
+                CORE_PREV = "day " + str(day - 1)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
+            elif day % 2 == 0 and isinstance(CORE_SCHEDULE["day " + str(day)], pd.DataFrame):
+                # Change on wednesday, no change on monday
+                CORE_POST = CORE_PREV
 
                 # Find the next previous change
                 _day = day - 1
                 _week = WEEK
-                while not isinstance(SCHEDULE["day " + str(_day)], pd.DataFrame):
+                while not isinstance(CORE_SCHEDULE["day " + str(_day)], pd.DataFrame):
                     if _day % 2 != 0:
                         _week -= 1
                         _day = (_week * 2)
 
                     _day -= 1
 
-                PREV_KEY = "day " + str(_day)
-                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
-                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
-                PREV_KEY = POST_KEY
+                CORE_PREV = "day " + str(_day)
 
-            POST_KEY = PREV_KEY
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
+                CORE_PREV = CORE_POST
+
+            else:
+                # Change only in program (tue / thur)
+                # Must find previous change
+                _day = day - 1
+                _week = WEEK
+                while not isinstance(CORE_SCHEDULE["day " + str(_day)], pd.DataFrame):
+                    if _day % 2 != 0:
+                        _week -= 1
+                        _day = (_week * 2)
+
+                    _day -= 1
+                CORE_PREV = "day " + str(_day)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
+
+            CORE_POST = CORE_PREV
+
+            if day % 2 != 0 and isinstance(PROG_SCHEDULE[PROG_PREV], pd.DataFrame):
+                # If the change day is tuesday and prog is changing
+                # thursday stays the same, tuesday changes
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 3)
+
+            elif day % 2 == 0 and isinstance(PROG_SCHEDULE[PROG_PREV], pd.DataFrame) and isinstance(PROG_SCHEDULE["day " + str(day - 1)], pd.DataFrame):
+                # Change on thursday and tuesday prog
+                PROG_POST = PROG_PREV
+                PROG_PREV = "day " + str(day - 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
+            elif day % 2 == 0 and isinstance(PROG_SCHEDULE[PROG_PREV], pd.DataFrame):
+                # Change on thursday, no change on tuesday
+                PROG_POST = PROG_PREV
+                # Find the next previous change
+                _day = day - 1
+                _week = WEEK
+                while not isinstance(PROG_SCHEDULE["day " + str(_day)], pd.DataFrame):
+                    if _day % 2 != 0:
+                        _week -= 1
+                        _day = (_week * 2)
+
+                    _day -= 1
+
+                PROG_PREV = "day " + str(_day)
+
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
+                PROG_PREV = PROG_POST
+
+            else:
+                # Change only in course (mon / wed)
+                # Must find previous change
+                _day = day - 1
+                _week = WEEK
+                while not isinstance(PROG_SCHEDULE["day " + str(_day)], pd.DataFrame):
+                    if _day % 2 != 0:
+                        _week -= 1
+                        _day = (_week * 2)
+
+                    _day -= 1
+                PROG_PREV = "day " + str(_day)
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 3)
+
+            PROG_POST = PROG_PREV
+
         except:
             print("error")
     def forward_week(self):
-        global SCHEDULE
+        global CORE_SCHEDULE
         global WEEK
-        global PREV_KEY
-        global POST_KEY
+        global CORE_PREV
+        global CORE_POST
+        global PROG_PREV
+        global PROG_POST
 
 
         # Only 13 weeks in a semester
@@ -586,14 +670,16 @@ class UI(QMainWindow):
         if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
-        self.reset_table()
-
         try:
             # Find the next day that the schedule changes.
-            # When accessing from dataframe, odd is monday, even, wednesday
+            # When accessing from dataframe, odd is monday / tuesday, even, wednesday / thursday
 
-            day = (WEEK*2) - 1    # day will be the monday of the next week
-            while not isinstance(SCHEDULE["day " + str(day)], pd.DataFrame):
+            day = (WEEK*2) - 1    # day will be the monday / tuesday of the next week
+
+            while not (isinstance(CORE_SCHEDULE["day " + str(day)], pd.DataFrame) or isinstance(PROG_SCHEDULE["day " + str(day)], pd.DataFrame) ):
+
+                # If we get to the last day of the semester (day 26) and theres no dataframe,
+                # There is no more changes for the semester
 
                 # If R = 0, then go to the next week
                 if day % 2 == 0:
@@ -602,27 +688,61 @@ class UI(QMainWindow):
 
                 day += 1
 
+            self.reset_table()
+
             self.week_label.setText("Week " + str(WEEK))
 
-            POST_KEY = "day " + str(day)
-            if day % 2 == 0:
-                # If the change day is wednesday
+            CORE_POST = "day " + str(day)
+            PROG_POST = "day " + str(day)
+
+            if day % 2 == 0 and isinstance(CORE_SCHEDULE[CORE_POST], pd.DataFrame):
+                # If the change day is wednesday and theres a change in core
                 # Monday stays the same, wednesday changes
-                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
-                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
 
-            elif day % 2 != 0 and isinstance(SCHEDULE["day " + str(day + 1)], pd.DataFrame):
+            elif day % 2 != 0 and isinstance(CORE_SCHEDULE["day " + str(day + 1)], pd.DataFrame):
                 # Change on monday and wednesday
-                PREV_KEY = POST_KEY
-                POST_KEY = "day " + str(day + 1)
-                self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
-                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
-            else:
+                CORE_PREV = CORE_POST
+                CORE_POST = "day " + str(day + 1)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
+            elif day % 2 != 0 and isinstance(CORE_SCHEDULE[CORE_POST], pd.DataFrame):
                 # Change happens on a monday
-                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 0)
-                self.show_schedule(SCHEDULE[POST_KEY][room_requested], 2)
+                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
+            else:
+                # Change only in program (tue / thur)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
+                CORE_POST = CORE_PREV
 
-            PREV_KEY = POST_KEY
+
+            CORE_PREV = CORE_POST
+
+            if day % 2 == 0 and isinstance(PROG_SCHEDULE[PROG_POST], pd.DataFrame):
+                # If the change day is thursday and theres a change in program
+                # Tue stays the same, thur changes
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
+
+            elif day % 2 != 0 and isinstance(PROG_SCHEDULE["day " + str(day + 1)], pd.DataFrame):
+                # Change on tuesday and thursday
+                PROG_PREV = PROG_POST
+                PROG_POST = "day " + str(day + 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
+            elif day % 2 != 0 and isinstance(PROG_SCHEDULE[PROG_POST], pd.DataFrame):
+                # Change happens on a tuesday
+                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
+            else:
+                # Change only in core (mon / wed)
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 3)
+                PROG_POST = PROG_PREV
+
+            PROG_PREV = PROG_POST
         except:
             print("error")
 
@@ -652,12 +772,27 @@ class UI(QMainWindow):
         lectures = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course not in imports.schedulers.core_scheduler.lab_courses]
         labs = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course in imports.schedulers.core_scheduler.lab_courses]
 
-        lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
-        global SCHEDULE
-        SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.core_scheduler.lecture_rooms, lab_hours, labs, imports.schedulers.core_scheduler.lab_rooms)
+        prog_lectures = [course for course in imports.schedulers.core_scheduler.program_term_courses[1] if course not in imports.schedulers.core_scheduler.program_lab_courses]
+        prog_labs = [course for course in imports.schedulers.core_scheduler.program_term_courses[1] if course in imports.schedulers.core_scheduler.program_lab_courses]
 
-        global PREV_KEY
-        PREV_KEY = "day 1"
+        lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
+        prog_lec_hours, prog_lab_hours = imports.schedulers.core_scheduler.get_course_hours(prog_lectures, prog_labs)
+
+        global CORE_SCHEDULE, PROG_SCHEDULE
+        CORE_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures,
+                                                                               imports.schedulers.core_scheduler.lecture_rooms,
+                                                                               lab_hours, labs,
+                                                                               imports.schedulers.core_scheduler.lab_rooms)
+
+        PROG_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(prog_lec_hours, prog_lectures,
+                                                                               imports.schedulers.core_scheduler.lecture_rooms,
+                                                                               prog_lab_hours, prog_labs,
+                                                                               imports.schedulers.core_scheduler.lab_rooms)
+
+
+        global CORE_PREV, PROG_PREV
+        CORE_PREV = "day 1"
+        PROG_PREV = "day 1"
 
         # Note: Schedule is form of - schedule[day #][room]
         # Be advised that if [day #] is an even number
@@ -672,11 +807,17 @@ class UI(QMainWindow):
         COURSE_COLOUR = {}
         COLOUR_INDEX = -1
 
-        self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
-        if isinstance(SCHEDULE["day 2"], pd.DataFrame):
-            self.show_schedule(SCHEDULE["day 2"][room_requested], 2)
+        self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
+        self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
+        if isinstance(CORE_SCHEDULE["day 2"], pd.DataFrame):
+            self.show_schedule(CORE_SCHEDULE["day 2"][room_requested], 2)
         else:
-            self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 2)
+            self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
+
+        if isinstance(PROG_SCHEDULE["day 2"], pd.DataFrame):
+            self.show_schedule(PROG_SCHEDULE["day 2"][room_requested], 3)
+        else:
+            self.show_schedule(PROG_SCHEDULE[CORE_PREV][room_requested], 3)
 
 
 

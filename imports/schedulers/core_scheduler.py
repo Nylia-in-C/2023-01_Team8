@@ -419,7 +419,7 @@ if __name__ == '__main__':
 
         # Program schedule
         # program-lectures
-        program_lectures = [course for course in program_term_courses[term] if course not in lab_courses]
+        program_lectures = [course for course in program_term_courses[term] if course not in program_lab_courses]
         # program-hours
         program_labs     = [course for course in program_term_courses[term] if course in program_lab_courses]
 
