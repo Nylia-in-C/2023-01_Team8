@@ -36,8 +36,8 @@ class Course:
     def __post_init__(self):
         if self.ID in preReqs.keys():
             self.preReqs = preReqs[self.ID]
-        else:
-            self.preReqs = []
+        # else:
+        #     self.preReqs = []
 
     def createCourseItemInfo(self):
         """
@@ -52,7 +52,7 @@ class Course:
                 preReqsString = preReqsString + self.preReqs[i]
                 i=i-1
             else:
-                preReqsString = preReqsString + self.preReqs[i] + ', '
+                preReqsString = preReqsString + self.preReqs[i] + '. '
                 i = i-1
         return ( self.ID, self.title, self.termHours, self.duration, self.isCore, self.isOnline, self.hasLab, preReqsString )
        
@@ -87,14 +87,14 @@ class Lecture(Course):
 
         self.cohort and self.room are class objects for Cohort and Classroom, and should be handled accordingly
         """
-        preReqsString = ""
+        preReqsString= ""
         i = len(self.preReqs)-1
         for Req in self.preReqs:
             if i==0:
                 preReqsString = preReqsString + self.preReqs[i]
                 i=i-1
             else:
-                preReqsString = preReqsString + self.preReqs[i] + ', '
+                preReqsString = preReqsString + self.preReqs[i] + '. '
                 i = i-1
         return ( self.ID, self.title, self.cohort, self.room, self.termHours, self.duration, self.startWeek, self.startDay, self.startTime, self.isCore, self.isOnline, self.hasLab, preReqsString )
 
