@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
+import random
 import database.database
 from database.database import *
 
@@ -32,20 +33,13 @@ global COURSE_COLOUR
 def remove_colours():
     global BG_COLOURS
     BG_COLOURS.remove("aliceblue")
-    BG_COLOURS.remove("bisque")
     BG_COLOURS.remove("mediumturquoise")
     BG_COLOURS.remove("midnightblue")
-    BG_COLOURS.remove("linen")
-    BG_COLOURS.remove("oldlace")
-    BG_COLOURS.remove("papayawhip")
     BG_COLOURS.remove("lavenderblush")
-    BG_COLOURS.remove("ivory")
     BG_COLOURS.remove("blue")
     BG_COLOURS.remove("mediumblue")
     BG_COLOURS.remove("blanchedalmond")
     BG_COLOURS.remove("indigo")
-    BG_COLOURS.remove("cornsilk")
-    BG_COLOURS.remove("lightyellow")
     BG_COLOURS.remove("seashell")
     BG_COLOURS.remove("navy")
     BG_COLOURS.remove("black")
@@ -401,6 +395,7 @@ class UI(QMainWindow):
                 #placeholder.setBackground(QtGui.QColor("lightGray"))
                 placeholder.setBackground(QtGui.QColor('#fff2e6'))
                 self.main_table.setItem(row, column, placeholder)
+                self.main_table.removeCellWidget(row, column)
 
     def retrieve_term_inputs(self, layout):
 
@@ -465,18 +460,33 @@ class UI(QMainWindow):
 
         day_list = pd_dataframe.tolist()
 
+
         for cell in range(self.main_table.rowCount()):
 
             if day_list[cell] == "":
                 continue
+
             elif day_list[cell] != "" and course == day_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
+
+                side_fill = QLabel()
+                side_fill.setStyleSheet("border: solid black;"
+                                        "border-width : 0px 2px 0px 2px;")
+
+                if cell + 1 < 18 and day_list[cell + 1] == "":
+                    side_fill.setStyleSheet("border: solid black;"
+                                            "border-width : 0px 2px 2px 2px;")
+                self.main_table.setCellWidget(cell, weekday, side_fill)
             else:
                 course = day_list[cell]
+                label_fill = QLabel(day_list[cell])
+                label_fill.setAlignment(Qt.AlignCenter)
+                label_fill.setStyleSheet("border: solid black;"
+                                         "border-width : 2px 2px 0px 2px;")
                 if course not in COURSE_COLOUR.keys():
                     colour_index += 1
                     COURSE_COLOUR[course] = BG_COLOURS[colour_index]
-                self.main_table.item(cell, weekday).setText(day_list[cell])
+                self.main_table.setCellWidget(cell, weekday, label_fill)
                 self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
 
@@ -619,6 +629,10 @@ class UI(QMainWindow):
         self.week_label.setText("Week 1")
         global WEEK
         WEEK = 1
+
+
+        # TODO Uncomment this if you want random colours every time you remake schedule
+        random.shuffle(BG_COLOURS)
 
         if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
