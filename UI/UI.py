@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
-
 import database.database
 from database.database import *
 
@@ -28,10 +27,39 @@ PREV_KEY = ""
 POST_KEY = ""
 global COURSE_COLOUR
 
+
+# Removes colours that make the text hard to read / separate from the background
+def remove_colours():
+    global BG_COLOURS
+    BG_COLOURS.remove("aliceblue")
+    BG_COLOURS.remove("mediumturquoise")
+    BG_COLOURS.remove("midnightblue")
+    BG_COLOURS.remove("linen")
+    BG_COLOURS.remove("oldlace")
+    BG_COLOURS.remove("papayawhip")
+    BG_COLOURS.remove("lavenderblush")
+    BG_COLOURS.remove("ivory")
+    BG_COLOURS.remove("blue")
+    BG_COLOURS.remove("mediumblue")
+    BG_COLOURS.remove("blanchedalmond")
+    BG_COLOURS.remove("indigo")
+    BG_COLOURS.remove("cornsilk")
+    BG_COLOURS.remove("lightyellow")
+    BG_COLOURS.remove("seashell")
+    BG_COLOURS.remove("navy")
+    BG_COLOURS.remove("black")
+    BG_COLOURS.remove("brown")
+    BG_COLOURS.remove("beige")
+    BG_COLOURS.remove("azure")
+    _colours = BG_COLOURS.copy()
+    for colour in range(len(_colours)):
+        if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
+            BG_COLOURS.remove(_colours[colour])
 class UI(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        remove_colours()
 
         self.setWindowTitle("Scheduler")
         self.setGeometry(0,0,1240,700)
