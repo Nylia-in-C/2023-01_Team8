@@ -32,6 +32,7 @@ global COURSE_COLOUR
 def remove_colours():
     global BG_COLOURS
     BG_COLOURS.remove("aliceblue")
+    BG_COLOURS.remove("bisque")
     BG_COLOURS.remove("mediumturquoise")
     BG_COLOURS.remove("midnightblue")
     BG_COLOURS.remove("linen")
