@@ -368,7 +368,8 @@ class UI(QMainWindow):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
-                placeholder.setBackground(QtGui.QColor("lightGray"))
+                #placeholder.setBackground(QtGui.QColor("lightGray"))
+                placeholder.setBackground(QtGui.QColor('#fff2e6'))
                 self.main_table.setItem(row, column, placeholder)
 
     def retrieve_term_inputs(self, layout):
