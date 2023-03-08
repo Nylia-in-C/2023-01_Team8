@@ -1,8 +1,8 @@
-import os, sys
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-grandparentdir = os.path.dirname(parentdir)
-sys.path.append(grandparentdir)
+# import os, sys
+# currentdir = os.path.dirname(os.path.realpath(__file__))
+# parentdir = os.path.dirname(currentdir)
+# grandparentdir = os.path.dirname(parentdir)
+# sys.path.append(grandparentdir)
 
 import math
 import datetime
