@@ -50,10 +50,19 @@ def remove_colours():
     BG_COLOURS.remove("brown")
     BG_COLOURS.remove("beige")
     BG_COLOURS.remove("azure")
+    BG_COLOURS.remove("deeppink")
+    BG_COLOURS.remove("fuchsia")
+    BG_COLOURS.remove("hotpink")
+    BG_COLOURS.remove("magenta")
+    BG_COLOURS.remove("red")
+    BG_COLOURS.remove("pink")
+    BG_COLOURS.remove("mediumvioletred")
     _colours = BG_COLOURS.copy()
     for colour in range(len(_colours)):
         if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
             BG_COLOURS.remove(_colours[colour])
+
+    print(BG_COLOURS)
 class UI(QMainWindow):
 
     def __init__(self):
@@ -463,7 +472,8 @@ class UI(QMainWindow):
         course = ""
 
         day_list = pd_dataframe.tolist()
-
+        font = QFont()
+        font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
@@ -484,6 +494,7 @@ class UI(QMainWindow):
             else:
                 course = day_list[cell]
                 label_fill = QLabel(day_list[cell])
+                label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid black;"
                                          "border-width : 2px 2px 0px 2px;")
