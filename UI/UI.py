@@ -26,6 +26,7 @@ global SCHEDULE
 WEEK = 1
 PREV_KEY = ""
 POST_KEY = ""
+COLOUR_INDEX = -1
 global COURSE_COLOUR
 
 
@@ -454,9 +455,9 @@ class UI(QMainWindow):
     # eventually 1 and 3 for tuesday, thursday
     def show_schedule(self, pd_dataframe, weekday):
 
-        course = ""
+        global COLOUR_INDEX
 
-        colour_index = -1
+        course = ""
 
         day_list = pd_dataframe.tolist()
 
@@ -473,7 +474,7 @@ class UI(QMainWindow):
                 side_fill.setStyleSheet("border: solid black;"
                                         "border-width : 0px 2px 0px 2px;")
 
-                if cell + 1 < 18 and day_list[cell + 1] == "":
+                if cell + 1 <= 18 and day_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid black;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.main_table.setCellWidget(cell, weekday, side_fill)
@@ -483,9 +484,16 @@ class UI(QMainWindow):
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid black;"
                                          "border-width : 2px 2px 0px 2px;")
+
+                if cell + 1 <= 18 and day_list[cell + 1] != course:
+                    label_fill.setStyleSheet("border: solid black;"
+                                            "border-width : 0px 2px 2px 2px;")
+
                 if course not in COURSE_COLOUR.keys():
-                    colour_index += 1
-                    COURSE_COLOUR[course] = BG_COLOURS[colour_index]
+                    COLOUR_INDEX += 1
+                    if COLOUR_INDEX == len(BG_COLOURS):
+                        COLOUR_INDEX = 0
+                    COURSE_COLOUR[course] = BG_COLOURS[COLOUR_INDEX]
                 self.main_table.setCellWidget(cell, weekday, label_fill)
                 self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
@@ -499,8 +507,6 @@ class UI(QMainWindow):
         global WEEK
         global PREV_KEY
         global POST_KEY
-        global COURSE_COLOUR
-        COURSE_COLOUR = {}
 
         # Only 13 weeks in a semester
         if WEEK == 1:
@@ -569,8 +575,6 @@ class UI(QMainWindow):
         global WEEK
         global PREV_KEY
         global POST_KEY
-        global COURSE_COLOUR
-        COURSE_COLOUR = {}
 
 
         # Only 13 weeks in a semester
@@ -664,8 +668,9 @@ class UI(QMainWindow):
 
         # This dictionary will hold the course name (key)
         # and the colour (value) for easier distinction between same courses, and different ones
-        global COURSE_COLOUR
+        global COURSE_COLOUR, COLOUR_INDEX
         COURSE_COLOUR = {}
+        COLOUR_INDEX = -1
 
         self.show_schedule(SCHEDULE[PREV_KEY][room_requested], 0)
         if isinstance(SCHEDULE["day 2"], pd.DataFrame):
