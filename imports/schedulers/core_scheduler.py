@@ -1,3 +1,9 @@
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+grandparentdir = os.path.dirname(parentdir)
+sys.path.append(grandparentdir)
+
 import math
 import datetime
 import pprint
@@ -6,13 +12,6 @@ from imports.classes.courses import *
 from imports.classes.classrooms import *
 import string
 from typing import *
-# import os, sys
-# currentdir = os.path.dirname(os.path.realpath(__file__))
-# parentdir = os.path.dirname(currentdir)
-# grandparentdir = os.path.dirname(parentdir)
-# sys.path.append(grandparentdir)
-from imports.classes.courses import *
-from imports.classes.classrooms import *
 
 #initialize objects/dummy data==================================================
 
@@ -129,7 +128,7 @@ ba_courses = {
     'term 3': [prdv_0646, pcom_0141],
 }
 
-bk_courses = {
+bkc_courses = {
     'term 1': [acct_0201, acct_0202, acct_0203],
     'term 2': [acct_0206, acct_0210, acct_0211],
     'term 3': [acct_0208, acct_9901],
@@ -150,11 +149,11 @@ program_lab_courses = [acct_0210, acct_0211, acct_0208, acct_9901]
 
 program_term_courses = {
     # fall semester has term 1 and term 3 courses
-    1: pm_courses['term 1'] + pm_courses['term 3'] + ba_courses['term 1'] + ba_courses['term 3'] + bk_courses['term 1'] + bk_courses['term 3'],
+    1: pm_courses['term 1'] + pm_courses['term 3'] + ba_courses['term 1'] + ba_courses['term 3'] + bkc_courses['term 1'] + bkc_courses['term 3'],
     # winter semester has term 1 and 2 courses
-    2: pm_courses['term 1'] + pm_courses['term 2'] + ba_courses['term 1'] + ba_courses['term 2'] + bk_courses['term 1'] + bk_courses['term 2'],
+    2: pm_courses['term 1'] + pm_courses['term 2'] + ba_courses['term 1'] + ba_courses['term 2'] + bkc_courses['term 1'] + bkc_courses['term 2'],
     # spring/summer semester has term 2 and 3 courses
-    3: pm_courses['term 2'] + pm_courses['term 3'] + ba_courses['term 2'] + ba_courses['term 3'] + bk_courses['term 2'] + bk_courses['term 3'], 
+    3: pm_courses['term 2'] + pm_courses['term 3'] + ba_courses['term 2'] + ba_courses['term 3'] + bkc_courses['term 2'] + bkc_courses['term 3'], 
 }
 
 room_533 = Classroom('11-533', 36, False)
@@ -432,6 +431,10 @@ if __name__ == '__main__':
             if not (isinstance(sched, str)):
                 print(f"\n\n{day}: \n {sched}")
     
+    #Notes:
+    #   - Classes don't have a consistent starting time. When classes drop out of the schedule they get shifted up.
+    #   - Only one course is scheduled per room per day. Most impactful for labs, lots of empty space where labs could squeeze
+
     #TODO: 
     #   - write function to validate no scheduling conflicts (no 'horizontal' overlap between cohorts)
     #   - initialize course & classroom objects in seperate file
