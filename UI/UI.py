@@ -417,9 +417,12 @@ class UI(QMainWindow):
         BKC
         '''
         input_fields = layout.count()
+        list_val = []
 
         for each_field in range(input_fields):
-            print(layout.itemAt(each_field).widget().value())
+            list_val.append(layout.itemAt(each_field).widget().value())
+
+        return list_val
 
 
     # This function will store the input values
@@ -737,6 +740,35 @@ class UI(QMainWindow):
 
 
 
+    def create_schedule_v2(self):
+        # Will eventually replace create_schedule, as it will pull form the db
+        room_requested = self.select_room.currentText().split(" ")[0]
+        self.week_label.setText("Week 1")
+        global WEEK
+        WEEK = 1
+
+        self.pass_stu_num_db()
+
+        random.shuffle(BG_COLOURS)
+        self.reset_table()
+
+        # Retrieve lecture items for the week
+
+        week1 = self.get_lecture_items()
+
+        # Create a list for each day, (26 slots) for each list to correspond for each time
+        for each_day in range(len(week1)):
+            schedule_list = [""] * 26
+
+            for each_lecture in range(len(week1[each_day])):
+                #TODO match start time of lecture to its spot in the schedule_list
+                # Separate the cohorts within it
+                # put them in list
+                # Pass to show schedule function
+                return
+
+
+
     def create_schedule(self):
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
@@ -880,3 +912,31 @@ class UI(QMainWindow):
 
         except:
             print("Error Opening File")# Maybe put an actual error message here eventually about opening files
+
+
+    def pass_stu_num_db(self):
+
+        term_1 = self.retrieve_term_inputs(self.term_1_inputs)
+        term_2 = self.retrieve_term_inputs(self.term_2_inputs)
+        term_3 = self.retrieve_term_inputs(self.term_3_inputs)
+
+        collective = []
+        collective.append(term_1)
+        collective.append(term_2)
+        collective.append(term_3)
+
+        #TODO pass this to algorithm functions.
+
+    def get_lecture_items(self):
+        #TODO see if easy to change to search by week / class
+
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        lectures_each_day = []
+
+        for each_day in range(4):
+            lectures_each_day.append(database.database.readLectureItem(connection))
+
+        close_connection(connection)
+
+        return lectures_each_day
