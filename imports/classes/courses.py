@@ -79,7 +79,7 @@ class Lecture(Course):
     cohort: str = ""
     room: str = ""
     startWeek: int = 0
-    startDay: str = ""
+    startDay: int = 0
     startTime: str = ""
 
     def createLectureItemInfo(self):

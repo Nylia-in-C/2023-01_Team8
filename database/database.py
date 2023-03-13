@@ -254,7 +254,7 @@ def addLectureItem(conn, lecture):
     PreReqs = lectureObject[12]
     try:
         rowString = f"INSERT INTO LECTURE (CourseID, Title, CohortID, Room, TermHours,Duration,StartWeek,StartDay,StartTime,isCore,isOnline,hasLab, PreReqs) \
-                        VALUES ('{CourseID}','{Title}','{CohortID}','{Room}' ,{TermHours}, {Duration}, {StartWeek}, '{StartDay}', '{StartTime}',{isCore},{isOnline},{hasLab},'{PreReqs}')" 
+                        VALUES ('{CourseID}','{Title}','{CohortID}','{Room}' ,{TermHours}, {Duration}, {StartWeek}, {StartDay}, '{StartTime}',{isCore},{isOnline},{hasLab},'{PreReqs}')" 
         print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -370,8 +370,8 @@ def mainTest():
         # addProgramItem(connection, programObj)
         # val = readProgramItem(connection,'DXD')
         # print('VALUE', val)
-        courseObj = Course('CMSK 1053', 'title', 100, 101,1,0,0,["CMSK 1052", "CMSK 0157"])
-        addCourseItem(connection, courseObj)
+        # courseObj = Course('CMSK 1053', 'title', 100, 101,1,0,0,["CMSK 1052", "CMSK 0157"])
+        # addCourseItem(connection, courseObj)
         val = readCourseItem(connection,'CMSK 1053')
         print('VALUE', val)
 

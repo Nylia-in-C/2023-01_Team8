@@ -13,6 +13,7 @@ import random
 import database.database
 from database.database import *
 
+import imports.schedulers.initialize_data
 import imports.schedulers.core_scheduler
 import datetime
 
@@ -50,10 +51,19 @@ def remove_colours():
     BG_COLOURS.remove("brown")
     BG_COLOURS.remove("beige")
     BG_COLOURS.remove("azure")
+    BG_COLOURS.remove("deeppink")
+    BG_COLOURS.remove("fuchsia")
+    BG_COLOURS.remove("hotpink")
+    BG_COLOURS.remove("magenta")
+    BG_COLOURS.remove("red")
+    BG_COLOURS.remove("pink")
+    BG_COLOURS.remove("mediumvioletred")
     _colours = BG_COLOURS.copy()
     for colour in range(len(_colours)):
         if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
             BG_COLOURS.remove(_colours[colour])
+
+    print(BG_COLOURS)
 class UI(QMainWindow):
 
     def __init__(self):
@@ -212,10 +222,10 @@ class UI(QMainWindow):
 
         #TODO Currently reading from the schedulers dummy values. Need to change to read from database, shouldnt be too much.
 
-        for rooms in range(len(imports.schedulers.core_scheduler.lecture_rooms)):
-            LEC_ROOMS.append(imports.schedulers.core_scheduler.lecture_rooms[rooms].ID + " Capacity: " + str(imports.schedulers.core_scheduler.lecture_rooms[rooms].capacity))
-        for rooms in range(len(imports.schedulers.core_scheduler.lab_rooms)):
-            LAB_ROOMS.append(imports.schedulers.core_scheduler.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.schedulers.core_scheduler.lab_rooms[rooms].capacity))
+        for rooms in range(len(imports.schedulers.initialize_data.lecture_rooms)):
+            LEC_ROOMS.append(imports.schedulers.initialize_data.lecture_rooms[rooms].ID + " Capacity: " + str(imports.schedulers.initialize_data.lecture_rooms[rooms].capacity))
+        for rooms in range(len(imports.schedulers.initialize_data.lab_rooms)):
+            LAB_ROOMS.append(imports.schedulers.initialize_data.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.schedulers.initialize_data.lab_rooms[rooms].capacity))
 
         self.select_room.addItems(LEC_ROOMS)
         self.select_room.addItems(LAB_ROOMS)
@@ -466,7 +476,8 @@ class UI(QMainWindow):
         course = ""
 
         day_list = pd_dataframe.tolist()
-
+        font = QFont()
+        font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
@@ -487,6 +498,7 @@ class UI(QMainWindow):
             else:
                 course = day_list[cell]
                 label_fill = QLabel(day_list[cell])
+                label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid black;"
                                          "border-width : 2px 2px 0px 2px;")
@@ -790,25 +802,21 @@ class UI(QMainWindow):
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
 
-        lectures = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course not in imports.schedulers.core_scheduler.lab_courses]
-        labs = [course for course in imports.schedulers.core_scheduler.term_courses[1] if course in imports.schedulers.core_scheduler.lab_courses]
+        lectures = [course for course in imports.schedulers.initialize_data.term_courses[1] if course not in imports.schedulers.initialize_data.lab_courses]
+        labs = [course for course in imports.schedulers.initialize_data.term_courses[1] if course in imports.schedulers.initialize_data.lab_courses]
 
-        prog_lectures = [course for course in imports.schedulers.core_scheduler.program_term_courses[1] if course not in imports.schedulers.core_scheduler.program_lab_courses]
-        prog_labs = [course for course in imports.schedulers.core_scheduler.program_term_courses[1] if course in imports.schedulers.core_scheduler.program_lab_courses]
+        prog_lectures = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course not in imports.schedulers.initialize_data.program_lab_courses]
+        prog_labs = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course in imports.schedulers.initialize_data.program_lab_courses]
 
         lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
         prog_lec_hours, prog_lab_hours = imports.schedulers.core_scheduler.get_course_hours(prog_lectures, prog_labs)
 
         global CORE_SCHEDULE, PROG_SCHEDULE
-        CORE_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures,
-                                                                               imports.schedulers.core_scheduler.lecture_rooms,
-                                                                               lab_hours, labs,
-                                                                               imports.schedulers.core_scheduler.lab_rooms)
+        CORE_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.initialize_data.lecture_rooms,
+                                                                               lab_hours, labs,     imports.schedulers.initialize_data.lab_rooms)
 
-        PROG_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(prog_lec_hours, prog_lectures,
-                                                                               imports.schedulers.core_scheduler.lecture_rooms,
-                                                                               prog_lab_hours, prog_labs,
-                                                                               imports.schedulers.core_scheduler.lab_rooms)
+        PROG_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(prog_lec_hours, prog_lectures, imports.schedulers.initialize_data.lecture_rooms,
+                                                                               prog_lab_hours, prog_labs,     imports.schedulers.initialize_data.lab_rooms)
 
 
         global CORE_PREV, PROG_PREV
