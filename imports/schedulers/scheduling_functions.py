@@ -254,9 +254,9 @@ def get_available_time(room_sched: List[str], blocks: int) -> int:
     return -1
 
 
-def create_core_lec_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course], 
+def create_core_day_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course], 
                              term_A_bcom: List[Course], term_B_bcom: List[Course],
-                             course_hours: Dict[str, int], room_list: List[Classroom]) -> pd.DataFrame:
+                             course_hours: Dict[str, int], sched: pd.DataFrame) -> pd.DataFrame:
     
     '''
     Takes lists of pcom & bcom lectures for terms A & B, a dictionary of course_hours, 
@@ -265,16 +265,24 @@ def create_core_lec_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course
     left to right, starting at 8 am, where each cohort takes up half a day.
     '''
 
-    sched = create_empty_schedule(room_list)
+    # dont schedule courses that are already in the previous day's schedule,
+    # or ones that have already been fully scheduled
+    already_scheduled = [course[:-2] for course in sched.values.flatten()]
     
-    # ignore courses that have been fully scheduled
+    term_A_pcom = [course for course in term_A_pcom if 
+                   course.ID not in already_scheduled and
+                   course_hours[course.ID]['remaining'] > 0]
     term_A_pcom = [course for course in term_A_pcom if
+                   course.ID not in already_scheduled and
                    course_hours[course.ID]['remaining'] > 0]
     term_B_pcom = [course for course in term_B_pcom if
+                   course.ID not in already_scheduled and
                    course_hours[course.ID]['remaining'] > 0]
     term_A_bcom = [course for course in term_A_bcom if
+                   course.ID not in already_scheduled and
                    course_hours[course.ID]['remaining'] > 0]
     term_B_bcom = [course for course in term_B_bcom if
+                   course.ID not in already_scheduled and
                    course_hours[course.ID]['remaining'] > 0]
     
     # sort courses by required hours in descending order
@@ -283,72 +291,151 @@ def create_core_lec_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course
     term_A_bcom.sort(key=lambda x: x.termHours, reverse=True)
     term_B_bcom.sort(key=lambda x: x.termHours, reverse=True)
     
-    # for each term/program, get a list of the courses that can be scheduled in a 
-    # given room on a single day
-    curr_term_A_pcom = get_courses_to_schedule(term_A_pcom)
-    curr_term_B_pcom = get_courses_to_schedule(term_B_pcom)
-    curr_term_A_bcom = get_courses_to_schedule(term_A_bcom)
-    curr_term_B_bcom = get_courses_to_schedule(term_B_bcom)
+    # print(f"term A pcom: {term_A_pcom}")
+    # print(f"term B pcom: {term_B_pcom}")
+    # print(f"term A bcom: {term_A_bcom}")
+    # print(f"term B bcom: {term_B_bcom}")
     
-    # each list has unique courses, so we dont need to update course_hours between these calls
-    sched = append_lec_to_core_schedule(curr_term_A_pcom, course_hours, sched)
-    sched = append_lec_to_core_schedule(curr_term_B_pcom, course_hours, sched)
-    sched = append_lec_to_core_schedule(curr_term_A_bcom, course_hours, sched)
-    sched = append_lec_to_core_schedule(curr_term_B_bcom, course_hours, sched)
+    # for each term/program, get a list of the courses that can be scheduled in a 
+    # given room on a single day. Each course list is unique, so we dont need to 
+    # update course_hours between any of these calls
+    if (len(term_A_pcom) > 0):
+        sched = add_course_cohorts_to_sched(term_A_pcom, course_hours, sched)
+    
+    if (len(term_B_pcom) > 0):
+        sched = add_course_cohorts_to_sched(term_B_pcom, course_hours, sched)
+    
+    if (len(term_A_bcom) > 0):
+        sched = add_course_cohorts_to_sched(term_A_bcom, course_hours, sched)
+    
+    if (len(term_B_bcom) > 0):
+        sched = add_course_cohorts_to_sched(term_B_bcom, course_hours, sched)
 
     return sched
 
-def get_courses_to_schedule(courses: List[Course]) -> List[Course]:
-    '''
-    Takes a list of courses sort by required hours in descending order, and 
-    returns a list of the first n courses that will fit in a single day's schedule,
-    assuming that each day will need to fit in 2 cohorts.
-    '''
-    # number of hours in a single day's schedule
-    max_hours  = 9
-    curr_total = 0
-    can_schedule = []
 
-    for course in courses:
-        # multiply by 2 to account for 2 cohorts/day
-        if ((curr_total + (course.duration * 2)) > max_hours):
-            return can_schedule
-        curr_total += (course.duration * 2)
-        can_schedule.append(course)
+def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Takes the previous day's schedule and the course hours dict. If any courses
+    have met their term hour requirements, they are removed and replaced with empty strings
+    '''
     
-    return can_schedule
+    # courses that have met their required hours should be removed
+    finished_courses = [course_id for course_id in course_hours if 
+                        course_hours[course_id]['remaining'] <= 0]
+        
+    for (index, time) in prev_sched.iterrows():
+        for room in prev_sched.columns:
+            if time[room][:-2] in finished_courses:
+                prev_sched.loc[index, room] = ""
+        
+    return prev_sched
 
-def append_lec_to_core_schedule(courses: List[Course], course_hours: Dict[str, int], sched: pd.DataFrame) -> pd.DataFrame:
+
+def add_course_cohorts_to_sched(courses: List[Course], course_hours: Dict[str, int], 
+                                sched: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Takes a list of courses that haven't been scheduled yet and the current schedule.
+    For each course, we check if there is enough room for all cohorts.
+    If there is, we update the schedule accordingly before moving to the next course.
+    '''
+    
+    for course in courses:
+        
+        # list of tuples used to add course to the schedule if space is found
+        # each tuple corresponds to (room index, time slot index) for a given cohort
+        cohort_indexes = []
+        
+        hours_left = course_hours[course.ID]['remaining']
+        if (hours_left >= course.duration):
+            blocks = int(course.duration // 0.5)
+        else:
+            blocks = math.ceil(hours_left / 0.5)
+            
+        # size of schedule opening required to fit current course
+        required_gap = np.array([""] * blocks)
+        
+        # number of schedule gaps that will fit current course (need enough for all cohorts)
+        count = 0
+        
+        # count the number of non-overlapping occurances of `required_gap` in each room
+        for (room_name, time_slots) in sched.items():
+            left = 0
+            right = len(required_gap)
+            while (right < len(time_slots.values) + 1):
+                
+                if np.array_equal(time_slots.values[left:right], required_gap):
+                    cohort_indexes.append( (sched.columns.get_loc(room_name), left) )
+                    left = right
+                    right += len(required_gap)
+                    count += 1
+                else:
+                    left += 1
+                    right += 1
+            
+        # if we have enough room for the current course & all its cohorts,
+        # append the course to the schedule before the next iteration so we dont
+        # use the same schedule gap again
+        if count >= COHORT_COUNT:
+            #print(f"adding course: {course.ID}")
+            sched = add_lec_to_core_schedule(course, blocks, cohort_indexes, sched)
+          
+        
+        
+    return sched    
+
+def add_lec_to_core_schedule(course: Course, blocks: int, 
+                             cohort_indexes: List[Tuple[int,int]], sched: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes a list of Courses and adds each one to the schedule at the earliest 
-    available time & room (see get_start_time). This process repeats until all
+    available time & room (if possible). This process repeats until all
     cohorts have been added, or the schedule is completely full.
     '''
     
-    cohort_IDs = cycle(string.ascii_uppercase[:COHORT_COUNT])
+    cohort_IDs = string.ascii_uppercase[:COHORT_COUNT]
     
     # each course instance needs to appear once for every cohort
-    for i in range(COHORT_COUNT):
-        curr_cohort = next(cohort_IDs)
-        for course in courses:
-            course_id  = course.ID
-            duration   = course.duration
-            hours_left = course_hours[course_id]['remaining']
+    for i in range(len(cohort_IDs)):
+        course_id   = course.ID
+        cohort_ID   = cohort_IDs[i]
+        course_strs = [course_id + "-" + cohort_ID] * blocks
+        room_index, start_time = cohort_indexes[i]
+        
+        # print(f"\ncurr schedule: \n{sched}")
+        
+        # print(f"course: {course_id}")
+        # print(f"start time index: {start_time}")
+        # print(f"blocks required: {blocks}")
+        
+        sched.iloc[start_time:(start_time + blocks), room_index] = course_strs
+        
+        
+        # for course in courses:
+        #     course_id  = course.ID
+        #     duration   = course.duration
+        #     hours_left = course_hours[course_id]['remaining']
             
-            # try to schedule course for it's specified duration
-            if (hours_left >= duration):
-                # number of half-hour blocks that the course will take up
-                blocks = int(duration // 0.5)
-            else:
-                # round up to the nearest half-hour
-                blocks = math.ceil(hours_left / 0.5)
+        #     # try to schedule course for it's specified duration
+        #     if (hours_left >= duration):
+        #         # number of half-hour blocks that the course will take up
+        #         blocks = int(duration // 0.5)
+        #     else:
+        #         # round up to the nearest half-hour
+        #         blocks = math.ceil(hours_left / 0.5)
                 
-            course_str = [course_id + "-" + curr_cohort] * blocks
-            room_index, start_time = find_available_time(sched, blocks)
+        #     course_str = [course_id + "-" + cohort_ID] * blocks
+        #     room_index, start_time = find_available_time(sched, blocks)
             
-            if room_index == -1: continue
+        #     if room_index == -1 or start_time == -1:
+        #         print(f"no room for {course_str[0]}, leaving function ")
+        #         print(sched)
+        #         return sched
             
-            sched.iloc[start_time:(start_time + blocks), room_index] = course_str
+        #     # print(course_str)
+        #     # print(room_index)
+        #     # print(start_time)
+            
+        #     sched.iloc[start_time:(start_time + blocks), room_index] = course_str
             
     return sched
 
@@ -390,20 +477,31 @@ def create_core_term_schedule(term_A_pcom: List[Course], term_B_pcom: List[Cours
 
     full_schedule = {}
     
+    # create a schedule for the first day, then reference this when making 
+    # subsequent schedules with consistent times and rooms for courses
+    prev_sched = create_empty_schedule(lecture_rooms)
+    
     for i in range(1, 27):
         
-        sched = create_core_lec_schedule(
-            term_A_pcom, term_B_pcom, 
-            term_A_bcom, term_B_bcom, 
-            lecture_hours, lecture_rooms
+        
+        sched = create_core_day_schedule(
+            term_A_pcom, term_B_pcom,
+            term_A_bcom, term_B_bcom,
+            lecture_hours, prev_sched
         )
         
+        print(f"\n\nDAY: {i} SCHEDULE:\n{sched}\n")
+        
+        
         lecture_hours = update_course_hours(lecture_hours, sched)
+        prev_sched = update_schedule(lecture_hours, sched)
+        
+        full_schedule[f"day {i}"] = sched
         
         # removing duplicate schedules makes debugging much easier
-        if any(sched.equals(day_sched) for day_sched in list(full_schedule.values())):
-            full_schedule[f"day {i}"] = "-"
-        else:
-            full_schedule[f"day {i}"] = sched
+        # if any(sched.equals(day_sched) for day_sched in list(full_schedule.values())):
+        #     full_schedule[f"day {i}"] = "-"
+        # else:
+        #     full_schedule[f"day {i}"] = sched
 
     return full_schedule
