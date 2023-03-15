@@ -7,6 +7,7 @@ def main():
 
     #Set up GUI and run app
     app = QApplication([])
+    app.setStyle('Fusion')
     window = UI.UI()
     window.show()
     app.exec_()
