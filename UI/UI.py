@@ -407,7 +407,7 @@ class UI(QMainWindow):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
                 #placeholder.setBackground(QtGui.QColor("lightGray"))
-                placeholder.setBackground(QtGui.QColor('#fff2e6'))
+                placeholder.setBackground(QtGui.QColor('#c4ddde'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
 
