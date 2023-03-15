@@ -1,7 +1,6 @@
 import os, sys
 import math
 import datetime
-import pprint
 import pandas as pd
 import numpy as np
 from imports.classes.courses import *
@@ -9,7 +8,6 @@ from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
 import string
 from typing import *
-from itertools import cycle
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
@@ -19,18 +17,20 @@ sys.path.append(grandparentdir)
 #===================== TODOs (in no particular order) ==========================
 
 #TODO: Schedule pcom_0130 & pcom_0140 halfway through term
+#       - create global var 'day', when scheduling 
 
 #TODO: after the entire schedule is made, assign times to online classes (e.g. AVDN 0260)
 #           - use seperate dataframe or dict, while still watching out for schedule conflicts
 #           - constraints: no student limit, cant be within 1.5 hours of an in-person class
-#TODO: schedule more than 1 course in a given room each day 
+
+#TODO: add a buffer before/after online classes (cant be immediately before/after in-person courses)
+#       - use schedule them at the same time as in-person courses (use a '-' to mark the buffer)
+
+#TODO: create second df for scheduling labs, join lecture & lab dfs after each 'day' iteration
 
 
 #TODO: get actual cohort count from fillClassrooms.py, make sure this stuff works for any number of cohorts
 
-
-#TODO: try to leave courses with a consistent starting time, rather than moving
-#      them around when another course is removed from the schedule
 
 #TODO: check for holidays (might be easier if we use date objects rather than day 1, day 2, etc.) 
 
@@ -42,6 +42,7 @@ sys.path.append(grandparentdir)
 # assuming ~100-120 new students/term requires 4 different lecture groups for each course
 COHORT_COUNT = 4
 # ==============================================================================
+# NOT BEING USED
 def cohort_id_generator():
     '''
     Generator that yield a list of cohort IDs (Capital letters starting at A)
@@ -52,82 +53,8 @@ def cohort_id_generator():
     while True:
         yield cohortIDs
         cohortIDs = [cohortIDs[-1]] + cohortIDs[:-1]
-        
-        
-def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
-    '''
-    This function creates an empty pandas dataframe to represent the schedule 
-    for a single day. The column headers are room numbers and the row indexes 
-    are times (half hour increments)
-    '''
 
-    # 8 AM - 5 PM in half-hour increments 
-    times = [datetime.time(i, j).strftime("%H:%M") for i in range (8, 17) for j in [0, 30]]
-    times.append(datetime.time(17, 0).strftime("%H:%M"))
-    
-    sched = pd.DataFrame(index = times)
-    
-    for room in (room_list):
-        if (room.isLab):
-            sched[f"{room.ID} (LAB)"] = [""] * 19
-        else:
-            sched[room.ID] = [""] * 19
-        
-    return sched
-
-def get_course_hours(lectures: List[Course], labs: List[Course]) -> Tuple[Dict[str,int], Dict[str,int]]:
-    '''
-    Create 2 dictionaries that will be used to keep track of how many hours
-    a given course has, and how many hours it has left. One dictionary handles
-    lecture hours, the other handles lab hours 
-    '''
-    lecture_hours = {}
-    lab_hours     = {}
-    
-    for course in lectures:
-        lecture_hours[course.ID] = {
-            'required' : course.termHours, 
-            'remaining': course.termHours,
-            'scheduled': 0, 
-    }
-        
-    for course in labs:
-        lab_hours[course.ID] = {
-            'required' : course.termHours, 
-            'remaining': course.termHours,
-            'scheduled': 0, 
-    }
-        
-    return lecture_hours, lab_hours
-
-def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFrame) -> Dict[str, str]:
-    '''
-    Uses the previous day's schedule to update the remaining lecture hours for each course
-    '''
-    # dont update the same course twice
-    seen = set()
-    
-    # get number of hours for each course on the schedule
-    for room in prev_schedule.columns:
-        courses = prev_schedule[room].tolist()
-        for course in courses: 
-            if (course == ""):
-                continue
-            
-            # remove cohort identifier
-            course_name = course[:-2]
-            
-            if course_name in seen:
-                continue
-            
-            seen.add(course_name)
-            
-            scheduled_hours = (courses.count(course)) * 0.5
-            course_hours[course_name]['scheduled'] += scheduled_hours
-            course_hours[course_name]['remaining'] -= scheduled_hours
-
-    return course_hours
-
+# NOT BEING USED
 def create_day_schedule(course_hours: Dict[str, int], course_list: List[Course], room_list: List[Classroom]) -> pd.DataFrame:
     '''
     This function takes an empty dataframe representing the schedule for a given day,
@@ -185,6 +112,7 @@ def create_day_schedule(course_hours: Dict[str, int], course_list: List[Course],
 
     return sched
 
+# NOT BEING USED
 def create_term_schedule(lecture_hours: Dict[str, int], lectures: List[Course], lecture_rooms: List[Classroom], 
                          lab_hours: Dict[str, int], labs: List[Course], lab_rooms: List[Classroom]) -> Dict[str, pd.DataFrame]:
     '''
@@ -219,6 +147,7 @@ def create_term_schedule(lecture_hours: Dict[str, int], lectures: List[Course], 
     
     return full_schedule
 
+#NOT BEING USED
 def validate_sched(full_schedule: Dict[str, pd.DataFrame]) -> bool:
     '''
     Takes the full term's schedule as a dictionary and checks that there are no 
@@ -230,10 +159,9 @@ def validate_sched(full_schedule: Dict[str, pd.DataFrame]) -> bool:
         #   - create a list of cohorts scheduled in each room at curr_time_slot (e.g. pcom term 1 grpup A)
         #   - if any group appears more than once, return false
         pass
-    
     return True
 
-
+#NOT BEING USED
 def get_available_time(room_sched: List[str], blocks: int) -> int:
     '''
     Helper function that checks if a room is available for a specific time period
@@ -253,6 +181,83 @@ def get_available_time(room_sched: List[str], blocks: int) -> int:
     
     return -1
 
+
+def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
+    '''
+    This function creates an empty pandas dataframe to represent the schedule 
+    for a single day. The column headers are room numbers and the row indexes 
+    are times (half hour increments)
+    '''
+
+    # 8 AM - 5 PM in half-hour increments
+    times = [datetime.time(i, j).strftime("%H:%M")
+             for i in range(8, 17) for j in [0, 30]]
+    times.append(datetime.time(17, 0).strftime("%H:%M"))
+
+    sched = pd.DataFrame(index=times)
+
+    for room in (room_list):
+        if (room.isLab):
+            sched[f"{room.ID} (LAB)"] = [""] * 19
+        else:
+            sched[room.ID] = [""] * 19
+
+    return sched
+
+
+def get_course_hours(lectures: List[Course], labs: List[Course]) -> Tuple[Dict[str, int], Dict[str, int]]:
+    '''
+    Create 2 dictionaries that will be used to keep track of how many hours
+    a given course has, and how many hours it has left. One dictionary handles
+    lecture hours, the other handles lab hours 
+    '''
+    lecture_hours = {}
+    lab_hours = {}
+
+    for course in lectures:
+        lecture_hours[course.ID] = {
+            'required': course.termHours,
+            'remaining': course.termHours,
+            'scheduled': 0,
+        }
+
+    for course in labs:
+        lab_hours[course.ID] = {
+            'required': course.termHours,
+            'remaining': course.termHours,
+            'scheduled': 0,
+        }
+
+    return lecture_hours, lab_hours
+
+
+def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFrame) -> Dict[str, str]:
+    '''
+    Uses the previous day's schedule to update the remaining lecture hours for each course
+    '''
+    # dont update the same course twice
+    seen = set()
+
+    # get number of hours for each course on the schedule
+    for room in prev_schedule.columns:
+        courses = prev_schedule[room].tolist()
+        for course in courses:
+            if (course == ""):
+                continue
+
+            # remove cohort identifier
+            course_name = course[:-2]
+
+            if course_name in seen:
+                continue
+
+            seen.add(course_name)
+
+            scheduled_hours = (courses.count(course)) * 0.5
+            course_hours[course_name]['scheduled'] += scheduled_hours
+            course_hours[course_name]['remaining'] -= scheduled_hours
+
+    return course_hours
 
 def create_core_day_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course], 
                              term_A_bcom: List[Course], term_B_bcom: List[Course],
@@ -411,7 +416,7 @@ def create_core_term_schedule(term_A_pcom: List[Course], term_B_pcom: List[Cours
 
     lecture_hours, lab_hours = get_course_hours(all_lectures, [])
 
-    full_schedule = {}
+    full_schedule = []
     
     # create a schedule for the first day, then reference this when making 
     # subsequent schedules with consistent times and rooms for courses
@@ -425,12 +430,12 @@ def create_core_term_schedule(term_A_pcom: List[Course], term_B_pcom: List[Cours
             lecture_hours, prev_sched
         )
         
+        full_schedule.append(sched)
+        
         print(f"\n\nDAY: {i} SCHEDULE:\n{sched}\n")
         
         lecture_hours = update_course_hours(lecture_hours, sched)
         prev_sched = update_schedule(lecture_hours, sched)
-        
-        full_schedule[f"day {i}"] = sched
         
         # removing duplicate schedules makes debugging much easier
         # if any(sched.equals(day_sched) for day_sched in list(full_schedule.values())):
