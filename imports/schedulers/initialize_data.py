@@ -8,7 +8,7 @@ parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
 sys.path.append(grandparentdir)
 
-
+# term 1 PCOM courses
 pcom_0101 = Course('PCOM 0101', 'Business Writing 1', 35, 1.5, True, False, False)
 pcom_0105 = Course('PCOM 0105', 'Intercultural Communication Skills', 35, 1.5, True, False, False)
 pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 18, 2, True, False, False)
@@ -50,10 +50,22 @@ supr_0863 = Course('SUPR_0863', 'Design Thinking', 7, 2, True, False, False)
 pcom_0206 = Course('PCOM_0206', 'Fundamentals of Agile Methodology', 6, 3, True, False, False)
 #avdm_0260 = Course('PAVDM_0260', 'WordPress for Web Page Publishing', 6, 1.5, True, True, False)
 
+pcom_lectures = {
+    'term 1': [pcom_0101, pcom_0105],
+    'term 2': [pcom_0102, pcom_0201],
+    'term 3': [pcom_0202, pcom_0103, pcom_0109_module_2],
+}
+
+pcom_labs = {
+    'term 1': [pcom_0107, cmsk_0233, cmsk_0235],
+    'term 2': [pcom_0108],
+    'term 3': [pcom_0109_module_1],
+}
+
 pcom_courses = {
-    'term 1': [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235],
-    'term 2': [pcom_0102, pcom_0201, pcom_0108],
-    'term 3': [pcom_0202, pcom_0103, pcom_0109_module_1, pcom_0109_module_2],
+    'term 1': pcom_lectures['term 1'] + pcom_labs['term 1'],
+    'term 2': pcom_lectures['term 2'] + pcom_labs['term 2'],
+    'term 3': pcom_lectures['term 3'] + pcom_labs['term 3'],
 }
 
 bcom_courses = {
