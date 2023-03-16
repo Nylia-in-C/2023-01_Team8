@@ -12,7 +12,7 @@ legionCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
 @dataclass
 class Legion:
     programID: str
-    termID: str
+    termID: int
     legionID: str
     name: str
     count: int
@@ -33,5 +33,5 @@ class Legion:
         "ProgID, TermID, LegionID, Name, Count"
         Passed to database to load legion into the database.
         """
-        return f" '{self.programID}', '{self.termID}', {self.legionID}, '{self.name}', {self.count} "
+        return f" '{self.programID}', {self.termID}, {self.legionID}, '{self.name}', {self.count} "
     

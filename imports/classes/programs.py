@@ -66,7 +66,7 @@ class Cohort(Program):
     cohortCounts needs to be replaced with a sql call to the database.
     """
     legions: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
-    term: str = ""
+    term: int = 0
     cohortID: str = ""
 
     def __post_init__(self):

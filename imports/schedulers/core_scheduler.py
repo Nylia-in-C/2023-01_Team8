@@ -48,11 +48,12 @@ if __name__ == '__main__':
             bcom_2_lecs, bcom_3_lecs, lecture_rooms
         )
 
+    # this doesnt work and idk why (* ￣︿￣) - Andrew
     c = 0
-    for day, sched in full_schedule.items():
-        if not (isinstance(sched, str)) and c < 5:
-            print(f"\n\n{day}: \n {sched}")
-            c += 1
+    for sched in full_schedule:
+        if (c < 5):
+            print(sched)
+        c += 1
 
     # sort pcom & bcom courses in descending order of termHours, then combine the
     # lists, alternating between terms (this will prevent scheduling conflicts)
