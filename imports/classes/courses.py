@@ -27,6 +27,7 @@ class Course:
     ID: str
     title: str
     termHours: int
+    term: int
     duration: int
     isCore: bool
     isOnline: bool
@@ -56,7 +57,7 @@ class Course:
             else:
                 preReqsString = preReqsString + self.preReqs[i] + '. '
                 i = i-1
-        return ( self.ID, self.title, self.termHours, self.duration, self.isCore, self.isOnline, self.hasLab, preReqsString )
+        return ( self.ID, self.title, self.termHours, self.term, self.duration, self.isCore, self.isOnline, self.hasLab, preReqsString )
        
         #testing purposes
     def printCourse(self):
@@ -98,7 +99,7 @@ class Lecture(Course):
             else:
                 preReqsString = preReqsString + self.preReqs[i] + '. '
                 i = i-1
-        return ( self.ID, self.title, self.cohort, self.room, self.termHours, self.duration, self.startWeek, self.startDay, self.startTime, self.isCore, self.isOnline, self.hasLab, preReqsString )
+        return ( self.ID, self.title, self.cohort, self.room, self.termHours, self.term, self.duration, self.startWeek, self.startDay, self.startTime, self.isCore, self.isOnline, self.hasLab, preReqsString )
 
 
 #testing purposes
