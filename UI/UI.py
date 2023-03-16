@@ -85,6 +85,10 @@ class UI(QMainWindow):
         self.week_label.setFont(font)
         self.week_label.setAlignment(Qt.AlignCenter)
 
+        # Options
+        self.class_id = QLineEdit()
+        self.class_lab = QButtonGroup()
+        self.class_capacity = QSpinBox()
 
         '''
         Creating tables for each tab
@@ -138,16 +142,24 @@ class UI(QMainWindow):
 
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
-        main_table_box = QVBoxLayout(self)
 
         # Create tabs
         tabs = QTabWidget()
         tab1 = QWidget()
+        tab2 = QWidget()
 
         tabs.addTab(tab1, "Schedule")
+        tabs.addTab(tab2, "Options")
 
         self.create_schedule_base()
 
+        tab1.setLayout(self.make_main_tab())
+        tab2.setLayout(self.make_options_tab())
+
+        return tabs
+
+    def make_main_tab(self):
+        main_table_box = QVBoxLayout(self)
         week_choose = QHBoxLayout(self)
 
         left = QPushButton("<--")
@@ -162,9 +174,26 @@ class UI(QMainWindow):
         main_table_box.addLayout(week_choose)
         main_table_box.addWidget(self.main_table)
 
-        tab1.setLayout(main_table_box)
+        return main_table_box
 
-        return tabs
+    def make_options_tab(self):
+        vbox = QVBoxLayout()
+        room_adjust_layout = QHBoxLayout()
+
+        self.class_id.setPlaceholderText("Classroom Name")
+
+        b1 = QRadioButton("Yes")
+        b2 = QRadioButton("No")
+
+        self.class_lab.addButton(b1)
+        self.class_lab.addButton(b2)
+        room_adjust_layout.addWidget(b1)
+        room_adjust_layout.addWidget(b2)
+
+        return room_adjust_layout
+
+
+
 
     # Make the basic layout of the schedule table
 

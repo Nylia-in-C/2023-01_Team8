@@ -9,45 +9,45 @@ grandparentdir = os.path.dirname(parentdir)
 sys.path.append(grandparentdir)
 
 # term 1 PCOM courses
-pcom_0101 = Course('PCOM 0101', 'Business Writing 1', 35, 1.5, True, False, False)
-pcom_0105 = Course('PCOM 0105', 'Intercultural Communication Skills', 35, 1.5, True, False, False)
-pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 18, 2, True, False, False)
-cmsk_0233 = Course('CMSK 0233', 'MS Project Essentials', 7, 2, True, False, False)
-cmsk_0235 = Course('CMSK 0235', 'MS Visio Essentials', 6, 2, True, False, False)
+pcom_0101 = Course('PCOM 0101', 'Business Writing 1', 35, 1.5, True, False, False, False)
+pcom_0105 = Course('PCOM 0105', 'Intercultural Communication Skills', 35, 1.5, True, False, False, False)
+pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 18, 2, True, False, False, False)
+cmsk_0233 = Course('CMSK 0233', 'MS Project Essentials', 7, 2, True, False, False, False)
+cmsk_0235 = Course('CMSK 0235', 'MS Visio Essentials', 6, 2, True, False, False, False)
 
 # term 2 PCOM core courses
-pcom_0102 = Course('PCOM 0102', 'Business Writing 2', 35, 1.5, True, False, False)
-pcom_0201 = Course('PCOM 0201', 'Fundamentals of Public Speaking', 35, 1.5, True, False, False)
-pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 2, True, False, False)
+pcom_0102 = Course('PCOM 0102', 'Business Writing 2', 35, 1.5, True, False, False, False)
+pcom_0201 = Course('PCOM 0201', 'Fundamentals of Public Speaking', 35, 1.5, True, False, False, False)
+pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 2, True, False, False, False)
 
 # term 3 PCOM core courses
-pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33, 1.5, True, False, False)
-pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35, 1.5, True, False, False)
-pcom_0109_module_1 = Course('PCOM 0109 Module 1', 'Resume and Cover Letter', 8, 2, True, False, False)
-pcom_0109_module_2 = Course('PCOM 0109 Module 2', 'Interview Practice', 6, 2, True, False, False)
+pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33, 1.5, True, False, False, False)
+pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35, 1.5, True, False, False, False)
+pcom_0109_module_1 = Course('PCOM 0109 Module 1', 'Resume and Cover Letter', 8, 2, True, False, False, False)
+pcom_0109_module_2 = Course('PCOM 0109 Module 2', 'Interview Practice', 6, 2, True, False, False, False)
 
 # term 1 BCOM core courses
-pcom_0203 = Course('PCOM 0203', 'Effective Professional Writing', 15, 1.5, True, False, False)
-supr_0751 = Course('SUPR 0751', 'Fundamentals of Management and Supervision', 7, 2, True, False, False)
-pcom_0204 = Course('PCOM 0204', 'Business Persuasion and Research', 35, 1.5, True, False, False)
-supr_0837 = Course('SUPR 0837', 'Building an Engaged Workforce', 7, 2, True, False, False)
-supr_0841 = Course('SUPR 0841', 'Change Management Fundamentals', 7, 2, True, False, False)
-cmsk_0237 = Course('CMSK 0237', 'Google Suite Essentials', 12, 1.5, True, True, False)
+pcom_0203 = Course('PCOM 0203', 'Effective Professional Writing', 15, 1.5, True, False, False, False)
+supr_0751 = Course('SUPR 0751', 'Fundamentals of Management and Supervision', 7, 2, True, False, False, False)
+pcom_0204 = Course('PCOM 0204', 'Business Persuasion and Research', 35, 1.5, True, False, False, False)
+supr_0837 = Course('SUPR 0837', 'Building an Engaged Workforce', 7, 2, True, False, False, False)
+supr_0841 = Course('SUPR 0841', 'Change Management Fundamentals', 7, 2, True, False, False, False)
+cmsk_0237 = Course('CMSK 0237', 'Google Suite Essentials', 12, 1.5, True, True, False, False)
 
 # term 2 BCOM core courses
-supr_0821 = Course('SUPR_0821', 'Foundations of Leadership 1', 7, 2, True, False, False)
-supr_0822 = Course('SUPR_0822', 'Foundations of Leadership 1', 7, 2, True, False, False)
-supr_0718 = Course('SUPR_0718', 'Effective Professional Writing', 7, 2, True, False, False)
-supr_0836 = Course('SUPR_0836', 'Effective Professional Writing', 7, 2, True, False, False) 
-pcom_0106 = Course('PCOM_0106', 'Effective Professional Writing', 34, 2, True, False, False)
-avdm_0199 = Course('AVDM_0199', 'Effective Professional Writing', 3, 1.5, True, True, False)  
+supr_0821 = Course('SUPR_0821', 'Foundations of Leadership 1', 7, 2, True, False, False, False)
+supr_0822 = Course('SUPR_0822', 'Foundations of Leadership 1', 7, 2, True, False, False, False)
+supr_0718 = Course('SUPR_0718', 'Effective Professional Writing', 7, 2, True, False, False, False)
+supr_0836 = Course('SUPR_0836', 'Effective Professional Writing', 7, 2, True, False, False, False)
+pcom_0106 = Course('PCOM_0106', 'Effective Professional Writing', 34, 2, True, False, False, False)
+avdm_0199 = Course('AVDM_0199', 'Effective Professional Writing', 3, 1.5, True, True, False, False)
 
 # term 3 BCOM core courses
-pcom_0205 = Course('PCOM_0205', 'Small Business and Entrpreneurship in Canada', 30, 3, True, False, False)
-pcom_TBD  = Course('PCOM_TBD',  'Story Telling (Public Speaking)', 21, 1.5, True, False, False)
-pcom_0207 = Course('PCOM_0207', 'Developing Your Emotional Intelligence', 6, 2, True, False, False)
-supr_0863 = Course('SUPR_0863', 'Design Thinking', 7, 2, True, False, False)
-pcom_0206 = Course('PCOM_0206', 'Fundamentals of Agile Methodology', 6, 3, True, False, False)
+pcom_0205 = Course('PCOM_0205', 'Small Business and Entrpreneurship in Canada', 30, 3, True, False, False, False)
+pcom_TBD  = Course('PCOM_TBD',  'Story Telling (Public Speaking)', 21, 1.5, True, False, False, False)
+pcom_0207 = Course('PCOM_0207', 'Developing Your Emotional Intelligence', 6, 2, True, False, False, False)
+supr_0863 = Course('SUPR_0863', 'Design Thinking', 7, 2, True, False, False, False)
+pcom_0206 = Course('PCOM_0206', 'Fundamentals of Agile Methodology', 6, 3, True, False, False, False)
 #avdm_0260 = Course('PAVDM_0260', 'WordPress for Web Page Publishing', 6, 1.5, True, True, False)
 
 pcom_lectures = {
@@ -76,48 +76,48 @@ bcom_courses = {
 
 # Program Courses------------------------------------------------------------------
 # term 1 PM program courses
-prdv_0201 = Course("PRDV 0201", "NA", 21, 2, False, False, False)
-prdv_0202 = Course("PRDV 0202", "NA", 14, 2, False, False, False)
-prdv_0203 = Course("PRDV 0203", "NA", 21, 2, False, False, False)
+prdv_0201 = Course("PRDV 0201", "NA", 21, 2, False, False, False, False)
+prdv_0202 = Course("PRDV 0202", "NA", 14, 2, False, False, False, False)
+prdv_0203 = Course("PRDV 0203", "NA", 21, 2, False, False, False, False)
 
 # term 2 PM program courses
-prdv_0204 = Course("PRDV 0204", "NA", 14, 2, False, False, False)
-prdv_0205 = Course("PRDV 0205", "NA", 21, 2, False, False, False)
-pcom_0130 = Course("PCOM 0130", "NA", 21, 2, False, False, False) 
-prdv_0206 = Course("PRDV 0206", "NA", 14, 2, False, False, False)
+prdv_0204 = Course("PRDV 0204", "NA", 14, 2, False, False, False, False)
+prdv_0205 = Course("PRDV 0205", "NA", 21, 2, False, False, False, False)
+pcom_0130 = Course("PCOM 0130", "NA", 21, 2, False, False, False, False)
+prdv_0206 = Course("PRDV 0206", "NA", 14, 2, False, False, False, False)
 
 # term 3 PM program courses
-prdv_0207 = Course("PRDV 0207", "NA", 14, 2, False, False, False)
-pcom_0131 = Course("PCOM 0131", "NA", 39, 2, False, False, False)
+prdv_0207 = Course("PRDV 0207", "NA", 14, 2, False, False, False, False)
+pcom_0131 = Course("PCOM 0131", "NA", 39, 2, False, False, False, False)
 
 # term 1 BA program courses
-prdv_0640 = Course("PRDV 0640", "NA", 21, 2, False, False, False)
-prdv_0652 = Course("PRDV 0652", "NA", 14, 2, False, False, False)
-prdv_0653 = Course("PRDV 0653", "NA", 21, 2, False, False, False)
-prdv_0642 = Course("PRDV 0642", "NA", 14, 2, False, False, False)
+prdv_0640 = Course("PRDV 0640", "NA", 21, 2, False, False, False, False)
+prdv_0652 = Course("PRDV 0652", "NA", 14, 2, False, False, False, False)
+prdv_0653 = Course("PRDV 0653", "NA", 21, 2, False, False, False, False)
+prdv_0642 = Course("PRDV 0642", "NA", 14, 2, False, False, False, False)
 
 # term 2 BA program courses
-prdv_0644 = Course("PRDV 0644", "NA", 21, 2, False, False, False)
-prdv_0648 = Course("PRDV 0648", "NA", 14, 2, False, False, False)
-pcom_0140 = Course("PCOM 0140", "NA", 35, 2, False, False, False) 
+prdv_0644 = Course("PRDV 0644", "NA", 21, 2, False, False, False, False)
+prdv_0648 = Course("PRDV 0648", "NA", 14, 2, False, False, False, False)
+pcom_0140 = Course("PCOM 0140", "NA", 35, 2, False, False, False, False)
 
 # term 3 BA program courses
-prdv_0646 = Course("PRDV 0646", "NA", 14, 2, False, False, False)
-pcom_0141 = Course("PCOM 0141", "NA", 39, 3, False, False, False)
+prdv_0646 = Course("PRDV 0646", "NA", 14, 2, False, False, False, False)
+pcom_0141 = Course("PCOM 0141", "NA", 39, 3, False, False, False, False)
 
 # term 1 BK program courses
-acct_0201 = Course("ACCT 0201", "NA", 18, 2, False, False, False)
-acct_0202 = Course("ACCT 0202", "NA", 12, 2, False, False, False)
-acct_0203 = Course("ACCT 0203", "NA", 12, 2, False, False, False)
+acct_0201 = Course("ACCT 0201", "NA", 18, 2, False, False, False, False)
+acct_0202 = Course("ACCT 0202", "NA", 12, 2, False, False, False, False)
+acct_0203 = Course("ACCT 0203", "NA", 12, 2, False, False, False, False)
 
 # term 2 BK program courses
-acct_0206 = Course("ACCT 0206", "NA", 12, 2, False, False, False)
-acct_0210 = Course("ACCT 0210", "NA", 28, 2, False, False, True )
-acct_0211 = Course("ACCT 0211", "NA", 28, 2, False, False, True)
+acct_0206 = Course("ACCT 0206", "NA", 12, 2, False, False, False, False)
+acct_0210 = Course("ACCT 0210", "NA", 28, 2, False, False, True , False)
+acct_0211 = Course("ACCT 0211", "NA", 28, 2, False, False, True, False)
 
 # term 3 BK program courses
-acct_0208 = Course("ACCT 0208", "NA", 21, 2, False, False, True )
-acct_9901 = Course("ACCT 9901", "NA", 33, 2, False, False, True )
+acct_0208 = Course("ACCT 0208", "NA", 21, 2, False, False, True , False)
+acct_9901 = Course("ACCT 9901", "NA", 33, 2, False, False, True , False)
 
 pm_courses = {
     'term 1': [prdv_0201, prdv_0202, prdv_0203],
