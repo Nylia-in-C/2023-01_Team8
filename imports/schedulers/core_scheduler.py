@@ -14,17 +14,37 @@ sys.path.append(grandparentdir)
 # sort these lists in descending order of term hours & use them to create a dictionary
 # of DataFrame schedules
 
-bcom_1_lecs = sorted(bcom_courses['term 1'], key=lambda x: x.termHours, reverse=True)
-pcom_1_lecs = sorted(pcom_lectures['term 1'], key = lambda x: x.termHours, reverse = True)
-pcom_1_labs = sorted(pcom_labs['term 1'], key=lambda x: x.termHours, reverse=True)
+bcom_1_lecs = sorted(bcom_courses['term 1'],  key=lambda x: x.termHours, reverse=True)
+pcom_1_lecs = sorted(pcom_lectures['term 1'], key=lambda x: x.termHours, reverse=True)
+pcom_1_labs = sorted(pcom_labs['term 1'],     key=lambda x: x.termHours, reverse=True)
 
-bcom_2_lecs = sorted(bcom_courses['term 2'], key=lambda x: x.termHours, reverse=True)
+bcom_2_lecs = sorted(bcom_courses['term 2'],  key=lambda x: x.termHours, reverse=True)
 pcom_2_lecs = sorted(pcom_lectures['term 2'], key=lambda x: x.termHours, reverse=True)
-pcom_2_labs = sorted(pcom_labs['term 2'], key=lambda x: x.termHours, reverse=True)
+pcom_2_labs = sorted(pcom_labs['term 2'],     key=lambda x: x.termHours, reverse=True)
 
-bcom_3_lecs = sorted(bcom_courses['term 3'], key=lambda x: x.termHours, reverse=True)
+bcom_3_lecs = sorted(bcom_courses['term 3'],  key=lambda x: x.termHours, reverse=True)
 pcom_3_lecs = sorted(pcom_lectures['term 3'], key=lambda x: x.termHours, reverse=True)
-pcom_3_labs = sorted(pcom_labs['term 3'], key=lambda x: x.termHours, reverse=True)
+pcom_3_labs = sorted(pcom_labs['term 3'],     key=lambda x: x.termHours, reverse=True)
+
+def get_sched(term: int) -> Dict[str, pd.DataFrame]:
+    
+    if (term == 1):
+         return create_core_term_schedule(
+            pcom_1_lecs, pcom_3_lecs,
+            bcom_1_lecs, bcom_3_lecs, lecture_rooms
+        )
+    elif (term == 2):
+        return create_core_term_schedule(
+            pcom_1_lecs, pcom_2_lecs,
+            bcom_1_lecs, bcom_2_lecs, lecture_rooms
+        )
+    elif (term == 3):
+        return create_core_term_schedule(
+            pcom_2_lecs, pcom_3_lecs,
+            bcom_2_lecs, bcom_3_lecs, lecture_rooms
+        )
+
+
 
 if __name__ == '__main__':
 
@@ -32,31 +52,11 @@ if __name__ == '__main__':
           \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
 
-    if (term == 1):
-        full_schedule = create_core_term_schedule(
-            pcom_1_lecs, pcom_3_lecs,
-            bcom_1_lecs, bcom_3_lecs, lecture_rooms
-        )
-    elif (term == 2):
-        full_schedule = create_core_term_schedule(
-            pcom_1_lecs, pcom_2_lecs,
-            bcom_1_lecs, bcom_2_lecs, lecture_rooms
-        )
-    elif (term == 3):
-        full_schedule = create_core_term_schedule(
-            pcom_2_lecs, pcom_3_lecs,
-            bcom_2_lecs, bcom_3_lecs, lecture_rooms
-        )
+    full_schedule = get_sched(term)
 
-    # this doesnt work and idk why (* ￣︿￣) - Andrew
-    c = 0
-    for sched in full_schedule:
-        if (c < 5):
-            print(sched)
-        c += 1
-
-    # sort pcom & bcom courses in descending order of termHours, then combine the
-    # lists, alternating between terms (this will prevent scheduling conflicts)
+    for day, sched in full_schedule.items():
+        print("\n\t\t" + day + ":\n")
+        print(sched)
     
 
     # print("Enter a number for the Core Courses Schedule or the Program Schedule: \
