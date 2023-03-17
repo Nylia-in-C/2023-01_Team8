@@ -185,13 +185,20 @@ class UI(QMainWindow):
 
     def make_options_tab(self):
         vbox_overall = QVBoxLayout()
+
+        vbox_overall.addLayout(self.update_classroom_section())
+        vbox_overall.addWidget(self.create_horizontal_line())
+
+
+        return vbox_overall
+
+    def update_classroom_section(self):
         room_adjust_layout = QHBoxLayout()
         room_adjust_layout.setSpacing(30)
 
         font = QFont()
         font.setBold(True)
         font.setPointSize(16)
-
 
         # Classroom section
         self.class_id.setPlaceholderText("Classroom Name")
@@ -233,29 +240,30 @@ class UI(QMainWindow):
         class_btn.setMaximumWidth(100)
         class_btn.clicked.connect(self.add_edit_classroom)
 
+        # Create remove button
+        remove_btn = QPushButton("Remove Classroom")
+        remove_btn.setMaximumWidth(150)
+        remove_btn.clicked.connect(self.remove_classroom)
+
+        remove_section = QVBoxLayout()
+        remove_section.addWidget(self.classroom_list)
+        remove_section.addWidget(remove_btn)
+
         # Put everything into the layout
         room_adjust_layout.addLayout(class_id_box)
         room_adjust_layout.addWidget(self.create_vertical_line())
         room_adjust_layout.addLayout(class_capacity_box)
         room_adjust_layout.addWidget(self.create_vertical_line())
         room_adjust_layout.addLayout(class_lab_bool)
-        room_adjust_layout.addWidget(self.create_vertical_line())
         room_adjust_layout.addWidget(class_btn)
-        room_adjust_layout.addWidget(self.classroom_list)
+        room_adjust_layout.addWidget(self.create_vertical_line())
+        room_adjust_layout.addLayout(remove_section)
+
 
         vbox_class.addLayout(room_adjust_layout)
         vbox_class.addSpacerItem(QSpacerItem(20, 500, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
-        vbox_overall.addLayout(vbox_class)
-        vbox_overall.addWidget(self.create_horizontal_line())
-
-
-
-        return vbox_overall
-
-
-
-
+        return vbox_class
     # Make the basic layout of the schedule table
 
     def create_schedule_base(self):
@@ -489,6 +497,22 @@ class UI(QMainWindow):
     # or functions that are called repeatedly
     # after the initial startup
     '''
+
+    def update_class_combos(self):
+        self.classroom_list.clear()
+        self.select_room.clear()
+
+        keys = list(CLASSROOMS.keys())
+
+        for each_class in range(len(keys)):
+            tup = CLASSROOMS[keys[each_class]]
+
+            if tup[2] == 1:
+                self.classroom_list.addItem(keys[each_class] + " (LAB)")
+                self.select_room.addItem(keys[each_class] + " (LAB)")
+            else:
+                self.select_room.addItem(keys[each_class])
+                self.classroom_list.addItem(keys[each_class])
 
     def reset_table(self):
         # Use this to populate table with values to allow
@@ -1044,7 +1068,6 @@ class UI(QMainWindow):
 
         return lectures_each_day
 
-
     def add_edit_classroom(self):
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
@@ -1066,20 +1089,31 @@ class UI(QMainWindow):
             CLASSROOMS[self.class_id.text().strip()] = (self.class_id.text().strip(), self.class_capacity.value(), val)
 
             # Update the combobox / global Lists
-            self.classroom_list.clear()
-            self.select_room.clear()
+            self.update_class_combos()
 
-            keys = list(CLASSROOMS.keys())
 
-            for each_class in range(len(keys)):
-                tup = CLASSROOMS[keys[each_class]]
+        except:
+            print("error adding classroom")
 
-                if tup[2] == 1:
-                    self.classroom_list.addItem(keys[each_class] + " (LAB)")
-                    self.select_room.addItem(keys[each_class] + " (LAB)")
-                else:
-                    self.select_room.addItem(keys[each_class])
-                    self.classroom_list.addItem(keys[each_class])
+        close_connection(connection)
+
+    def remove_classroom(self):
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+
+        try:
+
+            classroom = self.classroom_list.currentText()
+            splits = classroom.split(" ")
+            wanted_class = readClassroomItem(connection, splits[0])
+
+            if (len(wanted_class) == 1):
+                deleteClassroomItem(connection, splits[0])
+                del CLASSROOMS[splits[0]]
+
+            # Update the combobox / global Lists
+            self.update_class_combos()
+
 
         except:
             print("error adding classroom")
