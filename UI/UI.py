@@ -15,14 +15,14 @@ from database.database import *
 
 import imports.schedulers.initialize_data
 import imports.schedulers.core_scheduler
+import imports.classes.classrooms
 import datetime
 
 
 BG_COLOURS = QtGui.QColor.colorNames()
 
 LEFT_MAX_WIDTH = 450
-LEC_ROOMS = []
-LAB_ROOMS = []
+CLASSROOMS = []
 global CORE_SCHEDULE
 global PROG_SCHEDULE
 WEEK = 1
@@ -89,6 +89,7 @@ class UI(QMainWindow):
         self.class_id = QLineEdit()
         self.class_lab = QButtonGroup()
         self.class_capacity = QSpinBox()
+        self.classroom_list = QComboBox()
 
         '''
         Creating tables for each tab
@@ -139,6 +140,12 @@ class UI(QMainWindow):
         h_line.setLineWidth(1)
         return h_line
 
+    # Quick function to make horizontal separators
+    def create_vertical_line(self):
+        v_line = QFrame()
+        v_line.setFrameShape(QFrame.VLine)
+        v_line.setLineWidth(1)
+        return v_line
 
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
@@ -177,20 +184,74 @@ class UI(QMainWindow):
         return main_table_box
 
     def make_options_tab(self):
-        vbox = QVBoxLayout()
+        vbox_overall = QVBoxLayout()
         room_adjust_layout = QHBoxLayout()
+        room_adjust_layout.setSpacing(30)
 
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(16)
+
+
+        # Classroom section
         self.class_id.setPlaceholderText("Classroom Name")
+        vbox_class = QVBoxLayout()
 
+        class_section_text = QLabel("Classroom Options")
+        class_section_text.setFont(font)
+
+        vbox_class.addWidget(class_section_text)
+
+        # Class ID section
+        class_id_box = QVBoxLayout()
+        class_id_box.addWidget(QLabel("Classroom ID"))
+        self.class_id.setMaximumWidth(100)
+        class_id_box.addWidget(self.class_id)
+
+        # Class Capacity Section
+        class_capacity_box = QVBoxLayout()
+        class_capacity_box.addWidget(QLabel("Classroom Capacity"))
+        self.class_capacity.setValue(10)
+        self.class_capacity.setMinimum(10)
+        self.class_capacity.setMaximum(50)
+        self.class_capacity.setMaximumWidth(100)
+        class_capacity_box.addWidget(self.class_capacity)
+
+        # Class Lab? section
+        class_lab_bool = QVBoxLayout()
         b1 = QRadioButton("Yes")
         b2 = QRadioButton("No")
-
         self.class_lab.addButton(b1)
         self.class_lab.addButton(b2)
-        room_adjust_layout.addWidget(b1)
-        room_adjust_layout.addWidget(b2)
 
-        return room_adjust_layout
+        class_lab_bool.addWidget(QLabel("Is a Lab?"))
+        class_lab_bool.addWidget(b1)
+        class_lab_bool.addWidget(b2)
+
+        # Create add button
+        class_btn = QPushButton("Add Classroom")
+        class_btn.setMaximumWidth(100)
+        class_btn.clicked.connect(self.add_edit_classroom)
+
+        # Put everything into the layout
+        room_adjust_layout.addLayout(class_id_box)
+        room_adjust_layout.addWidget(self.create_vertical_line())
+        room_adjust_layout.addLayout(class_capacity_box)
+        room_adjust_layout.addWidget(self.create_vertical_line())
+        room_adjust_layout.addLayout(class_lab_bool)
+        room_adjust_layout.addWidget(self.create_vertical_line())
+        room_adjust_layout.addWidget(class_btn)
+        room_adjust_layout.addWidget(self.classroom_list)
+
+        vbox_class.addLayout(room_adjust_layout)
+        vbox_class.addSpacerItem(QSpacerItem(20, 500, QSizePolicy.Minimum, QSizePolicy.Minimum))
+
+        vbox_overall.addLayout(vbox_class)
+        vbox_overall.addWidget(self.create_horizontal_line())
+
+
+
+        return vbox_overall
 
 
 
@@ -249,15 +310,20 @@ class UI(QMainWindow):
         create_sched = QPushButton("Create Schedule")
         create_sched.clicked.connect(self.create_schedule)
 
-        #TODO Currently reading from the schedulers dummy values. Need to change to read from database, shouldnt be too much.
+        # Read Current items in teh Database
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        db_classes = readClassroomItem(connection, "%")
+        close_connection(connection)
+        for each_class in range(len(db_classes)):
 
-        for rooms in range(len(imports.schedulers.initialize_data.lecture_rooms)):
-            LEC_ROOMS.append(imports.schedulers.initialize_data.lecture_rooms[rooms].ID + " Capacity: " + str(imports.schedulers.initialize_data.lecture_rooms[rooms].capacity))
-        for rooms in range(len(imports.schedulers.initialize_data.lab_rooms)):
-            LAB_ROOMS.append(imports.schedulers.initialize_data.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.schedulers.initialize_data.lab_rooms[rooms].capacity))
+            CLASSROOMS.append(db_classes[each_class])
 
-        self.select_room.addItems(LEC_ROOMS)
-        self.select_room.addItems(LAB_ROOMS)
+            if db_classes[each_class][2] == 1:
+                self.select_room.addItem(db_classes[each_class][0] + " (LAB)")
+            else:
+                self.select_room.addItem(db_classes[each_class][0])
+
 
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
@@ -977,3 +1043,36 @@ class UI(QMainWindow):
         close_connection(connection)
 
         return lectures_each_day
+
+
+    def add_edit_classroom(self):
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+
+        try:
+            wanted_class = readClassroomItem(connection, self.class_id.text().strip())
+            lab = self.class_lab.checkedButton().text()
+
+            val = 0
+
+            if (lab == "Yes"):
+                val = 1
+            if(len(wanted_class) == 1):
+                deleteClassroomItem(connection, self.class_id.text().strip())
+
+            new_room = Classroom(self.class_id.text().strip(), self.class_capacity.value(), val)
+            addClassroomItem(connection, new_room)
+
+            CLASSROOMS.append(new_room)
+
+            # Update the combobox / global Lists
+            self.classroom_list.clear()
+
+            for each_classroom in range(len(CLASSROOMS)):
+                print(CLASSROOMS[0].__class__)
+                self.classroom_list.addItem(CLASSROOMS[each_classroom].ID)
+
+        except:
+            print("error adding classroom")
+
+        close_connection(connection)
