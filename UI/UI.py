@@ -1043,21 +1043,27 @@ class UI(QMainWindow):
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
 
-        lectures = [course for course in imports.schedulers.initialize_data.term_courses[1] if course not in imports.schedulers.initialize_data.lab_courses]
-        labs = [course for course in imports.schedulers.initialize_data.term_courses[1] if course in imports.schedulers.initialize_data.lab_courses]
+        # TODO: these are all outdated, we can remove them once we're 100% sure we dont need these - Andrew
+             
+        # lectures = [course for course in imports.schedulers.initialize_data.term_courses[1] if course not in imports.schedulers.initialize_data.lab_courses]
+        # labs = [course for course in imports.schedulers.initialize_data.term_courses[1] if course in imports.schedulers.initialize_data.lab_courses]
 
-        prog_lectures = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course not in imports.schedulers.initialize_data.program_lab_courses]
-        prog_labs = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course in imports.schedulers.initialize_data.program_lab_courses]
+        # prog_lectures = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course not in imports.schedulers.initialize_data.program_lab_courses]
+        # prog_labs = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course in imports.schedulers.initialize_data.program_lab_courses]
 
-        lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
-        prog_lec_hours, prog_lab_hours = imports.schedulers.core_scheduler.get_course_hours(prog_lectures, prog_labs)
+        # lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
+        # prog_lec_hours, prog_lab_hours = imports.schedulers.core_scheduler.get_course_hours(prog_lectures, prog_labs)
 
         global CORE_SCHEDULE, PROG_SCHEDULE
-        CORE_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.initialize_data.lecture_rooms,
-                                                                               lab_hours, labs,     imports.schedulers.initialize_data.lab_rooms)
+        CORE_SCHEDULE  = imports.schedulers.core_scheduler.get_sched(1)
+        # scheduling program-specific courses is broken rn, so just use core schedules twice for UI testing
+        PROG_SCHEDULE  = CORE_SCHEDULE
+        
+        #CORE_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.initialize_data.lecture_rooms,
+                                                                            #    lab_hours, labs,     imports.schedulers.initialize_data.lab_rooms)
 
-        PROG_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(prog_lec_hours, prog_lectures, imports.schedulers.initialize_data.lecture_rooms,
-                                                                               prog_lab_hours, prog_labs,     imports.schedulers.initialize_data.lab_rooms)
+        # PROG_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(prog_lec_hours, prog_lectures, imports.schedulers.initialize_data.lecture_rooms,
+                                                                            #    prog_lab_hours, prog_labs,     imports.schedulers.initialize_data.lab_rooms)
 
 
         global CORE_PREV, PROG_PREV
@@ -1068,8 +1074,8 @@ class UI(QMainWindow):
         # Be advised that if [day #] is an even number
         # That is monday, odd numbers are wednesday
 
-        # Note: If schedule at a specific day is empty, that means it hasn't changed from the last
-        # day. Only days with dataframe objects indicate a change.
+        # 03/17/2022 Update: 
+        # all 26 core course schedules are included in `CORE_SCHEDULE`, so we can get rid of all the `isinstance` checks
 
         # This dictionary will hold the course name (key)
         # and the colour (value) for easier distinction between same courses, and different ones

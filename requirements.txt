@@ -2,3 +2,4 @@ PyQt5==5.15.7
 openpyxl==3.1.1
 numpy==1.22.4
 pandas==1.5.3
+static-frame==1.2.7

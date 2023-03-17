@@ -3,6 +3,7 @@ import math
 import datetime
 import pandas as pd
 import numpy as np
+import static_frame as sf
 from imports.classes.courses import *
 from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
@@ -17,14 +18,13 @@ sys.path.append(grandparentdir)
 #===================== TODOs (in no particular order) ==========================
 
 #TODO: Schedule pcom_0130 & pcom_0140 halfway through term
-#       - create global var 'day', when scheduling 
-
-#TODO: after the entire schedule is made, assign times to online classes (e.g. AVDN 0260)
-#           - use seperate dataframe or dict, while still watching out for schedule conflicts
-#           - constraints: no student limit, cant be within 1.5 hours of an in-person class
+#       - create global var 'day', when creating day sched:
+#           if day == 13, move these courses to the front of the list of courses being scheduled
 
 #TODO: add a buffer before/after online classes (cant be immediately before/after in-person courses)
-#       - use schedule them at the same time as in-person courses (use a '-' to mark the buffer)
+#       - schedule them at the same time as in-person courses 
+#           (use a '-' to mark the buffer, so no in-person courses are scheduled at that time)
+#           
 
 #TODO: create second df for scheduling labs, join lecture & lab dfs after each 'day' iteration
 
@@ -262,7 +262,6 @@ def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFram
 def create_core_day_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course], 
                              term_A_bcom: List[Course], term_B_bcom: List[Course],
                              course_hours: Dict[str, int], sched: pd.DataFrame) -> pd.DataFrame:
-    
     '''
     Takes lists of pcom & bcom lectures for terms A & B, a dictionary of course_hours, 
     and a room list to create a schedule for a single day and return it as a 
@@ -274,9 +273,6 @@ def create_core_day_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course
     # or ones that have already been fully scheduled
     already_scheduled = [course[:-2] for course in sched.values.flatten()]
     
-    term_A_pcom = [course for course in term_A_pcom if 
-                   course.ID not in already_scheduled and
-                   course_hours[course.ID]['remaining'] > 0]
     term_A_pcom = [course for course in term_A_pcom if
                    course.ID not in already_scheduled and
                    course_hours[course.ID]['remaining'] > 0]
@@ -416,7 +412,7 @@ def create_core_term_schedule(term_A_pcom: List[Course], term_B_pcom: List[Cours
 
     lecture_hours, lab_hours = get_course_hours(all_lectures, [])
 
-    full_schedule = []
+    temp_sched_arr = []
     
     # create a schedule for the first day, then reference this when making 
     # subsequent schedules with consistent times and rooms for courses
@@ -430,17 +426,17 @@ def create_core_term_schedule(term_A_pcom: List[Course], term_B_pcom: List[Cours
             lecture_hours, prev_sched
         )
         
-        full_schedule.append(sched)
-        
-        print(f"\n\nDAY: {i} SCHEDULE:\n{sched}\n")
+        # only add immutable static frames, otherwise all the schedules end up empty 
+        # (no idea why, but good luck to whoever has to sort through this mess & find an actual solution)
+        temp_sched_arr.append(sf.Frame.from_pandas(sched))
         
         lecture_hours = update_course_hours(lecture_hours, sched)
         prev_sched = update_schedule(lecture_hours, sched)
         
-        # removing duplicate schedules makes debugging much easier
-        # if any(sched.equals(day_sched) for day_sched in list(full_schedule.values())):
-        #     full_schedule[f"day {i}"] = "-"
-        # else:
-        #     full_schedule[f"day {i}"] = sched
-
+    
+    # convert each static frame back to a dataframe & return them in a dict
+    full_schedule = {}
+    for index, sf_sched in enumerate(temp_sched_arr):
+        full_schedule[f"day {index+1}"] = sf_sched.to_pandas()
+        
     return full_schedule
