@@ -1201,8 +1201,14 @@ class UI(QMainWindow):
         connection = create_connection(db)
 
         try:
-            wanted_class = readClassroomItem(connection, self.class_id.text().strip())
+
+            classroom_id = self.class_id.text().strip()
+            wanted_class = readClassroomItem(connection, classroom_id)
             lab = self.class_lab.checkedButton().text()
+
+            if classroom_id.isspace() or classroom_id == "":
+                close_connection(connection)
+                return
 
             val = 0
 
@@ -1259,7 +1265,7 @@ class UI(QMainWindow):
             else:
                 course_id = self.courses.currentText()
 
-            if course_id.isspace():
+            if course_id.isspace() or course_id == "":
                 close_connection(connection)
                 return
 
