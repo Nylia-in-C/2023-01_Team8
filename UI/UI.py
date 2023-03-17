@@ -22,7 +22,7 @@ import datetime
 BG_COLOURS = QtGui.QColor.colorNames()
 
 LEFT_MAX_WIDTH = 450
-CLASSROOMS = []
+CLASSROOMS = {} # key = room id, value = tuple with all values
 global CORE_SCHEDULE
 global PROG_SCHEDULE
 WEEK = 1
@@ -317,7 +317,7 @@ class UI(QMainWindow):
         close_connection(connection)
         for each_class in range(len(db_classes)):
 
-            CLASSROOMS.append(db_classes[each_class])
+            CLASSROOMS[db_classes[each_class][0]] = db_classes[each_class]
 
             if db_classes[each_class][2] == 1:
                 self.select_room.addItem(db_classes[each_class][0] + " (LAB)")
@@ -1063,14 +1063,23 @@ class UI(QMainWindow):
             new_room = Classroom(self.class_id.text().strip(), self.class_capacity.value(), val)
             addClassroomItem(connection, new_room)
 
-            CLASSROOMS.append(new_room)
+            CLASSROOMS[self.class_id.text().strip()] = (self.class_id.text().strip(), self.class_capacity.value(), val)
 
             # Update the combobox / global Lists
             self.classroom_list.clear()
+            self.select_room.clear()
 
-            for each_classroom in range(len(CLASSROOMS)):
-                print(CLASSROOMS[0].__class__)
-                self.classroom_list.addItem(CLASSROOMS[each_classroom].ID)
+            keys = list(CLASSROOMS.keys())
+
+            for each_class in range(len(keys)):
+                tup = CLASSROOMS[keys[each_class]]
+
+                if tup[2] == 1:
+                    self.classroom_list.addItem(keys[each_class] + " (LAB)")
+                    self.select_room.addItem(keys[each_class] + " (LAB)")
+                else:
+                    self.select_room.addItem(keys[each_class])
+                    self.classroom_list.addItem(keys[each_class])
 
         except:
             print("error adding classroom")
