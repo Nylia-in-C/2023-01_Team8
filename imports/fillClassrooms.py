@@ -13,6 +13,7 @@ from classes.legions    import *
 from classes.courses    import *
 from classes.programs   import *
 from create_legions     import *
+from database.database  import *
 
 #===================================================================================================
 # Setup
@@ -47,26 +48,29 @@ programCoursesByTerm = {
 rooms = [
          Classroom("11-458", 40, False),
          Classroom("11-533", 36, False), 
-         Classroom("11-534", 36, False),
-         Classroom("11-430", 30, False), 
-         Classroom("11-320", 30, False),
-         Classroom("11-560", 24, False),
-         Classroom("11-562", 24, False),
-         Classroom("11-564", 24, False),
-         Classroom("11-532", 30, True ) 
+        #  Classroom("11-534", 36, False),
+        #  Classroom("11-430", 30, False), 
+        #  Classroom("11-320", 30, False),
+        #  Classroom("11-560", 24, False),
+        #  Classroom("11-562", 24, False),
+        #  Classroom("11-564", 24, False),
+        #  Classroom("11-532", 30, True ) 
          ]
+rooms.sort(key= lambda Classroom: Classroom.capacity)
 
 ghostRooms = []
 
-roomHours = {"11-458": 0,
-             "11-533": 0, 
+roomHours = {
+             "11-458": 178,
+             "11-533": 178, 
              "11-534": 0,
              "11-430": 0, 
              "11-320": 0,
              "11-560": 0,
              "11-562": 0,
              "11-564": 0,
-             "11-532": 0}
+             "11-532": 0
+             }
 
 fsRoomHours = {"11-532": 0}
 
@@ -201,6 +205,48 @@ def fillClassrooms(legions):
 
 #===================================================================================================
 # New, cooler algorithm
+def add_ghost_room(hasLab):
+    ghostID = f"ghost-{len(ghostRooms) + 1}"
+    ghostRoom = Classroom(ghostID, 30, hasLab)
+
+    rooms.append(ghostRoom)
+    ghostRooms.append(ghostRoom)
+    roomHours[ghostID] = 0
+    roomFill[ghostID] = []
+
+def check_room_hours(program, cohorts):
+    temp_roomHours = roomHours.copy()
+    for cohort_count in cohorts:
+        for course in programCoursesByTerm[program]:
+            scheduled = False
+            for room in rooms:
+                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS:
+                    temp_roomHours[room.ID] += course.termHours
+                    scheduled = True
+                    break
+                
+            if not scheduled:
+                add_ghost_room(course.hasLab) 
+                return True
+    return False
+
+def cohorts_fits(program, cohorts):
+    global roomHours
+    temp_roomHours = roomHours.copy()
+    for cohort_count in cohorts:
+        for course in programCoursesByTerm[program]:
+            scheduled = False
+            for room in rooms:
+                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.capacity >= cohort_count:
+                    temp_roomHours[room.ID] += course.termHours
+                    scheduled = True
+                    break
+                
+            if not scheduled: return False
+    
+    roomHours = temp_roomHours.copy()
+    return True
+
 def fillPrograms(program_counts):
 
     for program in program_counts.keys():
@@ -216,36 +262,53 @@ def fillPrograms(program_counts):
             full_schedule = True
             while full_schedule:
                 full_schedule = check_room_hours(program, cohorts)
-                if full_schedule: add_ghost_room()
+                if full_schedule: 
+                    # Try again with 1 cohort
+                    number_of_cohorts = 1
+                    cohorts = [total_size]
+                    continue
             
             # Check if remaining rooms have enough seat capacity
             # if not, add another cohort
-            if not cohort_fits(program, cohorts):
+            if not cohorts_fits(program, cohorts):
                 number_of_cohorts += 1
                 cohorts = [int(total_size)//number_of_cohorts for i in range(number_of_cohorts)]
                 for i in range(total_size%number_of_cohorts):
                     cohorts[i] += 1
                 
-            else:
-                # update dicts
-                scheduled = True
+            else: scheduled = True
+        
+        for room in ghostRooms:
+            connection = database.database.create_connection(r".\database\database.db")
+            database.database.addClassroomItem(connection, room)
+            database.database.close_connection(connection)
 
 # TODO:
-#   - write check_room_hours()
-#   - write add_ghost_room()
-#   - write cohort_fits()
-#   - figure out dicts when everything fits
-#   - pass ghostrooms to database
+#   - add cores
 
 # Nice to have:
 #   - Better cohort split algorithm
+#   - Add rhyme and reason to ghostroom capacity in add_ghost_room()
+#   - Extensive testing
 
 
 #===================================================================================================
 if __name__ == '__main__':
-    """
-    legions = create_legion_dict(random_students_by_term())
-    fillClassrooms(legions)
+    x = "Donothing"
+    # print(rooms, ghostRooms)
+    # add_ghost_room(True)
+    # print(rooms, ghostRooms)
 
-    print(roomFill, roomHours, ghostRooms, sep = "\n")
-    """
+    # print(rooms, ghostRooms)
+    # print(check_room_hours("PM01", [36, 24]))
+    # print(rooms, ghostRooms)
+
+    # print(rooms, ghostRooms, roomHours)
+    # print(cohorts_fits("PM01", [40, 24]))
+    # print(rooms, ghostRooms, roomHours)
+
+    # add_ghost_room(False)
+    # for room in ghostRooms:
+    #         connection = create_connection(r".\database\database.db")
+    #         addClassroomItem(connection, room)
+    #         close_connection(connection)
