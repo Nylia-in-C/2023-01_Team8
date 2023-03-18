@@ -14,35 +14,73 @@ sys.path.append(grandparentdir)
 # sort these lists in descending order of term hours & use them to create a dictionary
 # of DataFrame schedules
 
-bcom_1_lecs = sorted(bcom_courses['term 1'],  key=lambda x: x.termHours, reverse=True)
-pcom_1_lecs = sorted(pcom_lectures['term 1'], key=lambda x: x.termHours, reverse=True)
-pcom_1_labs = sorted(pcom_labs['term 1'],     key=lambda x: x.termHours, reverse=True)
+pcom_1_lecs = [course for course in pcom_courses if course.term == 1 and not course.hasLab]
+bcom_1_lecs = [course for course in bcom_courses if course.term == 1 and not course.hasLab]
 
-bcom_2_lecs = sorted(bcom_courses['term 2'],  key=lambda x: x.termHours, reverse=True)
-pcom_2_lecs = sorted(pcom_lectures['term 2'], key=lambda x: x.termHours, reverse=True)
-pcom_2_labs = sorted(pcom_labs['term 2'],     key=lambda x: x.termHours, reverse=True)
+pcom_2_lecs = [course for course in pcom_courses if course.term == 2 and not course.hasLab]
+bcom_2_lecs = [course for course in bcom_courses if course.term == 2 and not course.hasLab]
 
-bcom_3_lecs = sorted(bcom_courses['term 3'],  key=lambda x: x.termHours, reverse=True)
-pcom_3_lecs = sorted(pcom_lectures['term 3'], key=lambda x: x.termHours, reverse=True)
-pcom_3_labs = sorted(pcom_labs['term 3'],     key=lambda x: x.termHours, reverse=True)
+pcom_3_lecs = [course for course in pcom_courses if course.term == 3 and not course.hasLab]
+bcom_3_lecs = [course for course in bcom_courses if course.term == 3 and not course.hasLab]
+
+# bcom courses dont have any labs
+pcom_1_labs = [course for course in pcom_courses if course.term == 1 and course.hasLab]
+pcom_2_labs = [course for course in pcom_courses if course.term == 2 and course.hasLab]
+pcom_3_labs = [course for course in pcom_courses if course.term == 3 and course.hasLab]
+
+term_1_courses = {
+    'pcom lecs': {
+        'term A': pcom_1_lecs,
+        'term B': pcom_3_lecs,
+    },
+    'bcom lecs': {
+        'term A': bcom_1_lecs,
+        'term B': bcom_3_lecs,
+    },
+    'pcom labs': {
+        'term A': pcom_1_labs,
+        'term B': pcom_3_labs,
+    }
+}
+
+term_2_courses = {
+    'pcom lecs': {
+        'term A': pcom_1_lecs,
+        'term B': pcom_2_lecs,
+    },
+    'bcom lecs': {
+        'term A': bcom_1_lecs,
+        'term B': bcom_2_lecs,
+    },
+    'pcom labs': {
+        'term A': pcom_1_labs,
+        'term B': pcom_2_labs,
+    }
+}
+
+term_3_courses = {
+    'pcom lecs': {
+        'term A': pcom_2_lecs,
+        'term B': pcom_3_lecs,
+    },
+    'bcom lecs': {
+        'term A': bcom_2_lecs,
+        'term B': bcom_3_lecs,
+    },
+    'pcom labs': {
+        'term A': pcom_2_labs,
+        'term B': pcom_3_labs,
+    }
+}
 
 def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     
     if (term == 1):
-         return create_core_term_schedule(
-            pcom_1_lecs, pcom_3_lecs,
-            bcom_1_lecs, bcom_3_lecs, lecture_rooms
-        )
+        return create_core_term_schedule(term_1_courses, lecture_rooms, lab_rooms)
     elif (term == 2):
-        return create_core_term_schedule(
-            pcom_1_lecs, pcom_2_lecs,
-            bcom_1_lecs, bcom_2_lecs, lecture_rooms
-        )
+        return create_core_term_schedule(term_2_courses, lecture_rooms, lab_rooms)
     elif (term == 3):
-        return create_core_term_schedule(
-            pcom_2_lecs, pcom_3_lecs,
-            bcom_2_lecs, bcom_3_lecs, lecture_rooms
-        )
+        return create_core_term_schedule(term_3_courses, lecture_rooms, lab_rooms)
 
 
 

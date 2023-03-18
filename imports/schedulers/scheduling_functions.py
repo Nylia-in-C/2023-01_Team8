@@ -282,6 +282,7 @@ def create_core_day_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course
     term_A_bcom = [course for course in term_A_bcom if
                    course.ID not in already_scheduled and
                    course_hours[course.ID]['remaining'] > 0]
+    
     term_B_bcom = [course for course in term_B_bcom if
                    course.ID not in already_scheduled and
                    course_hours[course.ID]['remaining'] > 0]
@@ -296,16 +297,16 @@ def create_core_day_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course
     # given room on a single day. Each course list is unique, so we dont need to 
     # update course_hours between any of these calls
     if (len(term_A_pcom) > 0):
-        sched = add_course_cohorts_to_sched(term_A_pcom, course_hours, sched)
+        sched = add_cohorts_to_sched(term_A_pcom, course_hours, sched)
     
     if (len(term_B_pcom) > 0):
-        sched = add_course_cohorts_to_sched(term_B_pcom, course_hours, sched)
+        sched = add_cohorts_to_sched(term_B_pcom, course_hours, sched)
     
     if (len(term_A_bcom) > 0):
-        sched = add_course_cohorts_to_sched(term_A_bcom, course_hours, sched)
+        sched = add_cohorts_to_sched(term_A_bcom, course_hours, sched)
     
     if (len(term_B_bcom) > 0):
-        sched = add_course_cohorts_to_sched(term_B_bcom, course_hours, sched)
+        sched = add_cohorts_to_sched(term_B_bcom, course_hours, sched)
 
     return sched
 
@@ -328,12 +329,13 @@ def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> p
     return prev_sched
 
 
-def add_course_cohorts_to_sched(courses: List[Course], course_hours: Dict[str, int], 
+def add_cohorts_to_sched(courses: List[Course], course_hours: Dict[str, int], 
                                 sched: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes a list of courses that haven't been scheduled yet and the current schedule.
     For each course, we check if there is enough room for all cohorts.
     If there is, we update the schedule accordingly before moving to the next course.
+    A course is only added if there is room for all cohorts
     '''
     
     for course in courses:
@@ -373,11 +375,11 @@ def add_course_cohorts_to_sched(courses: List[Course], course_hours: Dict[str, i
         # append the course to the schedule before the next iteration so we dont
         # use the same schedule gap again
         if count >= COHORT_COUNT:
-            sched = add_lec_to_core_schedule(course, blocks, cohort_indexes, sched)
+            sched = add_course_to_schedule(course, blocks, cohort_indexes, sched)
           
     return sched    
 
-def add_lec_to_core_schedule(course: Course, blocks: int, 
+def add_course_to_schedule(course: Course, blocks: int, 
                              cohort_indexes: List[Tuple[int,int]], sched: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes a list of Courses and adds each one to the schedule at the earliest 
@@ -399,39 +401,59 @@ def add_lec_to_core_schedule(course: Course, blocks: int,
     return sched
     
 
-def create_core_term_schedule(term_A_pcom: List[Course], term_B_pcom: List[Course],
-                              term_A_bcom: List[Course], term_B_bcom: List[Course], 
-                              lecture_rooms: List[Classroom]) -> Dict[str, pd.DataFrame]:
+def create_core_term_schedule(courses: Dict[str, Dict[str, Course]], 
+                              lec_rooms: List[Classroom], lab_rooms: List[Classroom]) -> Dict[str, pd.DataFrame]:
     '''
-    Main schedule creation function that makes 26 single-day schedules (monday & wednesday, 13 weeks)
+    Main schedule creation function that makes 26 single-day schedules (mon/wed, 13 weeks)
     Lecture & Lab schedules are done seperately (easier to keep track of rooms this way), 
-    then joined into a single dataframe and stored in a dictionary. To make things easier, 
-    if the new schedule is the same as the previous day, '-' is added to the dict as a placeholder
+    then joined into a single dataframe and stored in a dictionary. 
     '''
-    all_lectures = term_A_pcom + term_B_pcom + term_A_bcom + term_B_bcom 
+    term_A_pcom_lecs = courses['pcom lecs']['term A']
+    term_B_pcom_lecs = courses['pcom lecs']['term B']
+    
+    term_A_bcom_lecs = courses['bcom lecs']['term A']
+    term_B_bcom_lecs = courses['bcom lecs']['term B']
+    
+    term_A_pcom_labs = courses['pcom labs']['term A']
+    term_B_pcom_labs = courses['pcom labs']['term B']
+    
+    all_lecs = term_A_pcom_lecs + term_B_pcom_lecs + \
+               term_A_bcom_lecs + term_B_bcom_lecs
+    all_labs = term_A_pcom_labs + term_B_pcom_labs
 
-    lecture_hours, lab_hours = get_course_hours(all_lectures, [])
+    lec_hours, lab_hours = get_course_hours(all_lecs, all_labs)
 
     temp_sched_arr = []
     
-    # create a schedule for the first day, then reference this when making 
-    # subsequent schedules with consistent times and rooms for courses
-    prev_sched = create_empty_schedule(lecture_rooms)
+    # create schedules for the first day, then reference this when making 
+    # subsequent schedules to get consistent times and rooms for courses
+    prev_lec_sched = create_empty_schedule(lec_rooms)
+    prev_lab_sched = create_empty_schedule(lab_rooms)
     
     for i in range(1, 27):
         
-        sched = create_core_day_schedule(
-            term_A_pcom, term_B_pcom,
-            term_A_bcom, term_B_bcom,
-            lecture_hours, prev_sched
+        lec_sched = create_core_day_schedule(
+            term_A_pcom_lecs, term_B_pcom_lecs,
+            term_A_bcom_lecs, term_B_bcom_lecs,
+            lec_hours, prev_lec_sched,
         )
         
-        # only add immutable static frames, otherwise all the schedules end up empty 
-        # (no idea why, but good luck to whoever has to sort through this mess & find an actual solution)
-        temp_sched_arr.append(sf.Frame.from_pandas(sched))
+        # bcom has no labs so pass empty lists as placeholders
+        lab_sched = create_core_day_schedule(
+            term_A_pcom_labs, term_B_pcom_labs, [], [], 
+            lab_hours, prev_lab_sched,
+        )
         
-        lecture_hours = update_course_hours(lecture_hours, sched)
-        prev_sched = update_schedule(lecture_hours, sched)
+        # store the combined schedules as an immutable static frame to prevent weird bug
+        # where schedules end up empty after this loop ends (no idea why this happens,
+        # but good luck to whoever has to sort through this mess & find an actual solution)
+        temp_sched_arr.append(sf.Frame.from_pandas(lec_sched.join(lab_sched)))
+
+        lec_hours = update_course_hours(lec_hours, lec_sched)
+        lab_hours = update_course_hours(lab_hours, lab_sched)
+        
+        prev_lec_sched = update_schedule(lec_hours, lec_sched)
+        prev_lab_sched = update_schedule(lab_hours, lab_sched)
         
     
     # convert each static frame back to a dataframe & return them in a dict
