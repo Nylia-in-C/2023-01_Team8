@@ -15,14 +15,14 @@ from database.database import *
 
 import imports.schedulers.initialize_data
 import imports.schedulers.core_scheduler
+import imports.classes.classrooms
 import datetime
 
 
 BG_COLOURS = QtGui.QColor.colorNames()
 
 LEFT_MAX_WIDTH = 450
-LEC_ROOMS = []
-LAB_ROOMS = []
+CLASSROOMS = {} # key = room id, value = tuple with all values
 global CORE_SCHEDULE
 global PROG_SCHEDULE
 WEEK = 1
@@ -62,8 +62,6 @@ def remove_colours():
     for colour in range(len(_colours)):
         if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
             BG_COLOURS.remove(_colours[colour])
-
-    print(BG_COLOURS)
 class UI(QMainWindow):
 
     def __init__(self):
@@ -84,6 +82,22 @@ class UI(QMainWindow):
         font.setPointSize(16)
         self.week_label.setFont(font)
         self.week_label.setAlignment(Qt.AlignCenter)
+
+        # Options
+        self.class_id = QLineEdit()
+        self.class_lab = QButtonGroup()
+        self.class_capacity = QSpinBox()
+        self.classroom_list = QComboBox()
+
+        self.courses = QComboBox()
+        self.courses_edit_new = QButtonGroup()
+        self.course_id = QLineEdit()
+        self.course_term_hours = QSpinBox()
+        self.course_term = QSpinBox()
+        self.course_duration = QSpinBox()
+        self.course_core = QCheckBox()
+        self.course_online = QCheckBox()
+        self.course_lab = QCheckBox()
 
 
         '''
@@ -135,19 +149,33 @@ class UI(QMainWindow):
         h_line.setLineWidth(1)
         return h_line
 
+    # Quick function to make horizontal separators
+    def create_vertical_line(self):
+        v_line = QFrame()
+        v_line.setFrameShape(QFrame.VLine)
+        v_line.setLineWidth(1)
+        return v_line
 
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
-        main_table_box = QVBoxLayout(self)
 
         # Create tabs
         tabs = QTabWidget()
         tab1 = QWidget()
+        tab2 = QWidget()
 
         tabs.addTab(tab1, "Schedule")
+        tabs.addTab(tab2, "Options")
 
         self.create_schedule_base()
 
+        tab1.setLayout(self.make_main_tab())
+        tab2.setLayout(self.make_options_tab())
+
+        return tabs
+
+    def make_main_tab(self):
+        main_table_box = QVBoxLayout(self)
         week_choose = QHBoxLayout(self)
 
         left = QPushButton("<--")
@@ -162,12 +190,204 @@ class UI(QMainWindow):
         main_table_box.addLayout(week_choose)
         main_table_box.addWidget(self.main_table)
 
-        tab1.setLayout(main_table_box)
+        return main_table_box
 
-        return tabs
+    def make_options_tab(self):
+        vbox_overall = QVBoxLayout()
+
+        vbox_overall.addLayout(self.update_classroom_section())
+        vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addLayout(self.update_course_section())
+
+
+        return vbox_overall
+
+    def update_classroom_section(self):
+        room_adjust_layout = QHBoxLayout()
+        room_adjust_layout.setSpacing(30)
+
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(16)
+
+        # Classroom section
+        self.class_id.setPlaceholderText("Classroom Name")
+        vbox_class = QVBoxLayout()
+
+        class_section_text = QLabel("Classroom Options")
+        class_section_text.setFont(font)
+
+        vbox_class.addWidget(class_section_text)
+
+        # Class ID section
+        class_id_box = QVBoxLayout()
+        class_id_box.addWidget(QLabel("Classroom ID"))
+        self.class_id.setMaximumWidth(100)
+        class_id_box.addWidget(self.class_id)
+
+        # Class Capacity Section
+        class_capacity_box = QVBoxLayout()
+        class_capacity_box.addWidget(QLabel("Classroom Capacity"))
+        self.class_capacity.setValue(10)
+        self.class_capacity.setMinimum(10)
+        self.class_capacity.setMaximum(50)
+        self.class_capacity.setMaximumWidth(100)
+        class_capacity_box.addWidget(self.class_capacity)
+
+        # Class Lab? section
+        class_lab_bool = QVBoxLayout()
+        b1 = QRadioButton("Yes")
+        b1.setChecked(True)
+        b2 = QRadioButton("No")
+        self.class_lab.addButton(b1)
+        self.class_lab.addButton(b2)
+
+        class_lab_bool.addWidget(QLabel("Is a Lab?"))
+        class_lab_bool.addWidget(b1)
+        class_lab_bool.addWidget(b2)
+
+        # Create add button
+        class_btn = QPushButton("Add Classroom")
+        class_btn.setMaximumWidth(100)
+        class_btn.clicked.connect(self.add_edit_classroom)
+
+        # Create remove button
+        remove_btn = QPushButton("Remove Classroom")
+        remove_btn.setMaximumWidth(150)
+        remove_btn.clicked.connect(self.remove_classroom)
+
+        remove_section = QVBoxLayout()
+        remove_section.addWidget(self.classroom_list)
+        remove_section.addWidget(remove_btn)
+
+        # Put everything into the layout
+        room_adjust_layout.addLayout(class_id_box)
+        room_adjust_layout.addWidget(self.create_vertical_line())
+        room_adjust_layout.addLayout(class_capacity_box)
+        room_adjust_layout.addWidget(self.create_vertical_line())
+        room_adjust_layout.addLayout(class_lab_bool)
+        room_adjust_layout.addWidget(class_btn)
+        room_adjust_layout.addWidget(self.create_vertical_line())
+        room_adjust_layout.addLayout(remove_section)
+        room_adjust_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+
+
+        vbox_class.addLayout(room_adjust_layout)
+        vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
+
+        return vbox_class
+
+    def update_course_section(self):
+        vbox_course = QVBoxLayout()
+
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(16)
+
+        course_section_text = QLabel("Course Options")
+        course_section_text.setFont(font)
+
+        vbox_course.addWidget(course_section_text)
+
+
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        db_courses = readCourseItem(connection, "%")
+        close_connection(connection)
+
+        course_name_list = []
+
+        for each_course in range(len(db_courses)):
+            course_name_list.append(db_courses[each_course][0])
+
+        self.courses.addItems(course_name_list)
+        self.courses.setMaximumWidth(200)
+
+        # Creating inputs
+        hbox = QHBoxLayout()
+
+        new_or_edit = QVBoxLayout()
+        b1 = QRadioButton("New Course")
+        b1.setChecked(True)
+        b2 = QRadioButton("Edit Course")
+        self.courses_edit_new.addButton(b1)
+        self.courses_edit_new.addButton(b2)
+
+        new_or_edit.addWidget(QLabel("Edit?"))
+        new_or_edit.addWidget(b1)
+        new_or_edit.addWidget(b2)
+        #-----------------------------
+
+        course_id_sec = QVBoxLayout()
+        course_id_sec.addWidget(QLabel("Course Name"))
+        self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
+        self.course_id.setMaximumWidth(100)
+        course_id_sec.addWidget(self.courses)
+        course_id_sec.addWidget(self.course_id)
+        self.courses.hide()
+
+        # ---------------------------
+
+        vbox_spin_boxes = QVBoxLayout()
+        hbox_hours = QHBoxLayout()
+        hbox_hours.addWidget(QLabel("Course Hours: "))
+        hbox_hours.addWidget(self.course_term_hours)
+
+        hbox_term = QHBoxLayout()
+        hbox_term.addWidget(QLabel("Term: "))
+        hbox_term.addWidget(self.course_term)
+
+        hbox_duration = QHBoxLayout()
+        hbox_duration.addWidget(QLabel("Duration: "))
+        hbox_duration.addWidget(self.course_duration)
+
+        vbox_spin_boxes.addLayout(hbox_hours)
+        vbox_spin_boxes.addLayout(hbox_term)
+        vbox_spin_boxes.addLayout(hbox_duration)
+
+        #--------------------------
+
+        vbox_online_lab = QVBoxLayout()
+
+        core_hbox = QHBoxLayout()
+        core_hbox.addWidget(QLabel("Core Course: "))
+        core_hbox.addWidget(self.course_core)
+
+        online_hbox = QHBoxLayout()
+        online_hbox.addWidget(QLabel("Online?: "))
+        online_hbox.addWidget(self.course_online)
+
+        hbox_lab = QHBoxLayout()
+        hbox_lab.addWidget(QLabel("Has a lab?: "))
+        hbox_lab.addWidget(self.course_lab)
+
+        vbox_online_lab.addLayout(core_hbox)
+        vbox_online_lab.addLayout(online_hbox)
+        vbox_online_lab.addLayout(hbox_lab)
+        #--------------------------
+
+        course_btn = QPushButton("Save Course")
+        course_btn.clicked.connect(self.save_course)
+
+
+        hbox.setSpacing(20)
+
+        hbox.addLayout(new_or_edit)
+        hbox.addWidget(self.create_vertical_line())
+        hbox.addLayout(course_id_sec)
+        hbox.addWidget(self.create_vertical_line())
+        hbox.addLayout(vbox_spin_boxes)
+        hbox.addWidget(self.create_vertical_line())
+        hbox.addLayout(vbox_online_lab)
+        hbox.addWidget(course_btn)
+
+        hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+
+        vbox_course.addLayout(hbox)
+
+        return vbox_course
 
     # Make the basic layout of the schedule table
-
     def create_schedule_base(self):
 
         days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
@@ -220,15 +440,20 @@ class UI(QMainWindow):
         create_sched = QPushButton("Create Schedule")
         create_sched.clicked.connect(self.create_schedule)
 
-        #TODO Currently reading from the schedulers dummy values. Need to change to read from database, shouldnt be too much.
+        # Read Current items in teh Database
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        db_classes = readClassroomItem(connection, "%")
+        close_connection(connection)
+        for each_class in range(len(db_classes)):
 
-        for rooms in range(len(imports.schedulers.initialize_data.lecture_rooms)):
-            LEC_ROOMS.append(imports.schedulers.initialize_data.lecture_rooms[rooms].ID + " Capacity: " + str(imports.schedulers.initialize_data.lecture_rooms[rooms].capacity))
-        for rooms in range(len(imports.schedulers.initialize_data.lab_rooms)):
-            LAB_ROOMS.append(imports.schedulers.initialize_data.lab_rooms[rooms].ID + " (LAB) " + "Capacity: " + str(imports.schedulers.initialize_data.lab_rooms[rooms].capacity))
+            CLASSROOMS[db_classes[each_class][0]] = db_classes[each_class]
 
-        self.select_room.addItems(LEC_ROOMS)
-        self.select_room.addItems(LAB_ROOMS)
+            if db_classes[each_class][2] == 1:
+                self.select_room.addItem(db_classes[each_class][0] + " (LAB)")
+            else:
+                self.select_room.addItem(db_classes[each_class][0])
+
 
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
@@ -395,6 +620,22 @@ class UI(QMainWindow):
     # after the initial startup
     '''
 
+    def update_class_combos(self):
+        self.classroom_list.clear()
+        self.select_room.clear()
+
+        keys = list(CLASSROOMS.keys())
+
+        for each_class in range(len(keys)):
+            tup = CLASSROOMS[keys[each_class]]
+
+            if tup[2] == 1:
+                self.classroom_list.addItem(keys[each_class] + " (LAB)")
+                self.select_room.addItem(keys[each_class] + " (LAB)")
+            else:
+                self.select_room.addItem(keys[each_class])
+                self.classroom_list.addItem(keys[each_class])
+
     def reset_table(self):
         # Use this to populate table with values to allow
         # Background colouring
@@ -427,9 +668,12 @@ class UI(QMainWindow):
         BKC
         '''
         input_fields = layout.count()
+        list_val = []
 
         for each_field in range(input_fields):
-            print(layout.itemAt(each_field).widget().value())
+            list_val.append(layout.itemAt(each_field).widget().value())
+
+        return list_val
 
 
     # This function will store the input values
@@ -749,6 +993,35 @@ class UI(QMainWindow):
 
 
 
+    def create_schedule_v2(self):
+        # Will eventually replace create_schedule, as it will pull form the db
+        room_requested = self.select_room.currentText().split(" ")[0]
+        self.week_label.setText("Week 1")
+        global WEEK
+        WEEK = 1
+
+        self.pass_stu_num_db()
+
+        random.shuffle(BG_COLOURS)
+        self.reset_table()
+
+        # Retrieve lecture items for the week
+
+        week1 = self.get_lecture_items()
+
+        # Create a list for each day, (26 slots) for each list to correspond for each time
+        for each_day in range(len(week1)):
+            schedule_list = [""] * 26
+
+            for each_lecture in range(len(week1[each_day])):
+                #TODO match start time of lecture to its spot in the schedule_list
+                # Separate the cohorts within it
+                # put them in list
+                # Pass to show schedule function
+                return
+
+
+
     def create_schedule(self):
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
@@ -894,3 +1167,150 @@ class UI(QMainWindow):
 
         except:
             print("Error Opening File")# Maybe put an actual error message here eventually about opening files
+
+
+    def pass_stu_num_db(self):
+
+        term_1 = self.retrieve_term_inputs(self.term_1_inputs)
+        term_2 = self.retrieve_term_inputs(self.term_2_inputs)
+        term_3 = self.retrieve_term_inputs(self.term_3_inputs)
+
+        collective = []
+        collective.append(term_1)
+        collective.append(term_2)
+        collective.append(term_3)
+
+        #TODO pass this to algorithm functions.
+
+    def get_lecture_items(self):
+        #TODO see if easy to change to search by week / class
+
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        lectures_each_day = []
+
+        for each_day in range(4):
+            lectures_each_day.append(database.database.readLectureItem(connection))
+
+        close_connection(connection)
+
+        return lectures_each_day
+
+    def add_edit_classroom(self):
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+
+        try:
+
+            classroom_id = self.class_id.text().strip()
+            wanted_class = readClassroomItem(connection, classroom_id)
+            lab = self.class_lab.checkedButton().text()
+
+            if classroom_id.isspace() or classroom_id == "":
+                close_connection(connection)
+                return
+
+            val = 0
+
+            if (lab == "Yes"):
+                val = 1
+            if(len(wanted_class) == 1):
+                deleteClassroomItem(connection, self.class_id.text().strip())
+
+            new_room = Classroom(self.class_id.text().strip(), self.class_capacity.value(), val)
+            addClassroomItem(connection, new_room)
+
+            CLASSROOMS[self.class_id.text().strip()] = (self.class_id.text().strip(), self.class_capacity.value(), val)
+
+            # Update the combobox / global Lists
+            self.update_class_combos()
+
+
+        except:
+            print("error adding classroom")
+
+        close_connection(connection)
+
+    def remove_classroom(self):
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+
+        try:
+
+            classroom = self.classroom_list.currentText()
+            splits = classroom.split(" ")
+            wanted_class = readClassroomItem(connection, splits[0])
+
+            if (len(wanted_class) == 1):
+                deleteClassroomItem(connection, splits[0])
+                del CLASSROOMS[splits[0]]
+
+            # Update the combobox / global Lists
+            self.update_class_combos()
+
+
+        except:
+            print("error adding classroom")
+
+        close_connection(connection)
+
+    def save_course(self):
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+
+        try:
+
+            if self.courses_edit_new.checkedButton().text() == "New Course":
+                course_id = self.course_id.text().strip()
+            else:
+                course_id = self.courses.currentText()
+
+            if course_id.isspace() or course_id == "":
+                close_connection(connection)
+                return
+
+            wanted_course = readCourseItem(connection, course_id)
+
+            if(len(wanted_course) == 1):
+                deleteCourseItem(connection, course_id)
+
+            term_hours = self.course_term_hours.value()
+            term = self.course_term.value()
+            duration = self.course_duration.value()
+            core = self.course_core.isChecked()
+            online = self.course_online.isChecked()
+            lab = self.course_lab.isChecked()
+
+            new_course = Course(course_id, 1, term_hours, term, duration, core, online,lab, "")
+            addCourseItem(connection, new_course)
+            close_connection(connection)
+            # Update the combobox
+            self.update_course_combos()
+
+        except:
+            print("error adding course")
+
+    def update_course_combos(self):
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        db_courses = readCourseItem(connection, "%")
+        close_connection(connection)
+
+        course_name_list = []
+
+        for each_course in range(len(db_courses)):
+            course_name_list.append(db_courses[each_course][0])
+
+        self.courses.clear()
+        self.courses.addItems(course_name_list)
+
+    def show_hide_course(self):
+
+        if self.courses_edit_new.checkedButton().text() == "New Course":
+            self.course_id.show()
+            self.courses.hide()
+        else:
+            self.course_id.hide()
+            self.courses.show()
+
+
