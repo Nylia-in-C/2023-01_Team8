@@ -228,6 +228,11 @@ def createDefaultDatabase():
                     Legions VARCHAR(200) NOT NULL,
                     Courses VARCHAR(200)
                 ); """
+        STUDENTTableCols = """ CREATE TABLE IF NOT EXISTS STUDENT (
+                    PID VARCHAR(100) NOT NULL,
+                    Term INT NOT NULL,
+                    COUNT INT NOT NULL
+                ); """
         # start of add tables********************************************************************
         database.create_table(connection, COHORTTableCols)
         database.create_table(connection, COURSESTableCols)
@@ -235,6 +240,7 @@ def createDefaultDatabase():
         database.create_table(connection, PROGRAMSTableCols)
         database.create_table(connection, CLASSROOMSTableCols)
         database.create_table(connection, LEGIONSTableCols)  
+        database.create_table(connection, STUDENTTableCols)
         # end of add tables**********************************************************************
         
         # start of add courses********************************************************************
@@ -372,7 +378,7 @@ def createDefaultDatabase():
         database.addClassroomItem(connection,room_532)
         # end of add clasrooms**********************************************************************
                 
-        # start of add courses********************************************************************
+        # start of add Programs********************************************************************
         database.addProgramItem(connection, pmObj)
         database.addProgramItem(connection, baObj)
         database.addProgramItem(connection, bkObj)
@@ -382,7 +388,7 @@ def createDefaultDatabase():
         database.addProgramItem(connection, pcomObj)
         database.addProgramItem(connection, bcomObj)
        
-        # end of add tables**********************************************************************
+        # end of add programs**********************************************************************
 
     else: 
          print("Could not connect to database")
@@ -391,4 +397,4 @@ def createDefaultDatabase():
  
     return 
 
-#createDefaultDatabase()
+createDefaultDatabase()
