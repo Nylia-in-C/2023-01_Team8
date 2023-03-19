@@ -22,8 +22,6 @@ FSPRROGRAMHOURS = 2*13*4
 #PROGRAMHOURS = 60
 #COREHOURS
 
-
-
 programCoursesByTerm = {
     "PM01":  [Course("PRDV 0201", "NA", 21, 1, 2, False, False, False), Course("PRDV 0202", "NA", 14, 1, 2, False, False, False), Course("PRDV 0203", "NA", 21, 1, 2, False, False, False)], 
     "PM02":  [Course("PRDV 0204", "NA", 14, 2, 2, False, False, False), Course("PRDV 0205", "NA", 21, 2, 2, False, False, False), Course("PCOM 0130", "NA", 21, 2, 2, False, False, False), Course("PRDV 0206", "NA", 14, 2, 2, False, False, False)], 
@@ -102,128 +100,12 @@ roomFill  = {"11-458": [],
              "11-564": [],
              "11-532": []}
 
-
-
 #===================================================================================================
-# Random Generation
-def random_students_by_term():
-    '''
-    Randomly generates a dictionary mapping programIDs to their student counts (testing purposes only)
-    '''
-    programs = ["PM01",  "PM02",  "PM03",
-                "BA01",  "BA02",  "BA03", 
-                "GLM01", "GLM02", "GLM03", 
-                "FS01",  "FS02",  "FS03", 
-                "DXD01", "DXD02", "DXD03", 
-                "BKC01", "BKC02", "BKC03"]
-    counts = {}
-    total = 0
-    while total < 120 or total > 500:
-        for i in range(6*3):
-            num = random.randint(15,40)
-            counts[programs[i]] = num
-            total = sum(counts.values())
-    return counts
-
-#===================================================================================================
-# Old Functions: Don't Use
-def findRoom(totalStudents, course):
-    """
-    For use in findRooms()
-    Returns the smallest room that can fit totalStudents
-    """
-    minimalEmptySeats = 100000
-    bestRoom = False
-    allRoomsFull = True
-
-    for room in rooms:
-        if (roomHours[room.ID] + course.termHours) > PROGRAMHOURS or course.hasLab != room.isLab: continue
-
-        allRoomsFull = False
-
-        emptySeats = room.capacity - totalStudents
-        if emptySeats >= 0 and emptySeats < minimalEmptySeats:
-            minimalEmptySeats = emptySeats
-            bestRoom = room
-    
-    if allRoomsFull:
-        print(course)
-        ghostID = f"ghost-{len(ghostRooms) + 1}"
-        ghostCapacity = totalStudents + (totalStudents % 6)
-        ghostLab = course.hasLab
-        ghostRoom = Classroom(ghostID, ghostCapacity, ghostLab)
-
-        rooms.append(ghostRoom)
-        ghostRooms.append(ghostRoom)
-        roomHours[ghostID] = 0
-        roomFill[ghostID] = []
-
-        bestRoom = findRoom(totalStudents, course)
-    
-    return bestRoom
-
-def splitLegions(legions):
-    """
-    Split a list of legions into 2 lists of legions
-    """
-    list1 = []
-    list2 = []
-    for i in range(len(legions)):
-        if i%2 == 0: list1.append(legions[i])
-        else:        list2.append(legions[i])
-    
-    return (list1, list2)
-
-def bookLegions(legions, totalStudents, course):
-    """
-    For use in fillClassrooms()
-    totalStudents is an int representing all students that must take that course
-    program is a string id of a program and term, maybe make it an object later
-
-    Finds the most efficient way to store the legions into a classroom
-    """
-    room = findRoom(totalStudents, course)
-
-    if room == False:
-        # There are no classrooms with enough hours and capacity to fit the students
-        # Split into two and try again
-        # *** Needs work, is not efficient if more than one split is required ***
-        splitGroups = splitLegions(legions)
-
-        totalStudents0 = 0
-        for legionSize in splitGroups[0]:
-            totalStudents0 += legionSize
-        totalStudents1 = 0
-        for legionSize in splitGroups[1]:
-            totalStudents1 += legionSize
-        
-        bookLegions(splitGroups[0], totalStudents0, course)
-        bookLegions(splitGroups[1], totalStudents1, course)
-        return
-        
-    roomHours[room.ID] += course.termHours
-    roomFill[room.ID].append(totalStudents)
-
-def fillClassrooms(legions):
-    """
-    Fills classrooms with legions in courses
-    Does not make a schedule, only checks if all students can fit
-
-    Schedules one room until it is completely booked before moving on to the next
-    """
-    for program in programCoursesByTerm.keys():
-    #for program in ["PM01", "PM02", "PM03", "BA01", "BA02", "BA03", "GLM01", "GLM02", "GLM03"]:
-
-        totalStudents = 0
-        for legionSize in legions[program]:
-            totalStudents += legionSize
-        
-        for course in programCoursesByTerm[program]:
-            bookLegions(legions[program], totalStudents, course)
-
-#===================================================================================================
-# New, cooler algorithm
+# Functions
 def add_ghost_room(hasLab):
+    """
+    Adds ghost room to ghostRooms global variable
+    """
     ghostID = f"ghost-{len(ghostRooms) + 1}"
     ghostRoom = Classroom(ghostID, 30, hasLab)
 
@@ -232,41 +114,66 @@ def add_ghost_room(hasLab):
     roomHours["Core"][ghostID] = 0
     roomHours["Program"][ghostID] = 0
 
-def check_room_hours(program, cohorts, isCore):
+def enough_hours(program, cohorts, isCore):
+    """
+    If there are not enough hours left to support every cohort in a program, make a new ghostroom and return True
+    Else return False
+    """
+    # Uses a copy of the hours for each room
     temp_roomHours = roomHours[isCore].copy()
+
     for cohort_count in cohorts:
         for course in programCoursesByTerm[program]:
             scheduled = False
+
             for room in rooms:
+                # Fits courses in rooms with enough hours
                 if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.isLab == course.hasLab:
                     temp_roomHours[room.ID] += course.termHours
                     scheduled = True
                     break
-                
+
+            #No room had enough hours to accomadate a course     
             if not scheduled:
                 add_ghost_room(course.hasLab) 
-                return True
-    return False
+                return False
+    return True
 
 def cohorts_fits(program, cohorts, isCore):
+    """
+    If there is enough time and space to accomadate all cohorts in a program, save it in roomHours and return True
+    Else return false
+    """
     global roomHours
+    # Uses a copy of the hours for each room
     temp_roomHours = roomHours[isCore].copy()
+
     for cohort_count in cohorts:
         for course in programCoursesByTerm[program]:
             scheduled = False
+
             for room in rooms:
+                # Fits courses in rooms with enough hours and capacity
                 if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.isLab == course.hasLab and room.capacity >= cohort_count:
                     temp_roomHours[room.ID] += course.termHours
                     scheduled = True
                     break
-                
+
+            #No room had enough hours and capacity to accomadate a course    
             if not scheduled: return False
     
+    #Update the room hours
     roomHours[isCore] = temp_roomHours.copy()
     return True
 
 def fillPrograms(program_counts):
+    """
+    Takes the number of students in each program and sees if they all fit. If they don't all fit, add ghost rooms.
 
+    Takes a dictionary of programs with the number of students in each program.
+
+    Adds ghost rooms to database.
+    """
     for program in program_counts.keys():
         if programCoursesByTerm[program][0].isCore: isCore = "Core"
         else: isCore = "Program"
@@ -279,14 +186,11 @@ def fillPrograms(program_counts):
 
             # Check if remaining rooms have enough time left
             # if not, add ghost room
-            full_schedule = True
-            while full_schedule:
-                full_schedule = check_room_hours(program, cohorts, isCore)
-                if full_schedule: 
-                    # Try again with 1 cohort
-                    number_of_cohorts = 1
-                    cohorts = [total_size]
-                    continue
+            if not enough_hours(program, cohorts, isCore): 
+                # Try again with 1 cohort
+                number_of_cohorts = 1
+                cohorts = [total_size]
+                continue
             
             # Check if remaining rooms have enough seat capacity
             # if not, add another cohort
@@ -300,32 +204,33 @@ def fillPrograms(program_counts):
                 scheduled = True
                 print(program + ':', cohorts)
 
+    # Upload ghostrooms to database
     connection = create_connection(r".\database\database.db") 
     for room in ghostRooms:
         addClassroomItem(connection, room)
     close_connection(connection)
-    
-    
 
 # TODO:
 #   - 2 terms at a time
 #   - Database integration
 
 # Nice to have:
-#   - Better cohort split algorithm
+#   - Programs with the most students are scheduled first
+#   - When ghost room is added do entire scheduling again?
+#   - Bigger wrapper function that interacts with database and calls fillPrograms
 #   - Add rhyme and reason to ghostroom capacity in add_ghost_room()
 #   - Extensive testing
+#   - Better cohort split algorithm
 
 
 #===================================================================================================
 if __name__ == '__main__':
-    x = "Donothing"
     # print(rooms, ghostRooms)
     # add_ghost_room(True)
     # print(rooms, ghostRooms)
 
     # print(rooms, ghostRooms)
-    # print(check_room_hours("PM01", [36, 24]))
+    # print(enough_hours("PM01", [36, 24]))
     # print(rooms, ghostRooms)
 
     # print(rooms, ghostRooms, roomHours)
@@ -337,6 +242,7 @@ if __name__ == '__main__':
     #         connection = create_connection(r".\database\database.db")
     #         addClassroomItem(connection, room)
     #         close_connection(connection)
+
     program_counts = {}
     for key in programCoursesByTerm.keys():
         program_counts[key] = random.randint(18, 189)
