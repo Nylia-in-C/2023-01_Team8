@@ -23,8 +23,8 @@ pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 2, 2, True, False, Tru
 # term 3 PCOM core courses
 pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33,3, 1.5, True, False, False)
 pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35,3, 1.5, True, False, False)
-pcom_0109_module_1 = Course('PCOM 0109 Module 1', 'Resume and Cover Letter', 8, 3, 2, True, False, True)
-pcom_0109_module_2 = Course('PCOM 0109 Module 2', 'Interview Practice', 6,3, 2, True, False, False)
+pcom_0109_module_1 = Course('PCOM 0109 M1', 'Resume and Cover Letter', 8, 3, 2, True, False, True)
+pcom_0109_module_2 = Course('PCOM 0109 M2', 'Interview Practice', 6,3, 2, True, False, False)
 
 # term 1 BCOM core courses
 pcom_0203 = Course('PCOM 0203', 'Effective Professional Writing', 15,1,  1.5, True, False, False)
@@ -153,7 +153,8 @@ room_564 = Classroom('11-564', 24, False)
 room_458 = Classroom('11-458', 40, False)
 room_430 = Classroom('11-430', 30, False)
 room_320 = Classroom('11-320', 30, False)
-room_532 = Classroom('11-532', 30, True )
+room_532 = Classroom('11-532 (LAB)', 30, True )
+online   = Classroom('ONLINE', 1000, False)      # need this for scheduling functions to work properly
 
-lecture_rooms = [room_533, room_534, room_560, room_562, room_564, room_458, room_430, room_320]
-lab_rooms = [room_532]
+rooms = [room_533, room_534, room_560, room_562, room_564, 
+         room_458, room_430, room_320, room_532, online]

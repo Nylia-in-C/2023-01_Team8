@@ -14,74 +14,59 @@ sys.path.append(grandparentdir)
 # sort these lists in descending order of term hours & use them to create a dictionary
 # of DataFrame schedules
 
-pcom_1_lecs = [course for course in pcom_courses if course.term == 1 and not course.hasLab]
-bcom_1_lecs = [course for course in bcom_courses if course.term == 1 and not course.hasLab]
+pcom_1_lectures = [course for course in pcom_courses if course.term == 1 and not course.hasLab]
+pcom_2_lectures = [course for course in pcom_courses if course.term == 2 and not course.hasLab]
+pcom_3_lectures = [course for course in pcom_courses if course.term == 3 and not course.hasLab]
 
-pcom_2_lecs = [course for course in pcom_courses if course.term == 2 and not course.hasLab]
-bcom_2_lecs = [course for course in bcom_courses if course.term == 2 and not course.hasLab]
+bcom_1_lectures = [course for course in bcom_courses if course.term == 1 and not course.hasLab]
+bcom_2_lectures = [course for course in bcom_courses if course.term == 2 and not course.hasLab]
+bcom_3_lectures = [course for course in bcom_courses if course.term == 3 and not course.hasLab]
 
-pcom_3_lecs = [course for course in pcom_courses if course.term == 3 and not course.hasLab]
-bcom_3_lecs = [course for course in bcom_courses if course.term == 3 and not course.hasLab]
-
-# bcom courses dont have any labs
 pcom_1_labs = [course for course in pcom_courses if course.term == 1 and course.hasLab]
 pcom_2_labs = [course for course in pcom_courses if course.term == 2 and course.hasLab]
 pcom_3_labs = [course for course in pcom_courses if course.term == 3 and course.hasLab]
 
-term_1_courses = {
-    'pcom lecs': {
-        'term A': pcom_1_lecs,
-        'term B': pcom_3_lecs,
-    },
-    'bcom lecs': {
-        'term A': bcom_1_lecs,
-        'term B': bcom_3_lecs,
-    },
-    'pcom labs': {
-        'term A': pcom_1_labs,
-        'term B': pcom_3_labs,
-    }
-}
-
-term_2_courses = {
-    'pcom lecs': {
-        'term A': pcom_1_lecs,
-        'term B': pcom_2_lecs,
-    },
-    'bcom lecs': {
-        'term A': bcom_1_lecs,
-        'term B': bcom_2_lecs,
-    },
-    'pcom labs': {
-        'term A': pcom_1_labs,
-        'term B': pcom_2_labs,
-    }
-}
-
-term_3_courses = {
-    'pcom lecs': {
-        'term A': pcom_2_lecs,
-        'term B': pcom_3_lecs,
-    },
-    'bcom lecs': {
-        'term A': bcom_2_lecs,
-        'term B': bcom_3_lecs,
-    },
-    'pcom labs': {
-        'term A': pcom_2_labs,
-        'term B': pcom_3_labs,
-    }
-}
-
+bcom_1_labs = [course for course in bcom_courses if course.term == 1 and course.hasLab]
+bcom_2_labs = [course for course in bcom_courses if course.term == 2 and course.hasLab]
+bcom_3_labs = [course for course in bcom_courses if course.term == 3 and course.hasLab]
 def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     
+    # in theory this will never happen, but just to be safe:
+    if term not in [1,2,3]: 
+        return None
+    
     if (term == 1):
-        return create_core_term_schedule(term_1_courses, lecture_rooms, lab_rooms)
-    elif (term == 2):
-        return create_core_term_schedule(term_2_courses, lecture_rooms, lab_rooms)
-    elif (term == 3):
-        return create_core_term_schedule(term_3_courses, lecture_rooms, lab_rooms)
+        lectures = {
+            'pcom': {'term A': pcom_1_lectures, 'term B': pcom_3_lectures},
+            'bcom': {'term A': bcom_1_lectures, 'term B': bcom_3_lectures},
+        }
+        labs = {
+            'pcom': {'term A': pcom_1_labs, 'term B': pcom_3_labs},
+            'bcom': {'term A': bcom_1_labs, 'term B': bcom_3_labs},
+        }
 
+    elif (term == 2):
+        lectures = {
+            'pcom': {'term A': pcom_1_lectures, 'term B': pcom_2_lectures},
+            'bcom': {'term A': bcom_1_lectures, 'term B': bcom_2_lectures},
+        }
+        labs = {
+            'pcom': {'term A': pcom_1_labs, 'term B': pcom_2_labs},
+            'bcom': {'term A': bcom_1_labs, 'term B': bcom_2_labs},
+        }
+
+    elif (term == 3):
+        lectures = {
+            'pcom': {'term A': pcom_2_lectures, 'term B': pcom_3_lectures},
+            'bcom': {'term A': bcom_2_lectures, 'term B': bcom_3_lectures},
+        }
+        labs = {
+            'pcom': {'term A': pcom_2_labs, 'term B': pcom_3_labs},
+            'bcom': {'term A': bcom_2_labs, 'term B': bcom_3_labs},
+        }
+        
+    return create_core_term_schedule(lectures, labs, rooms)
+        
 
 
 if __name__ == '__main__':
@@ -92,30 +77,12 @@ if __name__ == '__main__':
 
     full_schedule = get_sched(term)
 
-    for day, sched in full_schedule.items():
-        print("\n\t\t" + day + ":\n")
-        print(sched)
+    # for day, sched in enumerate(full_schedule):
+    # #     if (day > 5):
+    # #         break
+    #     print(f"\n\t\t {day} :\n")
+    #     print(sched)
     
-
-    # print("Enter a number for the Core Courses Schedule or the Program Schedule: \
-    #       \n1. Core \n2. Program")
-    # CoreOrProgram = int(input())
-    
-    # if CoreOrProgram == 1:
-    #     print("==========================Monday Wednesday==========================")
-
-    #     # schedule lectures & labs seperately
-    #     lectures = [course for course in term_courses[term] if course not in lab_courses]
-    #     labs     = [course for course in term_courses[term] if course in lab_courses]
-        
-    #     lecture_hours, lab_hours = get_course_hours(lectures, labs)
-        
-    #     full_schedule = create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms)
-
-        
-    #     for day, sched in full_schedule.items():
-    #         if not (isinstance(sched, str)):
-    #             print(f"\n\n{day}: \n {sched}")
     
     # if CoreOrProgram == 2:
     #     print("==========================Tuesday Thursday==========================")
