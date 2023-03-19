@@ -42,27 +42,33 @@ programCoursesByTerm = {
     "DXD03": [Course("AVDM 0238", "NA", 18, 3, 2, False, False, True ), Course("AVDM 0270", "NA", 18, 3, 2, False, False, True ), Course("DXDI 9901", "NA", 45, 3, 2, False, False, True )],
     "BKC01": [Course("ACCT 0201", "NA", 18, 1, 2, False, False, False), Course("ACCT 0202", "NA", 12, 1, 2, False, False, False), Course("ACCT 0203", "NA", 12, 1, 2, False, False, False)], 
     "BKC02": [Course("ACCT 0206", "NA", 12, 2, 2, False, False, False), Course("ACCT 0210", "NA", 28, 2, 2, False, False, True ), Course("ACCT 0211", "NA", 28, 2, 2, False, False, True)], 
-    "BKC03": [Course("ACCT 0208", "NA", 21, 3, 2, False, False, True ), Course("ACCT 9901", "NA", 33, 3, 2, False, False, True ) ]
+    "BKC03": [Course("ACCT 0208", "NA", 21, 3, 2, False, False, True ), Course("ACCT 9901", "NA", 33, 3, 2, False, False, True ) ],
+    "PCOM01": [Course('PCOM 0101', 'Business Writing 1', 35,1, 1.5, True, False, False), Course('PCOM 0105', 'Intercultural Communication Skills', 35,1, 1.5, True, False, False), Course('PCOM 0107', 'Tech Development 1', 18,1, 2, True, False, True), Course('CMSK 0233', 'MS Project Essentials', 7,1, 2, True, False, True), Course('CMSK 0235', 'MS Visio Essentials', 6,1, 2, True, False, True)]
+}
+
+coreCoursesByTerm = {
+    "PCOM01": [Course('PCOM 0101', 'Business Writing 1', 35,1, 1.5, True, False, False), Course('PCOM 0105', 'Intercultural Communication Skills', 35,1, 1.5, True, False, False), Course('PCOM 0107', 'Tech Development 1', 18,1, 2, True, False, True), Course('CMSK 0233', 'MS Project Essentials', 7,1, 2, True, False, True), Course('CMSK 0235', 'MS Visio Essentials', 6,1, 2, True, False, True)]
 }
 
 rooms = [
          Classroom("11-458", 40, False),
          Classroom("11-533", 36, False), 
-        #  Classroom("11-534", 36, False),
-        #  Classroom("11-430", 30, False), 
-        #  Classroom("11-320", 30, False),
-        #  Classroom("11-560", 24, False),
-        #  Classroom("11-562", 24, False),
-        #  Classroom("11-564", 24, False),
-        #  Classroom("11-532", 30, True ) 
+         Classroom("11-534", 36, False),
+         Classroom("11-430", 30, False), 
+         Classroom("11-320", 30, False),
+         Classroom("11-560", 24, False),
+         Classroom("11-562", 24, False),
+         Classroom("11-564", 24, False),
+         Classroom("11-532", 30, True ) 
          ]
 rooms.sort(key= lambda Classroom: Classroom.capacity)
 
 ghostRooms = []
 
 roomHours = {
-             "11-458": 178,
-             "11-533": 178, 
+    "Core": {
+             "11-458": 0,
+             "11-533": 0, 
              "11-534": 0,
              "11-430": 0, 
              "11-320": 0,
@@ -70,7 +76,19 @@ roomHours = {
              "11-562": 0,
              "11-564": 0,
              "11-532": 0
-             }
+    },
+    "Program": {
+             "11-458": 0,
+             "11-533": 0, 
+             "11-534": 0,
+             "11-430": 0, 
+             "11-320": 0,
+             "11-560": 0,
+             "11-562": 0,
+             "11-564": 0,
+             "11-532": 0
+    } 
+}
 
 fsRoomHours = {"11-532": 0}
 
@@ -211,16 +229,16 @@ def add_ghost_room(hasLab):
 
     rooms.append(ghostRoom)
     ghostRooms.append(ghostRoom)
-    roomHours[ghostID] = 0
-    roomFill[ghostID] = []
+    roomHours["Core"][ghostID] = 0
+    roomHours["Program"][ghostID] = 0
 
-def check_room_hours(program, cohorts):
-    temp_roomHours = roomHours.copy()
+def check_room_hours(program, cohorts, isCore):
+    temp_roomHours = roomHours[isCore].copy()
     for cohort_count in cohorts:
         for course in programCoursesByTerm[program]:
             scheduled = False
             for room in rooms:
-                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS:
+                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.isLab == course.hasLab:
                     temp_roomHours[room.ID] += course.termHours
                     scheduled = True
                     break
@@ -230,26 +248,28 @@ def check_room_hours(program, cohorts):
                 return True
     return False
 
-def cohorts_fits(program, cohorts):
+def cohorts_fits(program, cohorts, isCore):
     global roomHours
-    temp_roomHours = roomHours.copy()
+    temp_roomHours = roomHours[isCore].copy()
     for cohort_count in cohorts:
         for course in programCoursesByTerm[program]:
             scheduled = False
             for room in rooms:
-                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.capacity >= cohort_count:
+                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.isLab == course.hasLab and room.capacity >= cohort_count:
                     temp_roomHours[room.ID] += course.termHours
                     scheduled = True
                     break
                 
             if not scheduled: return False
     
-    roomHours = temp_roomHours.copy()
+    roomHours[isCore] = temp_roomHours.copy()
     return True
 
 def fillPrograms(program_counts):
 
     for program in program_counts.keys():
+        if programCoursesByTerm[program][0].isCore: isCore = "Core"
+        else: isCore = "Program"
         total_size = program_counts[program]
         number_of_cohorts = 1
         cohorts = [total_size]
@@ -261,7 +281,7 @@ def fillPrograms(program_counts):
             # if not, add ghost room
             full_schedule = True
             while full_schedule:
-                full_schedule = check_room_hours(program, cohorts)
+                full_schedule = check_room_hours(program, cohorts, isCore)
                 if full_schedule: 
                     # Try again with 1 cohort
                     number_of_cohorts = 1
@@ -270,21 +290,26 @@ def fillPrograms(program_counts):
             
             # Check if remaining rooms have enough seat capacity
             # if not, add another cohort
-            if not cohorts_fits(program, cohorts):
+            if not cohorts_fits(program, cohorts, isCore):
                 number_of_cohorts += 1
                 cohorts = [int(total_size)//number_of_cohorts for i in range(number_of_cohorts)]
                 for i in range(total_size%number_of_cohorts):
                     cohorts[i] += 1
                 
-            else: scheduled = True
-        
-        for room in ghostRooms:
-            connection = database.database.create_connection(r".\database\database.db")
-            database.database.addClassroomItem(connection, room)
-            database.database.close_connection(connection)
+            else: 
+                scheduled = True
+                print(program + ':', cohorts)
+
+    connection = create_connection(r".\database\database.db") 
+    for room in ghostRooms:
+        addClassroomItem(connection, room)
+    close_connection(connection)
+    
+    
 
 # TODO:
-#   - add cores
+#   - 2 terms at a time
+#   - Database integration
 
 # Nice to have:
 #   - Better cohort split algorithm
@@ -312,3 +337,9 @@ if __name__ == '__main__':
     #         connection = create_connection(r".\database\database.db")
     #         addClassroomItem(connection, room)
     #         close_connection(connection)
+    program_counts = {}
+    for key in programCoursesByTerm.keys():
+        program_counts[key] = random.randint(18, 189)
+    fillPrograms(program_counts)
+    print(roomHours)
+    print(ghostRooms)
