@@ -119,6 +119,7 @@ acct_0211 = Course("ACCT 0211", "NA", 28,2, 2, False, False, True)
 acct_0208 = Course("ACCT 0208", "NA", 21,3, 2, False, False, True )
 acct_9901 = Course("ACCT 9901", "NA", 33,3, 2, False, False, True )
 
+
 pm_courses = {
     'term 1': [prdv_0201, prdv_0202, prdv_0203],
     'term 2': [prdv_0204, prdv_0205, pcom_0130, prdv_0206],
