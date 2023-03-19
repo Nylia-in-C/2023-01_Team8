@@ -304,6 +304,42 @@ def readLectureItem(conn, CourseID, Cohort ):
     except Exception as e:
         print("Issues reading from table: ", e)
     return rows
+def addStudentItem(conn, PID, Term, Count):
+    #add item to table from passed connection and student row info
+    try:
+        rowString = f"INSERT INTO STUDENT (PID , Term, Count) VALUES ('{PID}',{Term},{Count})"
+        print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+        print("Row added successfully")
+    except Exception as e:
+        print("Issues inserting into table: ", e)
+    return 
+def readStudentItem(conn, PID, Term):
+     #reads student item from DB 
+    #parameters:Connection string, PID as string, Term and count as int
+    rows = []
+    try:
+        queryString = f"Select * from STUDENT where PID like '{PID}' and Term like {Term}"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return rows
+def deleteStudentItem(conn,  PID, Term):
+        try:
+            queryString = f"delete from Student where PID like '{PID}' and Term like {Term}"
+            cur = conn.cursor()
+            cur.execute(queryString)
+            # rows = cur.fetchall()
+            # for row in rows:
+            #     print(row)
+        except Exception as e:
+            print("Issues reading from table: ", e)
+        return
 ##########################End of Read/write helpers ###########################################
 def mainTest():
     #main function to connect to database and test helper functions
