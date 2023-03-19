@@ -3,7 +3,7 @@
 ## Table of Contents
 
 [Introduction](https://github.com/MacEwanCMPT395/2023-01_Team8/blob/main/README.md#introduction)  
-[Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#installation)
+[Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#installation)  
 [Open Scheduler](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#open-scheduler)  
 [Basic UI Guide](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#basic-ui-guide)    
 [File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#file-import)    
