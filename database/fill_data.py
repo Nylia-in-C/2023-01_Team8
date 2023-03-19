@@ -166,7 +166,10 @@ glmObj = Program('GLM',["SCMT 0501","SCMT 0502","PRDV 0304","SCMT 9901","SCMT 05
 dxdObj = Program('DXD',["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"])
 #Full Stack Web Development (FS)
 fsObj = Program('FS',["CMSK 0150", "CMSK 0151", "CMSK 0152", "CMSK 0157", "CMSK 0154","CMSK 0153", "CMSK 0200", "CMSK 0201", "CMSK 0203", "CMSK 0202", "PCOM 0160"])
-
+#BCOM
+pcomObj = Program('PCOM',["PCOM 0101","PCOM 0105", "PCOM 0107","CMSK 0233","CMSK 0235","PCOM 0102","PCOM 0201","PCOM 0108","PCOM 0202","PCOM 0103","PCOM 0109"])
+#PCOM
+bcomObj = Program('BCOM',["PCOM 0203","SUPR 0751","PCOM 0204","CMSK 0237","SUPR 0837","SUPR 0841","SUPR 0821","SUPR 0822","SUPR 0718","SUPR 0836","AVDM 0199","PCOM 0106","PCOM 0205","PCOM TBD","PCOM 0207","SUPR 0863","PCOM 0206","AVDM 0260"])
 #-----------------------------------------------------------------------
 def createDefaultDatabase():
     db = r".\database\database.db"  #database.db file path 
@@ -376,6 +379,9 @@ def createDefaultDatabase():
         database.addProgramItem(connection, glmObj)
         database.addProgramItem(connection, dxdObj)
         database.addProgramItem(connection, fsObj)
+        database.addProgramItem(connection, pcomObj)
+        database.addProgramItem(connection, bcomObj)
+       
         # end of add tables**********************************************************************
 
     else: 
