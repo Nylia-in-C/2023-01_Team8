@@ -775,7 +775,8 @@ class UI(QMainWindow):
         WEEK -= 1
 
         room_requested = self.select_room.currentText().split(" ")[0]
-        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+        if (len(self.select_room.currentText().split(" ")) > 1 and 
+            self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
         try:
@@ -912,7 +913,8 @@ class UI(QMainWindow):
         WEEK += 1
 
         room_requested = self.select_room.currentText().split(" ")[0]
-        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+        if (len(self.select_room.currentText().split(" ")) > 1 and 
+            self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
         try:
@@ -1032,7 +1034,8 @@ class UI(QMainWindow):
         # TODO Uncomment this if you want random colours every time you remake schedule
         random.shuffle(BG_COLOURS)
 
-        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+        if (len(self.select_room.currentText().split(" ")) > 1 and 
+            self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
         # Clear any values from the table

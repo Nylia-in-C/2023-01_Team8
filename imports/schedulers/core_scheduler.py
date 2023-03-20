@@ -77,36 +77,9 @@ if __name__ == '__main__':
 
     full_schedule = get_sched(term)
 
-    for day, sched in enumerate(full_schedule):
+    for day, sched in full_schedule.items():
         # if (day > 5):
         #     break
         print(f"\n\t\t {day} :\n")
         print(sched)
-    
-    
-    # if CoreOrProgram == 2:
-    #     print("==========================Tuesday Thursday==========================")
-
-    #     # Program schedule
-    #     # program-lectures
-    #     program_lectures = [course for course in program_term_courses[term] if course not in program_lab_courses]
-    #     # program-hours
-    #     program_labs     = [course for course in program_term_courses[term] if course in program_lab_courses]
-
-    #     program_lecture_hours, program_lab_hours = get_course_hours(program_lectures, program_labs)
-
-    #     program_full_schedule = create_term_schedule(program_lecture_hours, program_lectures, lecture_rooms, program_lab_hours, program_labs, lab_rooms)
-
-    #     for day, sched in program_full_schedule.items():
-    #         if not (isinstance(sched, str)):
-    #             print(f"\n\n{day}: \n {sched}")
-    
-    #Notes:
-    #   - Classes don't have a consistent starting time. When classes drop out of the schedule they get shifted up.
-    #   - Only one course is scheduled per room per day. Most impactful for labs, lots of empty space where labs could squeeze
-
-    #TODO: 
-    #   - write function to validate no scheduling conflicts (no 'horizontal' overlap between cohorts)
-    #   - initialize course & classroom objects in seperate file
-    #   - create lecture objects rather than creating/displaying dataframe (maybe)
 
