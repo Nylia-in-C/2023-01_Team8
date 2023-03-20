@@ -166,7 +166,10 @@ glmObj = Program('GLM',["SCMT 0501","SCMT 0502","PRDV 0304","SCMT 9901","SCMT 05
 dxdObj = Program('DXD',["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103", "DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"])
 #Full Stack Web Development (FS)
 fsObj = Program('FS',["CMSK 0150", "CMSK 0151", "CMSK 0152", "CMSK 0157", "CMSK 0154","CMSK 0153", "CMSK 0200", "CMSK 0201", "CMSK 0203", "CMSK 0202", "PCOM 0160"])
-
+#BCOM
+pcomObj = Program('PCOM',["PCOM 0101","PCOM 0105", "PCOM 0107","CMSK 0233","CMSK 0235","PCOM 0102","PCOM 0201","PCOM 0108","PCOM 0202","PCOM 0103","PCOM 0109"])
+#PCOM
+bcomObj = Program('BCOM',["PCOM 0203","SUPR 0751","PCOM 0204","CMSK 0237","SUPR 0837","SUPR 0841","SUPR 0821","SUPR 0822","SUPR 0718","SUPR 0836","AVDM 0199","PCOM 0106","PCOM 0205","PCOM TBD","PCOM 0207","SUPR 0863","PCOM 0206","AVDM 0260"])
 #-----------------------------------------------------------------------
 def createDefaultDatabase():
     db = r".\database\database.db"  #database.db file path 
@@ -225,6 +228,11 @@ def createDefaultDatabase():
                     Legions VARCHAR(200) NOT NULL,
                     Courses VARCHAR(200)
                 ); """
+        STUDENTTableCols = """ CREATE TABLE IF NOT EXISTS STUDENT (
+                    PID VARCHAR(100) NOT NULL,
+                    Term INT NOT NULL,
+                    COUNT INT NOT NULL
+                ); """
         # start of add tables********************************************************************
         database.create_table(connection, COHORTTableCols)
         database.create_table(connection, COURSESTableCols)
@@ -232,6 +240,7 @@ def createDefaultDatabase():
         database.create_table(connection, PROGRAMSTableCols)
         database.create_table(connection, CLASSROOMSTableCols)
         database.create_table(connection, LEGIONSTableCols)  
+        database.create_table(connection, STUDENTTableCols)
         # end of add tables**********************************************************************
         
         # start of add courses********************************************************************
@@ -369,14 +378,17 @@ def createDefaultDatabase():
         database.addClassroomItem(connection,room_532)
         # end of add clasrooms**********************************************************************
                 
-        # start of add courses********************************************************************
+        # start of add Programs********************************************************************
         database.addProgramItem(connection, pmObj)
         database.addProgramItem(connection, baObj)
         database.addProgramItem(connection, bkObj)
         database.addProgramItem(connection, glmObj)
         database.addProgramItem(connection, dxdObj)
         database.addProgramItem(connection, fsObj)
-        # end of add tables**********************************************************************
+        database.addProgramItem(connection, pcomObj)
+        database.addProgramItem(connection, bcomObj)
+       
+        # end of add programs**********************************************************************
 
     else: 
          print("Could not connect to database")
@@ -385,4 +397,4 @@ def createDefaultDatabase():
  
     return 
 
-#createDefaultDatabase()
+createDefaultDatabase()
