@@ -1310,7 +1310,6 @@ class UI(QMainWindow):
 
             new_course = Course(course_id, 1, term_hours, term, duration, core, online,lab, pre_reqs)
             addCourseItem(connection, new_course)
-            print(readCourseItem(connection, "%"))
 
             close_connection(connection)
             # Update the combobox
