@@ -77,11 +77,11 @@ if __name__ == '__main__':
 
     full_schedule = get_sched(term)
 
-    # for day, sched in enumerate(full_schedule):
-    # #     if (day > 5):
-    # #         break
-    #     print(f"\n\t\t {day} :\n")
-    #     print(sched)
+    for day, sched in enumerate(full_schedule):
+        # if (day > 5):
+        #     break
+        print(f"\n\t\t {day} :\n")
+        print(sched)
     
     
     # if CoreOrProgram == 2:
