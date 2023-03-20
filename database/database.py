@@ -304,6 +304,42 @@ def readLectureItem(conn, CourseID, Cohort ):
     except Exception as e:
         print("Issues reading from table: ", e)
     return rows
+def addStudentItem(conn, PID, Term, Count):
+    #add item to table from passed connection and student row info
+    try:
+        rowString = f"INSERT INTO STUDENT (PID , Term, Count) VALUES ('{PID}',{Term},{Count})"
+        print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+        print("Row added successfully")
+    except Exception as e:
+        print("Issues inserting into table: ", e)
+    return 
+def readStudentItem(conn, PID, Term):
+     #reads student item from DB 
+    #parameters:Connection string, PID as string, Term and count as int
+    rows = []
+    try:
+        queryString = f"Select * from STUDENT where PID like '{PID}' and Term like {Term}"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return rows
+def deleteStudentItem(conn,  PID, Term):
+        try:
+            queryString = f"delete from Student where PID like '{PID}' and Term like {Term}"
+            cur = conn.cursor()
+            cur.execute(queryString)
+            # rows = cur.fetchall()
+            # for row in rows:
+            #     print(row)
+        except Exception as e:
+            print("Issues reading from table: ", e)
+        return
 ##########################End of Read/write helpers ###########################################
 def mainTest():
     #main function to connect to database and test helper functions
@@ -373,37 +409,37 @@ def mainTest():
         create_table(connection, CLASSROOMSTableCols)
         create_table(connection, LEGIONSTableCols)  
 
-        addLegionItem(connection,'PM', '01', 5)
-        addLegionItem(connection,'BA',"01",2)
-        addLegionItem(connection,'PM',"02", 0)
-        addLegionItem(connection,'PM',"02", 0)
-        print(addLegionItem(connection,'PM',"02", 20))
+        # addLegionItem(connection,'PM', '01', 5)
+        # addLegionItem(connection,'BA',"01",2)
+        # addLegionItem(connection,'PM',"02", 0)
+        # addLegionItem(connection,'PM',"02", 0)
+        # print(addLegionItem(connection,'PM',"02", 20))
 
-        addCohortItem(connection, "PM", "01", ["PM01A. PM01B. PM01C"])
-        addCohortItem(connection, "PM", "01", ["PM01D. PM01E. PM01F"])
-        addCohortItem(connection, "PM", "02", ["PM01D. PM01E. PM01F"])
+        # addCohortItem(connection, "PM", "01", ["PM01A. PM01B. PM01C"])
+        # addCohortItem(connection, "PM", "01", ["PM01D. PM01E. PM01F"])
+        # addCohortItem(connection, "PM", "02", ["PM01D. PM01E. PM01F"])
 
-        val = readCohortItem(connection,'PM', '1' )
-        print('VALUE', val)
-        lectureObj = Lecture('CourseID', 'title', 20, 100, 3, 1,0,0, ['preReq', 'preReq'],'cohortID','room',13, 5,'startTime')
-        addLectureItem(connection, lectureObj)
-        val = readLectureItem(connection, 'CourseID', 'cohortID' )
-        print('VALUE', val)
-        classroomObj = Classroom('ClassroomID101', 100,1)
-        addClassroomItem(connection, classroomObj)
-        val = readClassroomItem(connection,'ClassroomID')
-        print('VALUE', val)
-        addLegionItem(connection,'ProgID', 2, 100)
-        val = readLegionItem(connection,'PM0101')
-        print('VALUE', val)
-        programObj = Program('DXD', ["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103","DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"] )
-        addProgramItem(connection, programObj)
-        val = readProgramItem(connection,'%')
-        print('VALUE', val)
-        courseObj = Course('CMSK 1053', 'title', 100,3, 101,1,0,0,["CMSK 1052", "CMSK 0157"])
-        addCourseItem(connection, courseObj)
-        val = readCourseItem(connection,'CMSK 1053')
-        print('VALUE', val)
+        # val = readCohortItem(connection,'PM', '1' )
+        # print('VALUE', val)
+        # lectureObj = Lecture('CourseID', 'title', 20, 100, 3, 1,0,0, ['preReq', 'preReq'],'cohortID','room',13, 5,'startTime')
+        # addLectureItem(connection, lectureObj)
+        # val = readLectureItem(connection, 'CourseID', 'cohortID' )
+        # print('VALUE', val)
+        # classroomObj = Classroom('ClassroomID101', 100,1)
+        # addClassroomItem(connection, classroomObj)
+        # val = readClassroomItem(connection,'ClassroomID')
+        # print('VALUE', val)
+        # addLegionItem(connection,'ProgID', 2, 100)
+        # val = readLegionItem(connection,'PM0101')
+        # print('VALUE', val)
+        # programObj = Program('DXD', ["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103","DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"] )
+        # addProgramItem(connection, programObj)
+        # val = readProgramItem(connection,'%')
+        # print('VALUE', val)
+        # courseObj = Course('CMSK 1053', 'title', 100,3, 101,1,0,0,["CMSK 1052", "CMSK 0157"])
+        # addCourseItem(connection, courseObj)
+        # val = readCourseItem(connection,'CMSK 1053')
+        # print('VALUE', val)
         # deleteClassroomItem(connection,'%')
 
     else: 
@@ -413,6 +449,6 @@ def mainTest():
  
     return 
 
-mainTest()
+#mainTest()
 
  
