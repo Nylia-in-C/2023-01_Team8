@@ -14,21 +14,31 @@ sys.path.append(grandparentdir)
 # sort these lists in descending order of term hours & use them to create a dictionary
 # of DataFrame schedules
 
-pcom_1_lectures = [course for course in pcom_courses if course.term == 1 and not course.hasLab]
-pcom_2_lectures = [course for course in pcom_courses if course.term == 2 and not course.hasLab]
-pcom_3_lectures = [course for course in pcom_courses if course.term == 3 and not course.hasLab]
+pcom_1_lectures = [course for course in pcom_courses if course.term == 1 and 
+                   not course.hasLab and not course.isOnline]
+pcom_2_lectures = [course for course in pcom_courses if course.term == 2 and 
+                   not course.hasLab and not course.isOnline]
+pcom_3_lectures = [course for course in pcom_courses if course.term == 3 and 
+                   not course.hasLab and not course.isOnline]
 
-bcom_1_lectures = [course for course in bcom_courses if course.term == 1 and not course.hasLab]
-bcom_2_lectures = [course for course in bcom_courses if course.term == 2 and not course.hasLab]
-bcom_3_lectures = [course for course in bcom_courses if course.term == 3 and not course.hasLab]
+bcom_1_lectures = [course for course in bcom_courses if course.term == 1 and 
+                   not course.hasLab and not course.isOnline]
+bcom_2_lectures = [course for course in bcom_courses if course.term == 2 and 
+                   not course.hasLab and not course.isOnline]
+bcom_3_lectures = [course for course in bcom_courses if course.term == 3 and 
+                   not course.hasLab and not course.isOnline]
 
+# only pcom has labs
 pcom_1_labs = [course for course in pcom_courses if course.term == 1 and course.hasLab]
 pcom_2_labs = [course for course in pcom_courses if course.term == 2 and course.hasLab]
 pcom_3_labs = [course for course in pcom_courses if course.term == 3 and course.hasLab]
 
-bcom_1_labs = [course for course in bcom_courses if course.term == 1 and course.hasLab]
-bcom_2_labs = [course for course in bcom_courses if course.term == 2 and course.hasLab]
-bcom_3_labs = [course for course in bcom_courses if course.term == 3 and course.hasLab]
+# only bcom has online courses
+bcom_1_online = [course for course in bcom_courses if course.term == 1 and course.isOnline]
+bcom_2_online = [course for course in bcom_courses if course.term == 2 and course.isOnline]
+bcom_3_online = [course for course in bcom_courses if course.term == 3 and course.isOnline]
+
+
 def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     
     # in theory this will never happen, but just to be safe:
@@ -40,32 +50,26 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
             'pcom': {'term A': pcom_1_lectures, 'term B': pcom_3_lectures},
             'bcom': {'term A': bcom_1_lectures, 'term B': bcom_3_lectures},
         }
-        labs = {
-            'pcom': {'term A': pcom_1_labs, 'term B': pcom_3_labs},
-            'bcom': {'term A': bcom_1_labs, 'term B': bcom_3_labs},
-        }
+        labs   = { 'pcom': {'term A': pcom_1_labs, 'term B': pcom_3_labs} }
+        onls = { 'bcom': {'term A': bcom_1_online, 'term B': bcom_3_online} }
 
     elif (term == 2):
         lectures = {
             'pcom': {'term A': pcom_1_lectures, 'term B': pcom_2_lectures},
             'bcom': {'term A': bcom_1_lectures, 'term B': bcom_2_lectures},
         }
-        labs = {
-            'pcom': {'term A': pcom_1_labs, 'term B': pcom_2_labs},
-            'bcom': {'term A': bcom_1_labs, 'term B': bcom_2_labs},
-        }
+        labs   = { 'pcom': {'term A': pcom_1_labs, 'term B': pcom_2_labs} }
+        onls = { 'bcom': {'term A': bcom_1_online, 'term B': bcom_2_online} }
 
     elif (term == 3):
         lectures = {
             'pcom': {'term A': pcom_2_lectures, 'term B': pcom_3_lectures},
             'bcom': {'term A': bcom_2_lectures, 'term B': bcom_3_lectures},
         }
-        labs = {
-            'pcom': {'term A': pcom_2_labs, 'term B': pcom_3_labs},
-            'bcom': {'term A': bcom_2_labs, 'term B': bcom_3_labs},
-        }
+        labs   = { 'pcom': {'term A': pcom_2_labs, 'term B': pcom_3_labs} }
+        onls = { 'bcom': {'term A': bcom_2_online, 'term B': bcom_3_online} }
         
-    return create_core_term_schedule(lectures, labs, rooms)
+    return create_core_term_schedule(lectures, labs, onls, rooms)
         
 
 

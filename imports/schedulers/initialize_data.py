@@ -56,7 +56,7 @@ pcom_courses = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102
 
 bcom_courses = [pcom_0203, supr_0751, pcom_0204, supr_0837, supr_0841, cmsk_0237, 
                 supr_0821, supr_0822, supr_0718, supr_0836, pcom_0106, avdm_0199, 
-                pcom_0205, pcom_TBD, pcom_0207, supr_0863, pcom_0206, ]
+                pcom_0205, pcom_TBD, pcom_0207, supr_0863, pcom_0206, avdm_0260]
 
 
 # Program Courses------------------------------------------------------------------
