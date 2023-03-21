@@ -37,27 +37,15 @@ global COURSE_COLOUR
 # Removes colours that make the text hard to read / separate from the background
 def remove_colours():
     global BG_COLOURS
-    BG_COLOURS.remove("aliceblue")
-    BG_COLOURS.remove("mediumturquoise")
-    BG_COLOURS.remove("midnightblue")
-    BG_COLOURS.remove("lavenderblush")
-    BG_COLOURS.remove("blue")
-    BG_COLOURS.remove("mediumblue")
-    BG_COLOURS.remove("blanchedalmond")
-    BG_COLOURS.remove("indigo")
-    BG_COLOURS.remove("seashell")
-    BG_COLOURS.remove("navy")
-    BG_COLOURS.remove("black")
-    BG_COLOURS.remove("brown")
-    BG_COLOURS.remove("beige")
-    BG_COLOURS.remove("azure")
-    BG_COLOURS.remove("deeppink")
-    BG_COLOURS.remove("fuchsia")
-    BG_COLOURS.remove("hotpink")
-    BG_COLOURS.remove("magenta")
-    BG_COLOURS.remove("red")
-    BG_COLOURS.remove("pink")
-    BG_COLOURS.remove("mediumvioletred")
+    excludedcolours = ["aliceblue", "mediumturquoise", "midnightblue", 
+                    "lavenderblush", "blue", "mediumblue", "blanchedalmond", 
+                    "indigo", "seashell", "navy", "black", "brown", "beige",
+                    "azure", "deeppink", "fuchsia", "hotpink", "magenta",
+                    "red", "pink", "mediumvioletred"]
+
+    for colour in excludedcolours:
+        BG_COLOURS.remove(colour)
+        
     _colours = BG_COLOURS.copy()
     for colour in range(len(_colours)):
         if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
