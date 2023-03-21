@@ -95,7 +95,7 @@ def addLegionItem(conn,ProgID, TermID, numStudents):
     legion = makeLegion(conn,ProgID, TermID, numStudents)
     try:
         rowString = "INSERT INTO LEGIONS (ProgID, TermID, LegionID, Name, Count) VALUES (" + legion.createLegionItemInfo() + ")"
-        print(rowString)
+        #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
        # print("Row added successfully")
@@ -127,7 +127,7 @@ def addProgramItem(conn, program):
     for course in courseList:
         try:
             rowString = "INSERT INTO PROGRAMS (ProgID, CourseID) VALUES ('"+ programID +"', '"+ courseList[i] + "')"
-            print(rowString)
+            #print(rowString)
             c = conn.cursor()
             c.execute(rowString)
             i= i+1      
@@ -152,10 +152,10 @@ def addClassroomItem(conn, classroom ):
     #add item to table from passed connection and classroom object
     try:
         rowString = "INSERT INTO CLASSROOMS (ClassID , Capacity, IsLab) VALUES (" + classroom.createClassroomItemInfo() + ")"
-        print(rowString)
+        #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
-        print("Row added successfully")
+        #print("Row added successfully")
     except Exception as e:
         print("Issues inserting into table: ", e)
     return 
@@ -200,10 +200,10 @@ def addCourseItem(conn,course):
     preReq = courseObject[8]
     try:
         rowString = f"INSERT INTO COURSES (CourseID, Title, TermHours,Term, Duration, isCore, isOnline, hasLab, preReqs) VALUES ('{CourseID}','{title}',{termHours},{term},{duration} ,{isCore}, {isOnline},  {hasLab}, '{preReq}')" 
-        print(rowString)
+        #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
-        print("Row added successfully")
+        #print("Row added successfully")
     except Exception as e:
             print("Issues inserting into table:", e)
     return 
@@ -243,10 +243,10 @@ def addCohortItem(conn, ProgID, TermID, legions):
    
     try:
         rowString = f"INSERT INTO COHORT (PID, Term, CohortID, Legions, Courses) VALUES ('{ProgID}',{TermID},{cohortID},'{legionStr}','{courses}')" 
-        print(rowString)
+        #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
-        print("Row added successfully")
+        #print("Row added successfully")
     except Exception as e:
             print("Issues inserting into table:", e)
     return cohort
@@ -283,10 +283,10 @@ def addLectureItem(conn, lecture):
     try:
         rowString = f"INSERT INTO LECTURE (CourseID, Title, CohortID, Room, TermHours,Term, Duration, StartWeek, StartDay ,StartTime,isCore,isOnline,hasLab, PreReqs) \
                         VALUES ('{CourseID}','{Title}','{CohortID}','{Room}' ,{TermHours}, {Term},{Duration}, {StartWeek}, {StartDay}, '{StartTime}',{isCore},{isOnline},{hasLab},'{PreReqs}')" 
-        print(rowString)
+        #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
-        print("Row added successfully")
+        #print("Row added successfully")
     except Exception as e:
             print("Issues inserting into table:", e)
     return
@@ -308,10 +308,10 @@ def addStudentItem(conn, PID, Term, Count):
     #add item to table from passed connection and student row info
     try:
         rowString = f"INSERT INTO STUDENT (PID , Term, Count) VALUES ('{PID}',{Term},{Count})"
-        print(rowString)
+        #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
-        print("Row added successfully")
+        #print("Row added successfully")
     except Exception as e:
         print("Issues inserting into table: ", e)
     return 

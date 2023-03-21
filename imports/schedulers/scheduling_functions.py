@@ -20,16 +20,9 @@ sys.path.append(grandparentdir)
 
 #===================== TODOs (in no particular order) ==========================
 
-# TODO: if there are 5 cohorts, cohorts A and E should have their hours updated properly
-
 #TODO: Schedule pcom_0130 & pcom_0140 halfway through term
 #       - create global var 'day', when creating day sched:
-#           if day == 13, move these courses to the front of the list of courses being scheduled
-
-#TODO: add a buffer before/after online classes (cant be immediately before/after in-person courses)
-#       - schedule them at the same time as in-person courses 
-#           (use a '-' to mark the buffer, so no in-person courses are scheduled at that time)
-#           
+#           if day == 13, move these courses to the front of the list of courses being scheduled           
 
 #TODO: get actual cohort count from fillClassrooms.py, make sure this stuff works for any number of cohorts
 
@@ -41,8 +34,9 @@ sys.path.append(grandparentdir)
 #           - before: store each lecture's ID in the dataframe & update it's hours when it gets added to the schedule
 
 
-# assuming ~130-150 new students/term requires 4 different lecture groups for each course
-COHORT_COUNT = 5
+# assuming ~130-150 new students/term requires 5 cohorts for lectures, and 4 cohorts for labs
+LEC_COHORT_COUNT = 5
+LAB_COHORT_COUNT = 4
 # ==============================================================================
 
 def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
@@ -110,12 +104,13 @@ def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFram
 
     return course_hours
 
+# not being used
 def get_lab_cohorts():
-    cohort_IDs = [c for c in string.ascii_uppercase[:COHORT_COUNT]]
+    cohort_IDs = [c for c in string.ascii_uppercase[:LAB_COHORT_COUNT]]
 
-    # only 1 lab room means we can only schedule 4 cohorts on each day
-    # cohorts A and E will have to alternate
-    if COHORT_COUNT > 4:
+    # only 1 lab room means we can only schedule 4 lab cohorts on each day
+    # the first & last cohorts will have to alternate between monday/wednesday
+    if LAB_COHORT_COUNT > 4:
         mon_cohorts = cohort_IDs[:-1]
         wed_cohorts = cohort_IDs[1:]
         
@@ -136,7 +131,7 @@ def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> p
 
     # labs can only hold 4 cohorts, if we have 5 then alternate cohorts A and E
     # after each day
-    if COHORT_COUNT > 4 and prev_sched.columns[0].endswith("(LAB)"):
+    if LAB_COHORT_COUNT > 4 and prev_sched.columns[0].endswith("(LAB)"):
         for index, time in enumerate(prev_sched.index):
 
             if prev_sched.iloc[index, 0].endswith("A"):
@@ -235,13 +230,13 @@ def add_lectures(courses: List[Course],
                     left = right
                     right += len(required_gap)
                     count += 1
-                    if count >= COHORT_COUNT:
+                    if count >= LEC_COHORT_COUNT:
                         break
                 else:
                     left += 1
                     right += 1
 
-        if count >= COHORT_COUNT:
+        if count >= LEC_COHORT_COUNT:
             sched = add_lecture_cohorts(course, blocks, cohort_indexes, sched)
 
     return sched    
@@ -255,7 +250,7 @@ def add_lecture_cohorts(course: Course, blocks: int, cohort_indexes: List[Tuple[
     cohorts have been added, or the schedule is completely full.
     '''
 
-    cohort_IDs = string.ascii_uppercase[:COHORT_COUNT]
+    cohort_IDs = string.ascii_uppercase[:LEC_COHORT_COUNT]
 
     # each course instance needs to appear once for every cohort
     for i in range(len(cohort_IDs)):
@@ -392,7 +387,7 @@ def get_lab_cohort_order(booked_lecs: Dict[int, List[str]], start: int,
 
 
     for invalid_ID_list in booked_cohorts.values():
-        if len(invalid_ID_list) >= COHORT_COUNT:
+        if len(invalid_ID_list) >= LEC_COHORT_COUNT:
             return []
     
     # remove invalid cohort permutations from list of all possible permutations
