@@ -216,7 +216,7 @@ class UI(QMainWindow):
         # Classroom section
         vbox_class = QVBoxLayout()
         vbox_class.setContentsMargins(20,0,0,0)
-        class_section_text = QLabel("Rooms")
+        class_section_text = QLabel("Room Options")
         class_section_text.setFont(font)
 
         #Header
@@ -312,6 +312,7 @@ class UI(QMainWindow):
         course_section_text.setFont(font)
         
         vbox_course.addWidget(course_section_text)
+        vbox_course.addWidget(self.create_horizontal_line())
 
 
         db = r".\database\database.db"  # database.db file path
@@ -413,7 +414,7 @@ class UI(QMainWindow):
 
         #-----------------------------
 
-        hbox.setSpacing(20)
+        hbox.setSpacing(15)
 
         hbox.addLayout(new_or_edit)
         hbox.addWidget(self.create_vertical_line())
@@ -427,7 +428,7 @@ class UI(QMainWindow):
         hbox.addWidget(self.create_vertical_line())
         hbox.addWidget(course_btn)
 
-        hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+        #hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
         vbox_course.addLayout(hbox)
 
