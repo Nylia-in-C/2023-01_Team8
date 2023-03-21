@@ -191,88 +191,118 @@ class UI(QMainWindow):
 
         vbox_overall.addLayout(self.update_classroom_section())
         vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addLayout(self.update_course_section())
 
 
         return vbox_overall
 
     def update_classroom_section(self):
-        room_adjust_layout = QHBoxLayout()
-        room_adjust_layout.setSpacing(30)
+        room_add_layout = QHBoxLayout()
+        room_add_layout.setSpacing(15)
+
+        room_delete_layout = QHBoxLayout()
+        room_delete_layout.setSpacing(15)
 
         font = QFont()
         font.setBold(True)
         font.setPointSize(16)
 
-        # Classroom section
-        self.class_id.setPlaceholderText("Classroom Name")
-        vbox_class = QVBoxLayout()
+        subfont = QFont()
+        subfont.setBold(True)
+        subfont.setItalic(True)
+        subfont.setPointSize(14)
 
-        class_section_text = QLabel("Classroom Options")
+        # Classroom section
+        vbox_class = QVBoxLayout()
+        vbox_class.setContentsMargins(20,0,0,0)
+        class_section_text = QLabel("Rooms")
         class_section_text.setFont(font)
 
+        #Header
         vbox_class.addWidget(class_section_text)
+        vbox_class.addWidget(self.create_horizontal_line())
+
+        #Adding a Room Subheader
+        class_add_text = QLabel("Add New Room")
+        class_add_text.setFont(subfont)
+        vbox_class.addWidget(class_add_text)
 
         # Class ID section
-        class_id_box = QVBoxLayout()
-        class_id_box.addWidget(QLabel("Classroom ID"))
-        self.class_id.setMaximumWidth(100)
+        self.class_id.setPlaceholderText("Classroom Name")
+        class_id_box = QHBoxLayout()
+        class_id_box.addWidget(QLabel("Room ID"))
+        #self.class_id.setMaximumWidth(100)
         class_id_box.addWidget(self.class_id)
 
         # Class Capacity Section
-        class_capacity_box = QVBoxLayout()
-        class_capacity_box.addWidget(QLabel("Classroom Capacity"))
+        class_capacity_box = QHBoxLayout()
+        class_capacity_box.addWidget(QLabel("Room Capacity"))
         self.class_capacity.setValue(10)
         self.class_capacity.setMinimum(10)
         self.class_capacity.setMaximum(50)
         self.class_capacity.setMaximumWidth(100)
         class_capacity_box.addWidget(self.class_capacity)
 
-        # Class Lab? section
-        class_lab_bool = QVBoxLayout()
-        b1 = QRadioButton("Yes")
+        # Class Lab/Lecture section
+        class_lab_bool = QHBoxLayout()
+        b1 = QRadioButton("Lab")
         b1.setChecked(True)
-        b2 = QRadioButton("No")
+        b2 = QRadioButton("Lecture")
         self.class_lab.addButton(b1)
         self.class_lab.addButton(b2)
 
-        class_lab_bool.addWidget(QLabel("Is a Lab?"))
+        class_lab_bool.addWidget(QLabel("Room Type"))
         class_lab_bool.addWidget(b1)
         class_lab_bool.addWidget(b2)
 
         # Create add button
-        class_btn = QPushButton("Add Classroom")
+        class_btn = QPushButton("Add")
         class_btn.setMaximumWidth(100)
         class_btn.clicked.connect(self.add_edit_classroom)
 
+        # Put adding functions into the layout
+        room_add_layout.addLayout(class_id_box)
+        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addLayout(class_capacity_box)
+        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addLayout(class_lab_bool)
+        room_add_layout.addWidget(class_btn)
+        room_add_layout.addWidget(self.create_vertical_line())
+        
+        #Deleting a Room
+
+        #Delete Room Header
+        class_delete_text = QLabel("Delete Room")
+        class_delete_text.setFont(subfont)
+
         # Create remove button
-        remove_btn = QPushButton("Remove Classroom")
+        remove_btn = QPushButton("Remove")
         remove_btn.setMaximumWidth(150)
         remove_btn.clicked.connect(self.remove_classroom)
 
-        remove_section = QVBoxLayout()
+        remove_section = QHBoxLayout()
         remove_section.addWidget(self.classroom_list)
         remove_section.addWidget(remove_btn)
 
-        # Put everything into the layout
-        room_adjust_layout.addLayout(class_id_box)
-        room_adjust_layout.addWidget(self.create_vertical_line())
-        room_adjust_layout.addLayout(class_capacity_box)
-        room_adjust_layout.addWidget(self.create_vertical_line())
-        room_adjust_layout.addLayout(class_lab_bool)
-        room_adjust_layout.addWidget(class_btn)
-        room_adjust_layout.addWidget(self.create_vertical_line())
-        room_adjust_layout.addLayout(remove_section)
-        room_adjust_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+        # Put deleting functions into layout
+        room_delete_layout.addLayout(remove_section)
+        room_delete_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
-
-        vbox_class.addLayout(room_adjust_layout)
+        #Add sublayouts to big vbox_class object
+        vbox_class.addLayout(room_add_layout)
         vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
+        vbox_class.addWidget(class_delete_text)
+
+        vbox_class.addLayout(room_delete_layout)
+        vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        
         return vbox_class
 
     def update_course_section(self):
         vbox_course = QVBoxLayout()
+        vbox_course.setContentsMargins(20,0,0,0)
 
         font = QFont()
         font.setBold(True)
@@ -280,7 +310,7 @@ class UI(QMainWindow):
 
         course_section_text = QLabel("Course Options")
         course_section_text.setFont(font)
-
+        
         vbox_course.addWidget(course_section_text)
 
 
