@@ -556,8 +556,8 @@ class UI(QMainWindow):
 
         return vbox_labels
 
-    def create_term1_inputs(self):
 
+    def create_term1_inputs(self):
 
         '''
         self.term_1_inputs holds all the fields here
