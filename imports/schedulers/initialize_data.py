@@ -153,7 +153,7 @@ room_564 = Classroom('11-564', 24, False)
 room_458 = Classroom('11-458', 40, False)
 room_430 = Classroom('11-430', 30, False)
 room_320 = Classroom('11-320', 30, False)
-room_532 = Classroom('11-532 (LAB)', 30, True )
+room_532 = Classroom('11-532', 30, True )
 online   = Classroom('ONLINE', 1000, False)      # need this for scheduling functions to work properly
 
 rooms = [room_533, room_534, room_560, room_562, room_564, 

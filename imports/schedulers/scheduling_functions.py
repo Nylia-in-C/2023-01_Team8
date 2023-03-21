@@ -58,7 +58,10 @@ def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
     sched = pd.DataFrame(index=times)
     
     for room in room_list:
-        sched[room.ID] = [""] * 19
+        if not room.isLab:
+            sched[room.ID] = [""] * 19
+        else:
+            sched[f"{room.ID} (LAB)"] = [""] * 19
 
     return sched
 
