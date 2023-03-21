@@ -3,6 +3,7 @@ from imports.classes.courses import *
 from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
 from imports.schedulers.scheduling_functions import *
+import database.database as database
 from typing import *
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
@@ -10,41 +11,103 @@ parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
 sys.path.append(grandparentdir)
 
-# for each term and core program, create a list of lab courses and lecture courses
-# sort these lists in descending order of term hours & use them to create a dictionary
-# of DataFrame schedules
 
-bcom_1_lecs = sorted(bcom_courses['term 1'],  key=lambda x: x.termHours, reverse=True)
-pcom_1_lecs = sorted(pcom_lectures['term 1'], key=lambda x: x.termHours, reverse=True)
-pcom_1_labs = sorted(pcom_labs['term 1'],     key=lambda x: x.termHours, reverse=True)
+def get_program_rows(program: str) -> List[str]:
+    db = r".\database\database.db"  # database.db file path
+    connection = database.create_connection(db)
+    
+    query = f"SELECT C.* FROM Courses C JOIN Programs P ON C.CourseID = P.CourseID WHERE P.ProgID = '{program}';"
+    
+    try:
+        cur = connection.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+    except:
+        print("unable to retrieve core courses from database")
+        database.close_connection(connection)
+        return None
+    
+    database.close_connection(connection)
+    return rows
 
-bcom_2_lecs = sorted(bcom_courses['term 2'],  key=lambda x: x.termHours, reverse=True)
-pcom_2_lecs = sorted(pcom_lectures['term 2'], key=lambda x: x.termHours, reverse=True)
-pcom_2_labs = sorted(pcom_labs['term 2'],     key=lambda x: x.termHours, reverse=True)
+def get_program_courses(program: str) -> List[Course]:
+    
+    rows = get_program_rows(program)
+    
+    courses = []
+    for row in rows:
+        row = list(row)
+        # convert 0/1 to booleans
+        for i in range(5,8):
+            if   row[i] == 0: row[i] = False
+            elif row[i] == 1: row[i] = True
+            
+        courses.append( 
+            Course(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]) 
+        )
+        
+    return courses
 
-bcom_3_lecs = sorted(bcom_courses['term 3'],  key=lambda x: x.termHours, reverse=True)
-pcom_3_lecs = sorted(pcom_lectures['term 3'], key=lambda x: x.termHours, reverse=True)
-pcom_3_labs = sorted(pcom_labs['term 3'],     key=lambda x: x.termHours, reverse=True)
+def get_term_courses(termA: int, termB: int) -> Tuple[Dict[str, Dict[str, Course]]]:
+    pcom = get_program_courses("PCOM")
+    bcom = get_program_courses("BCOM")
+
+    
+    pcomA_lecs = [c for c in pcom if c.term == termA and not c.hasLab and not c.isOnline]
+    pcomB_lecs = [c for c in pcom if c.term == termB and not c.hasLab and not c.isOnline]
+    
+    bcomA_lecs = [c for c in bcom if c.term == termA and not c.hasLab and not c.isOnline]
+    bcomB_lecs = [c for c in bcom if c.term == termB and not c.hasLab and not c.isOnline]
+    
+    pcomA_labs = [c for c in pcom if c.term == termA and c.hasLab]
+    pcomB_labs = [c for c in pcom if c.term == termB and c.hasLab]
+    
+    bcomA_onls = [c for c in bcom if c.term == termA and c.isOnline]
+    bcomB_onls = [c for c in bcom if c.term == termB and c.isOnline] 
+    
+    lectures = {
+        'pcom': {
+            'term A': pcomA_lecs, 
+            'term B': pcomB_lecs
+        },
+        'bcom': {
+            'term A': bcomA_lecs, 
+            'term B': bcomB_lecs
+        }
+    }
+    labs = {
+        'pcom': {
+            'term A': pcomA_labs, 
+            'term B': pcomB_labs
+        }
+    }
+    online = {
+        'bcom': {
+            'term A': bcomA_onls, 
+            'term B': bcomB_onls
+        }
+    }
+    
+    return lectures, labs, online
+    
 
 def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     
+    # in theory this will never happen, but just to be safe:
+    if term not in [1,2,3]: 
+        return None
+    
     if (term == 1):
-         return create_core_term_schedule(
-            pcom_1_lecs, pcom_3_lecs,
-            bcom_1_lecs, bcom_3_lecs, lecture_rooms
-        )
+        lectures, labs, online = get_term_courses(1, 3)
+
     elif (term == 2):
-        return create_core_term_schedule(
-            pcom_1_lecs, pcom_2_lecs,
-            bcom_1_lecs, bcom_2_lecs, lecture_rooms
-        )
+        lectures, labs, online = get_term_courses(1, 2)
+
     elif (term == 3):
-        return create_core_term_schedule(
-            pcom_2_lecs, pcom_3_lecs,
-            bcom_2_lecs, bcom_3_lecs, lecture_rooms
-        )
-
-
+        lectures, labs, online = get_term_courses(2, 3)
+        
+    return create_core_term_schedule(lectures, labs, online, rooms)
+        
 
 if __name__ == '__main__':
 
@@ -55,53 +118,10 @@ if __name__ == '__main__':
     full_schedule = get_sched(term)
 
     for day, sched in full_schedule.items():
-        print("\n\t\t" + day + ":\n")
+        # if (day > 5):
+        #     break
+        print(f"\n\t\t {day} :\n")
         print(sched)
-    
-
-    # print("Enter a number for the Core Courses Schedule or the Program Schedule: \
-    #       \n1. Core \n2. Program")
-    # CoreOrProgram = int(input())
-    
-    # if CoreOrProgram == 1:
-    #     print("==========================Monday Wednesday==========================")
-
-    #     # schedule lectures & labs seperately
-    #     lectures = [course for course in term_courses[term] if course not in lab_courses]
-    #     labs     = [course for course in term_courses[term] if course in lab_courses]
         
-    #     lecture_hours, lab_hours = get_course_hours(lectures, labs)
         
-    #     full_schedule = create_term_schedule(lecture_hours, lectures, lecture_rooms, lab_hours, labs, lab_rooms)
-
-        
-    #     for day, sched in full_schedule.items():
-    #         if not (isinstance(sched, str)):
-    #             print(f"\n\n{day}: \n {sched}")
     
-    # if CoreOrProgram == 2:
-    #     print("==========================Tuesday Thursday==========================")
-
-    #     # Program schedule
-    #     # program-lectures
-    #     program_lectures = [course for course in program_term_courses[term] if course not in program_lab_courses]
-    #     # program-hours
-    #     program_labs     = [course for course in program_term_courses[term] if course in program_lab_courses]
-
-    #     program_lecture_hours, program_lab_hours = get_course_hours(program_lectures, program_labs)
-
-    #     program_full_schedule = create_term_schedule(program_lecture_hours, program_lectures, lecture_rooms, program_lab_hours, program_labs, lab_rooms)
-
-    #     for day, sched in program_full_schedule.items():
-    #         if not (isinstance(sched, str)):
-    #             print(f"\n\n{day}: \n {sched}")
-    
-    #Notes:
-    #   - Classes don't have a consistent starting time. When classes drop out of the schedule they get shifted up.
-    #   - Only one course is scheduled per room per day. Most impactful for labs, lots of empty space where labs could squeeze
-
-    #TODO: 
-    #   - write function to validate no scheduling conflicts (no 'horizontal' overlap between cohorts)
-    #   - initialize course & classroom objects in seperate file
-    #   - create lecture objects rather than creating/displaying dataframe (maybe)
-

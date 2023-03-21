@@ -801,7 +801,8 @@ class UI(QMainWindow):
         WEEK -= 1
 
         room_requested = self.select_room.currentText().split(" ")[0]
-        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+        if (len(self.select_room.currentText().split(" ")) > 1 and 
+            self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
         try:
@@ -938,7 +939,8 @@ class UI(QMainWindow):
         WEEK += 1
 
         room_requested = self.select_room.currentText().split(" ")[0]
-        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+        if (len(self.select_room.currentText().split(" ")) > 1 and 
+            self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
         try:
@@ -1058,7 +1060,8 @@ class UI(QMainWindow):
         # TODO Uncomment this if you want random colours every time you remake schedule
         random.shuffle(BG_COLOURS)
 
-        if (self.select_room.currentText().split(" ")[1] == "(LAB)"):
+        if (len(self.select_room.currentText().split(" ")) > 1 and 
+            self.select_room.currentText().split(" ")[1] == "(LAB)"):
             room_requested = room_requested + " (LAB)"
 
         # Clear any values from the table
@@ -1069,20 +1072,9 @@ class UI(QMainWindow):
         # Call upon the schedule creation functions, hopefully will
         # be able to just read from the database eventually.
 
-        # TODO: these are all outdated, we can remove them once we're 100% sure we dont need these - Andrew
-             
-        # lectures = [course for course in imports.schedulers.initialize_data.term_courses[1] if course not in imports.schedulers.initialize_data.lab_courses]
-        # labs = [course for course in imports.schedulers.initialize_data.term_courses[1] if course in imports.schedulers.initialize_data.lab_courses]
-
-        # prog_lectures = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course not in imports.schedulers.initialize_data.program_lab_courses]
-        # prog_labs = [course for course in imports.schedulers.initialize_data.program_term_courses[1] if course in imports.schedulers.initialize_data.program_lab_courses]
-
-        # lec_hours, lab_hours = imports.schedulers.core_scheduler.get_course_hours(lectures, labs)
-        # prog_lec_hours, prog_lab_hours = imports.schedulers.core_scheduler.get_course_hours(prog_lectures, prog_labs)
-
         global CORE_SCHEDULE, PROG_SCHEDULE
         CORE_SCHEDULE  = imports.schedulers.core_scheduler.get_sched(1)
-        # scheduling program-specific courses is broken rn, so just use core schedules twice for UI testing
+        # scheduling program-specific courses isnt implemented yet, so just use core schedules twice for UI testing -Andrew
         PROG_SCHEDULE  = CORE_SCHEDULE
         
         #CORE_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.initialize_data.lecture_rooms,
