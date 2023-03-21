@@ -546,14 +546,12 @@ class UI(QMainWindow):
         vbox_labels = QVBoxLayout()
 
         vbox_labels.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox_labels.addWidget(QLabel("PCOM"))
-        vbox_labels.addWidget(QLabel("BCOM"))
-        vbox_labels.addWidget(QLabel("PM"))
-        vbox_labels.addWidget(QLabel("BA"))
-        vbox_labels.addWidget(QLabel("GLM"))
-        vbox_labels.addWidget(QLabel("FS"))
-        vbox_labels.addWidget(QLabel("DXD"))
-        vbox_labels.addWidget(QLabel("BKC"))
+
+        labels = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+
+        for label in labels:
+            vbox_labels.addWidget(QLabel(label))
+
         return vbox_labels
     def create_term1_inputs(self):
 
@@ -562,7 +560,6 @@ class UI(QMainWindow):
         self.term_1_inputs holds all the fields here
         '''
         vbox = QVBoxLayout()
-        #vbox.setSpacing(8)
 
         self.term_1_inputs.addWidget(self.stu_num_input())
         self.term_1_inputs.addWidget(self.stu_num_input())
