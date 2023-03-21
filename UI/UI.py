@@ -99,6 +99,10 @@ class UI(QMainWindow):
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
 
+        self.course_pre_req_selector = QComboBox()
+        self.course_pre_reqs = []
+        self.course_pre_reqs_label = QLabel()
+
 
         '''
         Creating tables for each tab
@@ -302,6 +306,7 @@ class UI(QMainWindow):
 
         self.courses.addItems(course_name_list)
         self.courses.setMaximumWidth(200)
+        self.course_pre_req_selector.addItems(course_name_list)
 
         # Creating inputs
         hbox = QHBoxLayout()
@@ -369,6 +374,24 @@ class UI(QMainWindow):
         course_btn = QPushButton("Save Course")
         course_btn.clicked.connect(self.save_course)
 
+        # --------------------------
+
+        hbox_pre_reqs = QHBoxLayout()
+        vbox_pre_reqs = QVBoxLayout()
+
+        hbox_pre_reqs.addWidget(QLabel("Chosen Pre-Reqs"))
+        add_pre_req = QPushButton("Add Pre-Req")
+        add_pre_req.clicked.connect(self.add_pre_req)
+        rem_pre_req = QPushButton("Clear Pre-Reqs")
+        rem_pre_req.clicked.connect(self.clear_pre_reqs)
+
+        hbox_pre_reqs.addWidget(self.course_pre_reqs_label)
+        vbox_pre_reqs.addLayout(hbox_pre_reqs)
+        vbox_pre_reqs.addWidget(self.course_pre_req_selector)
+        vbox_pre_reqs.addWidget(add_pre_req)
+        vbox_pre_reqs.addWidget(rem_pre_req)
+
+        #-----------------------------
 
         hbox.setSpacing(20)
 
@@ -379,6 +402,9 @@ class UI(QMainWindow):
         hbox.addLayout(vbox_spin_boxes)
         hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(vbox_online_lab)
+        hbox.addWidget(self.create_vertical_line())
+        hbox.addLayout(vbox_pre_reqs)
+        hbox.addWidget(self.create_vertical_line())
         hbox.addWidget(course_btn)
 
         hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
@@ -1283,9 +1309,11 @@ class UI(QMainWindow):
             core = self.course_core.isChecked()
             online = self.course_online.isChecked()
             lab = self.course_lab.isChecked()
+            pre_reqs = self.course_pre_reqs
 
-            new_course = Course(course_id, 1, term_hours, term, duration, core, online,lab, "")
+            new_course = Course(course_id, 1, term_hours, term, duration, core, online,lab, pre_reqs)
             addCourseItem(connection, new_course)
+
             close_connection(connection)
             # Update the combobox
             self.update_course_combos()
@@ -1306,6 +1334,8 @@ class UI(QMainWindow):
 
         self.courses.clear()
         self.courses.addItems(course_name_list)
+        self.course_pre_req_selector.clear()
+        self.course_pre_req_selector.addItems(course_name_list)
 
     def show_hide_course(self):
 
@@ -1317,3 +1347,10 @@ class UI(QMainWindow):
             self.courses.show()
 
 
+    def add_pre_req(self):
+        self.course_pre_reqs.append(self.course_pre_req_selector.currentText())
+        self.course_pre_reqs_label.setText(", ".join(self.course_pre_reqs))
+
+    def clear_pre_reqs(self):
+        self.course_pre_reqs.clear()
+        self.course_pre_reqs_label.clear()
