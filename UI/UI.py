@@ -45,11 +45,12 @@ def remove_colours():
 
     for colour in excludedcolours:
         BG_COLOURS.remove(colour)
-        
+
     _colours = BG_COLOURS.copy()
     for colour in range(len(_colours)):
         if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
             BG_COLOURS.remove(_colours[colour])
+
 class UI(QMainWindow):
 
     def __init__(self):
@@ -544,7 +545,7 @@ class UI(QMainWindow):
     def program_labels(self):
         vbox_labels = QVBoxLayout()
 
-        vbox_labels.addWidget(QLabel())
+        vbox_labels.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox_labels.addWidget(QLabel("PCOM"))
         vbox_labels.addWidget(QLabel("BCOM"))
         vbox_labels.addWidget(QLabel("PM"))
@@ -561,6 +562,7 @@ class UI(QMainWindow):
         self.term_1_inputs holds all the fields here
         '''
         vbox = QVBoxLayout()
+        #vbox.setSpacing(8)
 
         self.term_1_inputs.addWidget(self.stu_num_input())
         self.term_1_inputs.addWidget(self.stu_num_input())
