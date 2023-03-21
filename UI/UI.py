@@ -1,7 +1,7 @@
 # main python file - 395 team 8
 
+#Imports
 import os
-
 import pandas as pd
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
@@ -25,6 +25,7 @@ LEFT_MAX_WIDTH = 450
 CLASSROOMS = {} # key = room id, value = tuple with all values
 global CORE_SCHEDULE
 global PROG_SCHEDULE
+global PROG_LABELS
 WEEK = 1
 CORE_PREV = ""
 CORE_POST = ""
@@ -37,31 +38,20 @@ global COURSE_COLOUR
 # Removes colours that make the text hard to read / separate from the background
 def remove_colours():
     global BG_COLOURS
-    BG_COLOURS.remove("aliceblue")
-    BG_COLOURS.remove("mediumturquoise")
-    BG_COLOURS.remove("midnightblue")
-    BG_COLOURS.remove("lavenderblush")
-    BG_COLOURS.remove("blue")
-    BG_COLOURS.remove("mediumblue")
-    BG_COLOURS.remove("blanchedalmond")
-    BG_COLOURS.remove("indigo")
-    BG_COLOURS.remove("seashell")
-    BG_COLOURS.remove("navy")
-    BG_COLOURS.remove("black")
-    BG_COLOURS.remove("brown")
-    BG_COLOURS.remove("beige")
-    BG_COLOURS.remove("azure")
-    BG_COLOURS.remove("deeppink")
-    BG_COLOURS.remove("fuchsia")
-    BG_COLOURS.remove("hotpink")
-    BG_COLOURS.remove("magenta")
-    BG_COLOURS.remove("red")
-    BG_COLOURS.remove("pink")
-    BG_COLOURS.remove("mediumvioletred")
+    excludedcolours = ["aliceblue", "mediumturquoise", "midnightblue", 
+                    "lavenderblush", "blue", "mediumblue", "blanchedalmond", 
+                    "indigo", "seashell", "navy", "black", "brown", "beige",
+                    "azure", "deeppink", "fuchsia", "hotpink", "magenta",
+                    "red", "pink", "mediumvioletred"]
+
+    for colour in excludedcolours:
+        BG_COLOURS.remove(colour)
+
     _colours = BG_COLOURS.copy()
     for colour in range(len(_colours)):
         if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
             BG_COLOURS.remove(_colours[colour])
+
 class UI(QMainWindow):
 
     def __init__(self):
@@ -201,88 +191,118 @@ class UI(QMainWindow):
 
         vbox_overall.addLayout(self.update_classroom_section())
         vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addLayout(self.update_course_section())
 
 
         return vbox_overall
 
     def update_classroom_section(self):
-        room_adjust_layout = QHBoxLayout()
-        room_adjust_layout.setSpacing(30)
+        room_add_layout = QHBoxLayout()
+        room_add_layout.setSpacing(15)
+
+        room_delete_layout = QHBoxLayout()
+        room_delete_layout.setSpacing(15)
 
         font = QFont()
         font.setBold(True)
         font.setPointSize(16)
 
-        # Classroom section
-        self.class_id.setPlaceholderText("Classroom Name")
-        vbox_class = QVBoxLayout()
+        subfont = QFont()
+        subfont.setBold(True)
+        subfont.setItalic(True)
+        subfont.setPointSize(14)
 
-        class_section_text = QLabel("Classroom Options")
+        # Classroom section
+        vbox_class = QVBoxLayout()
+        vbox_class.setContentsMargins(20,0,0,0)
+        class_section_text = QLabel("Room Options")
         class_section_text.setFont(font)
 
+        #Header
         vbox_class.addWidget(class_section_text)
+        vbox_class.addWidget(self.create_horizontal_line())
+
+        #Adding a Room Subheader
+        class_add_text = QLabel("Add New Room")
+        class_add_text.setFont(subfont)
+        vbox_class.addWidget(class_add_text)
 
         # Class ID section
-        class_id_box = QVBoxLayout()
-        class_id_box.addWidget(QLabel("Classroom ID"))
-        self.class_id.setMaximumWidth(100)
+        self.class_id.setPlaceholderText("Classroom Name")
+        class_id_box = QHBoxLayout()
+        class_id_box.addWidget(QLabel("Room ID"))
+        #self.class_id.setMaximumWidth(100)
         class_id_box.addWidget(self.class_id)
 
         # Class Capacity Section
-        class_capacity_box = QVBoxLayout()
-        class_capacity_box.addWidget(QLabel("Classroom Capacity"))
+        class_capacity_box = QHBoxLayout()
+        class_capacity_box.addWidget(QLabel("Room Capacity"))
         self.class_capacity.setValue(10)
         self.class_capacity.setMinimum(10)
         self.class_capacity.setMaximum(50)
         self.class_capacity.setMaximumWidth(100)
         class_capacity_box.addWidget(self.class_capacity)
 
-        # Class Lab? section
-        class_lab_bool = QVBoxLayout()
-        b1 = QRadioButton("Yes")
+        # Class Lab/Lecture section
+        class_lab_bool = QHBoxLayout()
+        b1 = QRadioButton("Lab")
         b1.setChecked(True)
-        b2 = QRadioButton("No")
+        b2 = QRadioButton("Lecture")
         self.class_lab.addButton(b1)
         self.class_lab.addButton(b2)
 
-        class_lab_bool.addWidget(QLabel("Is a Lab?"))
+        class_lab_bool.addWidget(QLabel("Room Type"))
         class_lab_bool.addWidget(b1)
         class_lab_bool.addWidget(b2)
 
         # Create add button
-        class_btn = QPushButton("Add Classroom")
+        class_btn = QPushButton("Add")
         class_btn.setMaximumWidth(100)
         class_btn.clicked.connect(self.add_edit_classroom)
 
+        # Put adding functions into the layout
+        room_add_layout.addLayout(class_id_box)
+        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addLayout(class_capacity_box)
+        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addLayout(class_lab_bool)
+        room_add_layout.addWidget(class_btn)
+        room_add_layout.addWidget(self.create_vertical_line())
+        
+        #Deleting a Room
+
+        #Delete Room Header
+        class_delete_text = QLabel("Delete Room")
+        class_delete_text.setFont(subfont)
+
         # Create remove button
-        remove_btn = QPushButton("Remove Classroom")
+        remove_btn = QPushButton("Remove")
         remove_btn.setMaximumWidth(150)
         remove_btn.clicked.connect(self.remove_classroom)
 
-        remove_section = QVBoxLayout()
+        remove_section = QHBoxLayout()
         remove_section.addWidget(self.classroom_list)
         remove_section.addWidget(remove_btn)
 
-        # Put everything into the layout
-        room_adjust_layout.addLayout(class_id_box)
-        room_adjust_layout.addWidget(self.create_vertical_line())
-        room_adjust_layout.addLayout(class_capacity_box)
-        room_adjust_layout.addWidget(self.create_vertical_line())
-        room_adjust_layout.addLayout(class_lab_bool)
-        room_adjust_layout.addWidget(class_btn)
-        room_adjust_layout.addWidget(self.create_vertical_line())
-        room_adjust_layout.addLayout(remove_section)
-        room_adjust_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+        # Put deleting functions into layout
+        room_delete_layout.addLayout(remove_section)
+        room_delete_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
-
-        vbox_class.addLayout(room_adjust_layout)
+        #Add sublayouts to big vbox_class object
+        vbox_class.addLayout(room_add_layout)
         vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
+        vbox_class.addWidget(class_delete_text)
+
+        vbox_class.addLayout(room_delete_layout)
+        vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        
         return vbox_class
 
     def update_course_section(self):
         vbox_course = QVBoxLayout()
+        vbox_course.setContentsMargins(20,0,0,0)
 
         font = QFont()
         font.setBold(True)
@@ -290,8 +310,9 @@ class UI(QMainWindow):
 
         course_section_text = QLabel("Course Options")
         course_section_text.setFont(font)
-
+        
         vbox_course.addWidget(course_section_text)
+        vbox_course.addWidget(self.create_horizontal_line())
 
 
         db = r".\database\database.db"  # database.db file path
@@ -393,7 +414,7 @@ class UI(QMainWindow):
 
         #-----------------------------
 
-        hbox.setSpacing(20)
+        hbox.setSpacing(15)
 
         hbox.addLayout(new_or_edit)
         hbox.addWidget(self.create_vertical_line())
@@ -407,7 +428,7 @@ class UI(QMainWindow):
         hbox.addWidget(self.create_vertical_line())
         hbox.addWidget(course_btn)
 
-        hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+        #hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
         vbox_course.addLayout(hbox)
 
@@ -554,34 +575,28 @@ class UI(QMainWindow):
         return input_box
 
     def program_labels(self):
+        global PROG_LABELS
         vbox_labels = QVBoxLayout()
 
-        vbox_labels.addWidget(QLabel())
-        vbox_labels.addWidget(QLabel("PCOM"))
-        vbox_labels.addWidget(QLabel("BCOM"))
-        vbox_labels.addWidget(QLabel("PM"))
-        vbox_labels.addWidget(QLabel("BA"))
-        vbox_labels.addWidget(QLabel("GLM"))
-        vbox_labels.addWidget(QLabel("FS"))
-        vbox_labels.addWidget(QLabel("DXD"))
-        vbox_labels.addWidget(QLabel("BKC"))
-        return vbox_labels
-    def create_term1_inputs(self):
+        vbox_labels.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)) #for alignment
 
+        PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+
+        for label in PROG_LABELS:
+            vbox_labels.addWidget(QLabel(label))
+
+        return vbox_labels
+
+
+    def create_term1_inputs(self):
 
         '''
         self.term_1_inputs holds all the fields here
         '''
         vbox = QVBoxLayout()
 
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
+        for n in range(len(PROG_LABELS)):
+            self.term_1_inputs.addWidget(self.stu_num_input())
 
         self.term_1_inputs.setAlignment(Qt.AlignLeft)
 
@@ -598,14 +613,8 @@ class UI(QMainWindow):
         '''
         vbox = QVBoxLayout()
 
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
+        for n in range(len(PROG_LABELS)):
+            self.term_2_inputs.addWidget(self.stu_num_input())
 
         self.term_2_inputs.setAlignment(Qt.AlignLeft)
 
@@ -622,14 +631,8 @@ class UI(QMainWindow):
         '''
         vbox = QVBoxLayout()
 
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
+        for n in range(len(PROG_LABELS)):
+            self.term_3_inputs.addWidget(self.stu_num_input())
 
         self.term_3_inputs.setAlignment(Qt.AlignLeft)
 
