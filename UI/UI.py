@@ -1,7 +1,7 @@
 # main python file - 395 team 8
 
+#Imports
 import os
-
 import pandas as pd
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
@@ -25,6 +25,7 @@ LEFT_MAX_WIDTH = 450
 CLASSROOMS = {} # key = room id, value = tuple with all values
 global CORE_SCHEDULE
 global PROG_SCHEDULE
+global PROG_LABELS
 WEEK = 1
 CORE_PREV = ""
 CORE_POST = ""
@@ -543,16 +544,18 @@ class UI(QMainWindow):
         return input_box
 
     def program_labels(self):
+        global PROG_LABELS
         vbox_labels = QVBoxLayout()
 
-        vbox_labels.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox_labels.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)) #for alignment
 
-        labels = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+        PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
 
-        for label in labels:
+        for label in PROG_LABELS:
             vbox_labels.addWidget(QLabel(label))
 
         return vbox_labels
+
     def create_term1_inputs(self):
 
 
@@ -561,14 +564,8 @@ class UI(QMainWindow):
         '''
         vbox = QVBoxLayout()
 
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
-        self.term_1_inputs.addWidget(self.stu_num_input())
+        for n in range(len(PROG_LABELS)):
+            self.term_1_inputs.addWidget(self.stu_num_input())
 
         self.term_1_inputs.setAlignment(Qt.AlignLeft)
 
@@ -585,14 +582,8 @@ class UI(QMainWindow):
         '''
         vbox = QVBoxLayout()
 
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
-        self.term_2_inputs.addWidget(self.stu_num_input())
+        for n in range(len(PROG_LABELS)):
+            self.term_2_inputs.addWidget(self.stu_num_input())
 
         self.term_2_inputs.setAlignment(Qt.AlignLeft)
 
@@ -609,14 +600,8 @@ class UI(QMainWindow):
         '''
         vbox = QVBoxLayout()
 
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
-        self.term_3_inputs.addWidget(self.stu_num_input())
+        for n in range(len(PROG_LABELS)):
+            self.term_3_inputs.addWidget(self.stu_num_input())
 
         self.term_3_inputs.setAlignment(Qt.AlignLeft)
 
