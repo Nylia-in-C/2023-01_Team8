@@ -240,7 +240,6 @@ def fillClassrooms(term):
 
 # TODO:
 #   - Take student count input
-#   - Adding ghostroom calls database for next id
 
 # Nice to have:
 #   - Reduced program hours only on lab rooms
