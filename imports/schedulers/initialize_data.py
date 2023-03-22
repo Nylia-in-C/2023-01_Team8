@@ -11,20 +11,20 @@ sys.path.append(grandparentdir)
 # term 1 PCOM courses
 pcom_0101 = Course('PCOM 0101', 'Business Writing 1', 35,1, 1.5, True, False, False)
 pcom_0105 = Course('PCOM 0105', 'Intercultural Communication Skills', 35,1, 1.5, True, False, False)
-pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 18,1, 2, True, False, False)
-cmsk_0233 = Course('CMSK 0233', 'MS Project Essentials', 7,1, 2, True, False, False)
-cmsk_0235 = Course('CMSK 0235', 'MS Visio Essentials', 6,1, 2, True, False, False)
+pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 18,1, 2, True, False, True)
+cmsk_0233 = Course('CMSK 0233', 'MS Project Essentials', 7, 1, 2, True, False, True)
+cmsk_0235 = Course('CMSK 0235', 'MS Visio Essentials', 6, 1, 2, True, False, True)
 
 # term 2 PCOM core courses
 pcom_0102 = Course('PCOM 0102', 'Business Writing 2', 35,2, 1.5, True, False, False)
 pcom_0201 = Course('PCOM 0201', 'Fundamentals of Public Speaking', 35,2, 1.5, True, False, False)
-pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 2, 2, True, False, False)
+pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 2, 2, True, False, True)
 
 # term 3 PCOM core courses
 pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33,3, 1.5, True, False, False)
 pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35,3, 1.5, True, False, False)
-pcom_0109_module_1 = Course('PCOM 0109 Module 1', 'Resume and Cover Letter', 8,3, 2, True, False, False)
-pcom_0109_module_2 = Course('PCOM 0109 Module 2', 'Interview Practice', 6,3, 2, True, False, False)
+pcom_0109_module_1 = Course('PCOM 0109 M1', 'Resume and Cover Letter', 8, 3, 2, True, False, True)
+pcom_0109_module_2 = Course('PCOM 0109 M2', 'Interview Practice', 6,3, 2, True, False, False)
 
 # term 1 BCOM core courses
 pcom_0203 = Course('PCOM 0203', 'Effective Professional Writing', 15,1,  1.5, True, False, False)
@@ -48,31 +48,16 @@ pcom_TBD  = Course('PCOM_TBD',  'Story Telling (Public Speaking)', 21,3, 1.5, Tr
 pcom_0207 = Course('PCOM_0207', 'Developing Your Emotional Intelligence', 6,3, 2, True, False, False)
 supr_0863 = Course('SUPR_0863', 'Design Thinking', 7,3, 2, True, False, False)
 pcom_0206 = Course('PCOM_0206', 'Fundamentals of Agile Methodology', 6,3, 3, True, False, False)
-#avdm_0260 = Course('PAVDM_0260', 'WordPress for Web Page Publishing', 6,3, 1.5, True, True, False)
+avdm_0260 = Course('AVDM_0260', 'WordPress for Web Page Publishing', 6,3, 1.5, True, True, False)
 
-pcom_lectures = {
-    'term 1': [pcom_0101, pcom_0105],
-    'term 2': [pcom_0102, pcom_0201],
-    'term 3': [pcom_0202, pcom_0103, pcom_0109_module_2],
-}
+pcom_courses = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102, 
+                pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109_module_1, 
+                pcom_0109_module_2, ]
 
-pcom_labs = {
-    'term 1': [pcom_0107, cmsk_0233, cmsk_0235],
-    'term 2': [pcom_0108],
-    'term 3': [pcom_0109_module_1],
-}
+bcom_courses = [pcom_0203, supr_0751, pcom_0204, supr_0837, supr_0841, cmsk_0237, 
+                supr_0821, supr_0822, supr_0718, supr_0836, pcom_0106, avdm_0199, 
+                pcom_0205, pcom_TBD, pcom_0207, supr_0863, pcom_0206, avdm_0260]
 
-pcom_courses = {
-    'term 1': pcom_lectures['term 1'] + pcom_labs['term 1'],
-    'term 2': pcom_lectures['term 2'] + pcom_labs['term 2'],
-    'term 3': pcom_lectures['term 3'] + pcom_labs['term 3'],
-}
-
-bcom_courses = {
-    'term 1': [pcom_0203, supr_0751, pcom_0204, supr_0837, supr_0841, cmsk_0237],
-    'term 2': [supr_0821, supr_0822, supr_0718, supr_0836, pcom_0106, avdm_0199],
-    'term 3': [pcom_0205, pcom_TBD , pcom_0207, supr_0863, pcom_0206],
-}
 
 # Program Courses------------------------------------------------------------------
 # term 1 PM program courses
@@ -138,16 +123,16 @@ bkc_courses = {
     'term 3': [acct_0208, acct_9901],
 }
 
-lab_courses = [pcom_0107, cmsk_0233, cmsk_0235, pcom_0108, pcom_0109_module_1]
+# lab_courses = [pcom_0107, cmsk_0233, cmsk_0235, pcom_0108, pcom_0109_module_1]
 
-term_courses = {
-    # fall semester has term 1 and term 3 courses
-    1: pcom_courses['term 1'] + bcom_courses['term 1'] + pcom_courses['term 3'] + bcom_courses['term 3'],
-    # winter semester has term 1 and 2 courses
-    2: pcom_courses['term 1'] + bcom_courses['term 1'] + pcom_courses['term 2'] + bcom_courses['term 2'],
-    # spring/summer semester has term 2 and 3 courses
-    3: pcom_courses['term 2'] + bcom_courses['term 2'] + pcom_courses['term 3'] + bcom_courses['term 3'], 
-}
+# term_courses = {
+#     # fall semester has term 1 and term 3 courses
+#     1: pcom_courses['term 1'] + bcom_courses['term 1'] + pcom_courses['term 3'] + bcom_courses['term 3'],
+#     # winter semester has term 1 and 2 courses
+#     2: pcom_courses['term 1'] + bcom_courses['term 1'] + pcom_courses['term 2'] + bcom_courses['term 2'],
+#     # spring/summer semester has term 2 and 3 courses
+#     3: pcom_courses['term 2'] + bcom_courses['term 2'] + pcom_courses['term 3'] + bcom_courses['term 3'], 
+# }
 
 program_lab_courses = [acct_0210, acct_0211, acct_0208, acct_9901]
 
@@ -169,6 +154,7 @@ room_458 = Classroom('11-458', 40, False)
 room_430 = Classroom('11-430', 30, False)
 room_320 = Classroom('11-320', 30, False)
 room_532 = Classroom('11-532', 30, True )
+online   = Classroom('ONLINE', 1000, False)      # need this for scheduling functions to work properly
 
-lecture_rooms = [room_533, room_534, room_560, room_562, room_564, room_458, room_430, room_320]
-lab_rooms = [room_532]
+rooms = [room_533, room_534, room_560, room_562, room_564, 
+         room_458, room_430, room_320, room_532, online]
