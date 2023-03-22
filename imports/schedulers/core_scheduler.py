@@ -4,6 +4,7 @@ from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
 from imports.schedulers.scheduling_functions import *
 import database.database as database
+from imports.schedulers.initialize_data import *
 from typing import *
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
@@ -64,6 +65,7 @@ def get_term_courses(termA: int, termB: int) -> Tuple[Dict[str, Dict[str, Course
     
     bcomA_onls = [c for c in bcom if c.term == termA and c.isOnline]
     bcomB_onls = [c for c in bcom if c.term == termB and c.isOnline] 
+
     
     lectures = {
         'pcom': {
@@ -98,13 +100,80 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         return None
     
     if (term == 1):
-        lectures, labs, online = get_term_courses(1, 3)
+        #lectures, labs, online = get_term_courses(1, 3)
+        lectures = {
+            'pcom': {
+                'term A': pcom1_lecs,
+                'term B': pcom3_lecs
+            },
+            'bcom': {
+                'term A': bcom1_lecs,
+                'term B': bcom3_lecs
+            }
+        }
+        labs = {
+            'pcom': {
+                'term A': pcom1_labs,
+                'term B': pcom3_labs
+            }
+        }
+        online = {
+            'bcom': {
+                'term A': bcom1_onl,
+                'term B': bcom3_onl
+            }
+        }
 
     elif (term == 2):
-        lectures, labs, online = get_term_courses(1, 2)
+        #lectures, labs, online = get_term_courses(1, 2)
+        lectures = {
+            'pcom': {
+                'term A': pcom1_lecs,
+                'term B': pcom2_lecs
+            },
+            'bcom': {
+                'term A': bcom1_lecs,
+                'term B': bcom2_lecs
+            }
+        }
+        labs = {
+            'pcom': {
+                'term A': pcom1_labs,
+                'term B': pcom2_labs
+            }
+        }
+        online = {
+            'bcom': {
+                'term A': bcom1_onl,
+                'term B': bcom2_onl
+            }
+        }
 
     elif (term == 3):
-        lectures, labs, online = get_term_courses(2, 3)
+        #lectures, labs, online = get_term_courses(2, 3)
+        
+        lectures = {
+            'pcom': {
+                'term A': pcom2_lecs,
+                'term B': pcom3_lecs
+            },
+            'bcom': {
+                'term A': bcom2_lecs,
+                'term B': bcom3_lecs
+            }
+        }
+        labs = {
+            'pcom': {
+                'term A': pcom2_labs,
+                'term B': pcom3_labs
+            }
+        }
+        online = {
+            'bcom': {
+                'term A': bcom2_onl,
+                'term B': bcom3_onl
+            }
+        }
         
     return create_core_term_schedule(lectures, labs, online, rooms)
         

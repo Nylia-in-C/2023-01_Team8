@@ -15,10 +15,16 @@ pcom_0107 = Course('PCOM 0107', 'Tech Development 1', 18,1, 2, True, False, True
 cmsk_0233 = Course('CMSK 0233', 'MS Project Essentials', 7, 1, 2, True, False, True)
 cmsk_0235 = Course('CMSK 0235', 'MS Visio Essentials', 6, 1, 2, True, False, True)
 
+pcom1_lecs = [pcom_0101, pcom_0105]
+pcom1_labs = [pcom_0107, cmsk_0233, cmsk_0235]
+
 # term 2 PCOM core courses
 pcom_0102 = Course('PCOM 0102', 'Business Writing 2', 35,2, 1.5, True, False, False)
 pcom_0201 = Course('PCOM 0201', 'Fundamentals of Public Speaking', 35,2, 1.5, True, False, False)
 pcom_0108 = Course('PCOM 0108', 'Tech Development 2', 18, 2, 2, True, False, True)
+
+pcom2_lecs = [pcom_0102, pcom_0201]
+pcom2_labs = [pcom_0108]
 
 # term 3 PCOM core courses
 pcom_0202 = Course('PCOM 0202', 'Advance Business Presentation', 33,3, 1.5, True, False, False)
@@ -26,13 +32,19 @@ pcom_0103 = Course('PCOM 0103', 'Canadian Workplace Culture', 35,3, 1.5, True, F
 pcom_0109_module_1 = Course('PCOM 0109 M1', 'Resume and Cover Letter', 8, 3, 2, True, False, True)
 pcom_0109_module_2 = Course('PCOM 0109 M2', 'Interview Practice', 6,3, 2, True, False, False)
 
+pcom3_lecs = [pcom_0202, pcom_0103, pcom_0109_module_2]
+pcom3_labs = [pcom_0109_module_1]
+
 # term 1 BCOM core courses
-pcom_0203 = Course('PCOM 0203', 'Effective Professional Writing', 15,1,  1.5, True, False, False)
+pcom_0203 = Course('PCOM 0203', 'Effective Professional Writing', 15,1,  2, True, False, False)
 supr_0751 = Course('SUPR 0751', 'Fundamentals of Management and Supervision', 7,1, 2, True, False, False)
-pcom_0204 = Course('PCOM 0204', 'Business Persuasion and Research', 35,1, 1.5, True, False, False)
+pcom_0204 = Course('PCOM 0204', 'Business Persuasion and Research', 35,1, 2, True, False, False)
 supr_0837 = Course('SUPR 0837', 'Building an Engaged Workforce', 7,1, 2, True, False, False)
 supr_0841 = Course('SUPR 0841', 'Change Management Fundamentals', 7,1, 2, True, False, False)
-cmsk_0237 = Course('CMSK 0237', 'Google Suite Essentials', 12,1, 1.5, True, True, False)
+cmsk_0237 = Course('CMSK 0237', 'Google Suite Essentials', 12,1, 2, True, True, False)
+
+bcom1_lecs = [pcom_0203, supr_0751, pcom_0204, supr_0837, supr_0841]
+bcom1_onl = [cmsk_0237]
 
 # term 2 BCOM core courses
 supr_0821 = Course('SUPR_0821', 'Foundations of Leadership 1', 7,2, 2, True, False, False)
@@ -42,13 +54,19 @@ supr_0836 = Course('SUPR_0836', 'Effective Professional Writing', 7,2, 2, True, 
 pcom_0106 = Course('PCOM_0106', 'Effective Professional Writing', 34,2, 2, True, False, False)
 avdm_0199 = Course('AVDM_0199', 'Effective Professional Writing', 3,2, 1.5, True, True, False)  
 
+bcom2_lecs = [supr_0821, supr_0822, supr_0718, supr_0836, pcom_0106]
+bcom2_onl = [avdm_0199]
+
 # term 3 BCOM core courses
 pcom_0205 = Course('PCOM_0205', 'Small Business and Entrpreneurship in Canada', 30,3, 3, True, False, False)
 pcom_TBD  = Course('PCOM_TBD',  'Story Telling (Public Speaking)', 21,3, 1.5, True, False, False)
 pcom_0207 = Course('PCOM_0207', 'Developing Your Emotional Intelligence', 6,3, 2, True, False, False)
 supr_0863 = Course('SUPR_0863', 'Design Thinking', 7,3, 2, True, False, False)
 pcom_0206 = Course('PCOM_0206', 'Fundamentals of Agile Methodology', 6,3, 3, True, False, False)
-avdm_0260 = Course('AVDM_0260', 'WordPress for Web Page Publishing', 6,3, 1.5, True, True, False)
+avdm_0260 = Course('AVDM_0260', 'WordPress for Web Page Publishing', 6,3, 3, True, True, False)
+
+bcom3_lecs = [pcom_0205, pcom_TBD, pcom_0207, supr_0863, pcom_0206]
+bcom3_onl = [avdm_0260]
 
 pcom_courses = [pcom_0101, pcom_0105, pcom_0107, cmsk_0233, cmsk_0235, pcom_0102, 
                 pcom_0201, pcom_0108, pcom_0202, pcom_0103, pcom_0109_module_1, 
