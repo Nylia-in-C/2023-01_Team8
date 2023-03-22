@@ -4,7 +4,7 @@ from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
 from imports.schedulers.scheduling_functions import *
 import database.database as database
-from initialize_data import *
+from imports.schedulers.initialize_data import *
 from typing import *
 
 currentdir = os.path.dirname(os.path.realpath(__file__))

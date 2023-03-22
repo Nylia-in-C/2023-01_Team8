@@ -8,8 +8,7 @@ from imports.classes.courses import *
 from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
 import string
-from itertools import chain, permutations, cycle
-from more_itertools import chunked
+from itertools import permutations, cycle
 from typing import *
 from pprint import pprint
 
@@ -317,14 +316,14 @@ def make_lecture_sched(term_A_pcom: List[Course], term_B_pcom: List[Course],
     # # max of 6 courses in a single program/term
     for i in range(6):
             
+        if len(pcomB) > i:
+            sched = add_lecture(pcomB[i], course_hours, pcomB_strs, sched)
+        
         if len(bcomA) > i:
             sched = add_lecture(bcomA[i], course_hours, bcomA_strs, sched)
         
         if len(pcomA) > i:
             sched = add_lecture(pcomA[i], course_hours, pcomA_strs, sched)
-            
-        if len(pcomB) > i:
-            sched = add_lecture(pcomB[i], course_hours, pcomB_strs, sched)
             
         if len(bcomB) > i:
             sched = add_lecture(bcomB[i], course_hours, bcomB_strs, sched)
@@ -605,7 +604,7 @@ def is_valid_sched(lectures, sched):
         if len(pcom_A) != len(set(pcom_A)) or len(pcom_B) != len(set(pcom_B)) or \
            len(bcom_A) != len(set(bcom_A)) or len(bcom_B) != len(set(bcom_B)):
         
-            print(time)
+            print(f"\n\nconflict at {time}\n")
             print(sched)
             return True
     return False
@@ -696,6 +695,6 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]], labs: Dict[str,
     for day, sf_sched in enumerate(temp_sched_arr):
         full_schedule[f"day {day+1}"] = (sf_sched.to_pandas())
     
-    print(invalid)
-    print(course_hours)
+    print(f"\n\nfound {invalid} contradictions across all schedules\n")
+    pprint(course_hours)
     return full_schedule

@@ -63,7 +63,7 @@ pcom_TBD  = Course('PCOM_TBD',  'Story Telling (Public Speaking)', 21,3, 1.5, Tr
 pcom_0207 = Course('PCOM_0207', 'Developing Your Emotional Intelligence', 6,3, 2, True, False, False)
 supr_0863 = Course('SUPR_0863', 'Design Thinking', 7,3, 2, True, False, False)
 pcom_0206 = Course('PCOM_0206', 'Fundamentals of Agile Methodology', 6,3, 3, True, False, False)
-avdm_0260 = Course('AVDM_0260', 'WordPress for Web Page Publishing', 6,3, 1.5, True, True, False)
+avdm_0260 = Course('AVDM_0260', 'WordPress for Web Page Publishing', 6,3, 3, True, True, False)
 
 bcom3_lecs = [pcom_0205, pcom_TBD, pcom_0207, supr_0863, pcom_0206]
 bcom3_onl = [avdm_0260]
