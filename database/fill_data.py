@@ -13,6 +13,7 @@ from imports.classes.classrooms import Classroom
 from imports.classes.courses import Course
 from imports.classes.courses import Lecture
 #from database import *
+#import database as database
 import database.database as database
 #CORE COURSES----------------------------------------------------------------------
 # term 1 Professional Communication (PCOM) courses

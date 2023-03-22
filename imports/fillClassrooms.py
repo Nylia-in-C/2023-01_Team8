@@ -1,201 +1,290 @@
-
 #===================================================================================================
 # Imports
+import sys
+import os
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
 import random
 from classes.classrooms import *
 from classes.legions    import *
 from classes.courses    import *
 from classes.programs   import *
 from create_legions     import *
+from database.database  import *
 
 #===================================================================================================
 # Setup
-PROGRAMHOURS    = 2*13*9 #days*weeks*hours
+COREHOURS       = 2*13*9
+PROGRAMHOURS    = 2*13*8.5 #days*weeks*hours
 FSPRROGRAMHOURS = 2*13*4
 #PROGRAMHOURS = 60
 #COREHOURS
 
+programCoursesByTerm = {}
 
-
-programCoursesByTerm = {
-    "PM01":  [Course("PRDV 0201", "NA", 21, 2, False, False, False), Course("PRDV 0202", "NA", 14, 2, False, False, False), Course("PRDV 0203", "NA", 21, 2, False, False, False)], 
-    "PM02":  [Course("PRDV 0204", "NA", 14, 2, False, False, False), Course("PRDV 0205", "NA", 21, 2, False, False, False), Course("PCOM 0130", "NA", 21, 2, False, False, False), Course("PRDV 0206", "NA", 14, 2, False, False, False)], 
-    "PM03":  [Course("PRDV 0207", "NA", 14, 2, False, False, False), Course("PCOM 0131", "NA", 39, 2, False, False, False)],
-    "BA01":  [Course("PRDV 0640", "NA", 21, 2, False, False, False), Course("PRDV 0652", "NA", 14, 2, False, False, False), Course("PRDV 0653", "NA", 21, 2, False, False, False), Course("PRDV 0642", "NA", 14, 2, False, False, False)], 
-    "BA02":  [Course("PRDV 0644", "NA", 21, 2, False, False, False), Course("PRDV 0648", "NA", 14, 2, False, False, False), Course("PCOM 0140", "NA", 35, 2, False, False, False)], 
-    "BA03":  [Course("PRDV 0646", "NA", 14, 2, False, False, False), Course("PCOM 0141", "NA", 39, 3, False, False, False)],
-    "GLM01": [Course("SCMT 0501", "NA", 21, 2, False, False, False), Course("SCMT 0502", "NA", 21, 2, False, False, False), Course("PRDV 0304", "NA", 15, 2, False, False, False)], 
-    "GLM02": [Course("SCMT 0503", "NA", 15, 2, False, False, False), Course("SCMT 0504", "NA", 21, 2, False, False, False)],
-    "GLM03": [Course("SCMT 0505", "NA", 21, 2, False, False, False), Course("PCOM 0151", "NA", 39, 3, False, False, False)],
-    #"FS01":  [Course("CMSK 0150", "NA", 16, 2, False, False, True ), Course("CMSK 0151", "NA", 16, 2, False, False, True ), Course("CMSK 0152", "NA", 16, 2, False, False, True ), Course("CMSK 0157", "NA", 16, 2, False, False, True ), Course("CMSK 0154", "NA", 16, 2, False, False, True )], 
-    #"FS02":  [Course("CMSK 0153", "NA", 18, 2, False, False, True ), Course("CMSK 0200", "NA", 16, 2, False, False, True ), Course("CMSK 0201", "NA", 18, 2, False, False, True ), Course("CMSK 0203", "NA", 16, 2, False, False, True ), Course("CMSK 0202", "NA", 18, 2, False, False, True )], 
-    #"FS03":  [Course("PCOM 0160", "NA", 50, 2, False, False, True )],
-    "DXD01": [Course("AVDM 0165", "NA", 18, 2, False, False, True ), Course("DXDI 0101", "NA", 24, 2, False, False, True ), Course("DXDI 0102", "NA", 24, 2, False, False, True )], 
-    "DXD02": [Course("AVDM 0170", "NA", 18, 2, False, False, True ), Course("AVDM 0138", "NA", 18, 2, False, False, True ), Course("DXDI 0103", "NA", 24, 2, False, False, True ), Course("DXDI 0104", "NA", 24, 2, False, False, True )], 
-    "DXD03": [Course("AVDM 0238", "NA", 18, 2, False, False, True ), Course("AVDM 0270", "NA", 18, 2, False, False, True ), Course("DXDI 9901", "NA", 45, 2, False, False, True )],
-    # Program Course(ID for book  "NA", 21, 2, False, False, False), Course(eeping certi "NA", 21, 2, False, False, False),fCourse(icate
-    "BKC01": [Course("ACCT 0201", "NA", 18, 2, False, False, False), Course("ACCT 0202", "NA", 12, 2, False, False, False), Course("ACCT 0203", "NA", 12, 2, False, False, False)], 
-    "BKC02": [Course("ACCT 0206", "NA", 12, 2, False, False, False), Course("ACCT 0210", "NA", 28, 2, False, False, True ), Course("ACCT 0211", "NA", 28, 2, False, False, True)], 
-    "BKC03": [Course("ACCT 0208", "NA", 21, 2, False, False, True ), Course("ACCT 9901", "NA", 33, 2, False, False, True ) ]
-}
-
-rooms = [
-         Classroom("11-458", 40, False),
-         Classroom("11-533", 36, False), 
-         Classroom("11-534", 36, False),
-         Classroom("11-430", 30, False), 
-         Classroom("11-320", 30, False),
-         Classroom("11-560", 24, False),
-         Classroom("11-562", 24, False),
-         Classroom("11-564", 24, False),
-         Classroom("11-532", 30, True ) 
-         ]
+rooms = []
 
 ghostRooms = []
 
-roomHours = {"11-458": 0,
-             "11-533": 0, 
-             "11-534": 0,
-             "11-430": 0, 
-             "11-320": 0,
-             "11-560": 0,
-             "11-562": 0,
-             "11-564": 0,
-             "11-532": 0}
-
-fsRoomHours = {"11-532": 0}
-
-roomFill  = {"11-458": [],
-             "11-533": [], 
-             "11-534": [],
-             "11-430": [], 
-             "11-320": [],
-             "11-560": [],
-             "11-562": [],
-             "11-564": [],
-             "11-532": []}
-
+roomHours = {
+    "Core": {},
+    "Program": {},
+    "FS": {} 
+}
 
 
 #===================================================================================================
 # Functions
-def random_students_by_term():
-    '''
-    Randomly generates a dictionary mapping programIDs to their student counts (testing purposes only)
-    '''
-    programs = ["PM01",  "PM02",  "PM03",
-                "BA01",  "BA02",  "BA03", 
-                "GLM01", "GLM02", "GLM03", 
-                "FS01",  "FS02",  "FS03", 
-                "DXD01", "DXD02", "DXD03", 
-                "BKC01", "BKC02", "BKC03"]
-    counts = {}
-    total = 0
-    while total < 120 or total > 500:
-        for i in range(6*3):
-            num = random.randint(15,40)
-            counts[programs[i]] = num
-            total = sum(counts.values())
-    return counts
+def delete_ghost_rooms():
+    connection = create_connection(r".\database\database.db")
 
-def findRoom(totalStudents, course):
+    deleteClassroomItem(connection, 'ghost%')
+
+    close_connection(connection)
+    
+def add_ghost_room(hasLab):
     """
-    For use in findRooms()
-    Returns the smallest room that can fit totalStudents
+    Adds ghost room to ghostRooms global variable
     """
-    minimalEmptySeats = 100000
-    bestRoom = False
-    allRoomsFull = True
+    connection = create_connection(r".\database\database.db")
+    database_ghosts = readClassroomItem(connection, 'ghost%')
+    close_connection(connection)
+
+    ghostID = f"ghost-{len(ghostRooms) + len(database_ghosts) + 1}"
+    ghostRoom = Classroom(ghostID, 30, hasLab)
+
+    rooms.append(ghostRoom)
+    ghostRooms.append(ghostRoom)
+    roomHours["Core"][ghostID]    = 0
+    roomHours["Program"][ghostID] = 0
+    roomHours["FS"][ghostID]      = 0
+
+def enough_hours(program, cohorts, isCore):
+    """
+    If there are not enough hours left to support every cohort in a program, make a new ghostroom and return True
+    Else return False
+    """
+    # Uses a copy of the hours for each room
+    temp_roomHours = roomHours[isCore].copy()
+
+    if   isCore == "Core": maxHours = COREHOURS
+    elif isCore == "FS":   maxHours = FSPRROGRAMHOURS
+    else:                  maxHours = PROGRAMHOURS 
+
+    for cohort_count in cohorts:
+        for course in programCoursesByTerm[program]:
+            scheduled = False
+
+            for room in rooms:
+                # Fits courses in rooms with enough hours
+                if temp_roomHours[room.ID] + course.termHours <= maxHours and room.isLab == course.hasLab:
+                    temp_roomHours[room.ID] += course.termHours
+                    scheduled = True
+                    break
+
+            #No room had enough hours to accomadate a course     
+            if not scheduled:
+                add_ghost_room(course.hasLab) 
+                return False
+    return True
+
+def cohorts_fits(program, cohorts, isCore):
+    """
+    If there is enough time and space to accomadate all cohorts in a program, save it in roomHours and return True
+    Else return false
+    """
+    global roomHours
+    # Uses a copy of the hours for each room
+    temp_roomHours = roomHours[isCore].copy()
+
+    if   isCore == "Core": maxHours = COREHOURS
+    elif isCore == "FS":   maxHours = FSPRROGRAMHOURS
+    else:                  maxHours = PROGRAMHOURS 
+
+    for cohort_count in cohorts:
+        for course in programCoursesByTerm[program]:
+            scheduled = False
+
+            for room in rooms:
+                # Fits courses in rooms with enough hours and capacity
+                if temp_roomHours[room.ID] + course.termHours <= maxHours and room.isLab == course.hasLab and room.capacity >= cohort_count:
+                    temp_roomHours[room.ID] += course.termHours
+                    scheduled = True
+                    break
+
+            #No room had enough hours and capacity to accomadate a course    
+            if not scheduled: return False
+    
+    #Update the room hours
+    roomHours[isCore] = temp_roomHours.copy()
+    return True
+
+def fillPrograms(program_counts):
+    """
+    Takes the number of students in each program and sees if they all fit. If they don't all fit, add ghost rooms.
+
+    Takes a dictionary of programs with the number of students in each program.
+
+    Adds ghost rooms to database.
+    """
+    for program in program_counts.keys():
+        if programCoursesByTerm[program][0].isCore: isCore = "Core"
+        elif program[0:2] == "FS":                  isCore = "FS"
+        else:                                       isCore = "Program"
+
+        total_size = program_counts[program]
+        number_of_cohorts = 1
+        cohorts = [total_size]
+
+        scheduled = False
+        while not scheduled:
+
+            # Check if remaining rooms have enough time left
+            # if not, add ghost room
+            if not enough_hours(program, cohorts, isCore): 
+                # Try again with 1 cohort
+                number_of_cohorts = 1
+                cohorts = [total_size]
+                continue
+            
+            # Check if remaining rooms have enough seat capacity
+            # if not, add another cohort
+            if not cohorts_fits(program, cohorts, isCore):
+                number_of_cohorts += 1
+                cohorts = [int(total_size)//number_of_cohorts for i in range(number_of_cohorts)]
+                for i in range(total_size%number_of_cohorts):
+                    cohorts[i] += 1
+                
+            else: 
+                scheduled = True
+                print(program + ':', cohorts)
+
+def fillClassrooms(term):
+    """
+    Loads course and room data from database, calculates ghostrooms, and adds ghostrooms to the database.
+
+    Need to load students from database.
+    """
+    global programCoursesByTerm
+    global rooms
+    global ghostRooms
+    global roomHours
+
+    programCoursesByTerm = {}
+    rooms = []
+    ghostRooms = []
+    roomHours = {
+        "Core": {},
+        "Program": {},
+        "FS": {} 
+    }
+
+    connection = create_connection(r".\database\database.db")
+
+    #--------------------------------------------------------
+    # Pull Courses from database
+    if   term == 1: term = "13"
+    elif term == 2: term = "21"
+    elif term == 3: term = "32"
+
+    programString = readProgramItem(connection, '%')
+    for program in programString:
+        course = readCourseItem(connection, program[1])
+        if course == []: continue
+        
+        course = course[0]
+        if int(course[5]) == 1: isCore = True
+        else:                   isCore = False
+        if int(course[6]) == 1: isOnline = True
+        else:                   isOnline = False
+        if int(course[7]) == 1: hasLab = True
+        else:                   hasLab = False
+        course = Course(course[0], course[1], int(course[2]), int(course[3]), int(course[4]), isCore, isOnline, hasLab)
+
+        if str(course.term) not in term: continue
+
+        programTerm = f"{program[0]}{course.term}"
+        if programTerm not in programCoursesByTerm.keys(): programCoursesByTerm[programTerm] = []
+        programCoursesByTerm[programTerm].append(course)
+
+    # Random generation: Remove when getting actual inputs
+    program_counts = {}
+    for key in programCoursesByTerm.keys():
+        program_counts[key] = random.randint(18, 189)
+
+    #--------------------------------------------------------
+    # Pull Classrooms from database
+    classrooms = readClassroomItem(connection, '%')
+    for room in classrooms:
+        isLab = False
+        if int(room[2]) == 1: isLab = True
+        rooms.append(Classroom(room[0], int(room[1]), isLab))
 
     for room in rooms:
-        if (roomHours[room.ID] + course.termHours) > PROGRAMHOURS or course.hasLab != room.isLab: continue
-
-        allRoomsFull = False
-
-        emptySeats = room.capacity - totalStudents
-        if emptySeats >= 0 and emptySeats < minimalEmptySeats:
-            minimalEmptySeats = emptySeats
-            bestRoom = room
+        roomHours["Core"][room.ID]    = 0
+        roomHours["Program"][room.ID] = 0
+        roomHours["FS"][room.ID]      = 0
     
-    if allRoomsFull:
-        print(course)
-        ghostID = f"ghost-{len(ghostRooms) + 1}"
-        ghostCapacity = totalStudents + (totalStudents % 6)
-        ghostLab = course.hasLab
-        ghostRoom = Classroom(ghostID, ghostCapacity, ghostLab)
+    rooms.sort(key= lambda Classroom: Classroom.capacity)
 
-        rooms.append(ghostRoom)
-        ghostRooms.append(ghostRoom)
-        roomHours[ghostID] = 0
-        roomFill[ghostID] = []
+    #--------------------------------------------------------
+    # Calculate ghost rooms
+    fillPrograms(program_counts)
 
-        bestRoom = findRoom(totalStudents, course)
+    for room in ghostRooms:
+        addClassroomItem(connection, room)
     
-    return bestRoom
+    close_connection(connection)
 
-def splitLegions(legions):
-    """
-    Split a list of legions into 2 lists of legions
-    """
-    list1 = []
-    list2 = []
-    for i in range(len(legions)):
-        if i%2 == 0: list1.append(legions[i])
-        else:        list2.append(legions[i])
-    
-    return (list1, list2)
+# TODO:
+#   - Take student count input
 
-def bookLegions(legions, totalStudents, course):
-    """
-    For use in fillClassrooms()
-    totalStudents is an int representing all students that must take that course
-    program is a string id of a program and term, maybe make it an object later
+# Nice to have:
+#   - Reduced program hours only on lab rooms
+#   - Programs with the most students are scheduled first
+#   - Extensive testing: Efficient and proper fill
+#   - When ghost room is added do entire scheduling again?
+#   - Add rhyme and reason to ghostroom capacity in add_ghost_room()
+#   - Better cohort split algorithm
 
-    Finds the most efficient way to store the legions into a classroom
-    """
-    room = findRoom(totalStudents, course)
 
-    if room == False:
-        # There are no classrooms with enough hours and capacity to fit the students
-        # Split into two and try again
-        # *** Needs work, is not efficient if more than one split is required ***
-        splitGroups = splitLegions(legions)
-
-        totalStudents0 = 0
-        for legionSize in splitGroups[0]:
-            totalStudents0 += legionSize
-        totalStudents1 = 0
-        for legionSize in splitGroups[1]:
-            totalStudents1 += legionSize
-        
-        bookLegions(splitGroups[0], totalStudents0, course)
-        bookLegions(splitGroups[1], totalStudents1, course)
-        return
-        
-    roomHours[room.ID] += course.termHours
-    roomFill[room.ID].append(totalStudents)
-
-def fillClassrooms(legions):
-    """
-    Fills classrooms with legions in courses
-    Does not make a schedule, only checks if all students can fit
-
-    Schedules one room until it is completely booked before moving on to the next
-    """
-    for program in programCoursesByTerm.keys():
-    #for program in ["PM01", "PM02", "PM03", "BA01", "BA02", "BA03", "GLM01", "GLM02", "GLM03"]:
-
-        totalStudents = 0
-        for legionSize in legions[program]:
-            totalStudents += legionSize
-        
-        for course in programCoursesByTerm[program]:
-            bookLegions(legions[program], totalStudents, course)
-        
 #===================================================================================================
 if __name__ == '__main__':
-    legions = create_legion_dict(random_students_by_term())
-    fillClassrooms(legions)
+    # print(rooms, ghostRooms)
+    # add_ghost_room(True)
+    # print(rooms, ghostRooms)
 
-    print(roomFill, roomHours, ghostRooms, sep = "\n")
+    # print(rooms, ghostRooms)
+    # print(enough_hours("PM01", [36, 24]))
+    # print(rooms, ghostRooms)
 
+    # print(rooms, ghostRooms, roomHours)
+    # print(cohorts_fits("PM01", [40, 24]))
+    # print(rooms, ghostRooms, roomHours)
+
+    # add_ghost_room(False)
+    # for room in ghostRooms:
+    #         connection = create_connection(r".\database\database.db")
+    #         addClassroomItem(connection, room)
+    #         close_connection(connection)
+
+    # program_counts = {}
+    # for key in programCoursesByTerm.keys():
+    #     program_counts[key] = random.randint(18, 189)
+    # fillPrograms(program_counts)
+    # print(roomHours)
+    # print(ghostRooms)
+
+    fillClassrooms(3)
+    print(roomHours)
+    print(ghostRooms)
+    fillClassrooms(1)
+    print(roomHours)
+    print(ghostRooms)
+    fillClassrooms(2)
+    print(roomHours)
+    print(ghostRooms)
+
+    # delete_ghost_rooms()
