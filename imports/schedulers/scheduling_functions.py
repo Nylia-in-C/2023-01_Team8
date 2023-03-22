@@ -471,9 +471,9 @@ def get_lab_cohort_order(booked_lecs: Dict[int, List[str]], start: int,
     return valid[0] if len(valid) > 0 else []
 
 
-def make_online_sched(lectures: Dict[str, List[Course]], 
-                      online: Dict[str, List[Course]], course_hours: Dict[str, int], 
-                      onl_col: pd.DataFrame, sched: pd.DataFrame) -> pd.DataFrame:
+def make_online_sched(lectures: Dict[str, List[Course]], online: Dict[str, List[Course]], 
+                      course_hours: Dict[str, int], onl_col: pd.DataFrame, 
+                      sched: pd.DataFrame, day: int) -> pd.DataFrame:
     '''
     Takes the existing lecture schedule and information on what online courses
     to schedule, and checks at each row (time) if an online course can be 
@@ -491,6 +491,10 @@ def make_online_sched(lectures: Dict[str, List[Course]],
     filtered_bcom_B = [l for l in online['bcom']['term B'] if
                       (course_hours[l.ID]['remaining'] > 0) and
                        l.ID not in already_scheduled]
+    
+    # avdm 0260 should be scheduled at the end of the term
+    if day < 25 and avdm_0260 in filtered_bcom_B:
+        filtered_bcom_B.remove(avdm_0260)
 
     filtered_bcom_A.sort(key=lambda x: x.termHours)
     filtered_bcom_B.sort(key=lambda x: x.termHours)
@@ -667,7 +671,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]], labs: Dict[str,
         )
         
         online_sched = make_online_sched(
-            lectures, online, course_hours, prev_onls, lecture_sched
+            lectures, online, course_hours, prev_onls, lecture_sched, day
         )
         
         joined_sched = lecture_sched.join( (lab_sched.join(online_sched)) )
