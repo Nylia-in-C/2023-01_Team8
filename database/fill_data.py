@@ -13,7 +13,7 @@ from imports.classes.classrooms import Classroom
 from imports.classes.courses import Course
 from imports.classes.courses import Lecture
 #from database import *
-import database.database as database
+import database as database
 #CORE COURSES----------------------------------------------------------------------
 # term 1 Professional Communication (PCOM) courses
 pcom_0101 = Course("PCOM 0101", "Business Writing I", 35, 1, 1.5, 1, 0, 0, [])
@@ -398,4 +398,4 @@ def createDefaultDatabase():
  
     return 
 
-#createDefaultDatabase()
+createDefaultDatabase()
