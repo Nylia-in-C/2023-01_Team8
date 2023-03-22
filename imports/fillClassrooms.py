@@ -37,11 +37,22 @@ roomHours = {
 
 #===================================================================================================
 # Functions
+def delete_ghost_rooms():
+    connection = create_connection(r".\database\database.db")
+
+    deleteClassroomItem(connection, 'ghost%')
+
+    close_connection(connection)
+    
 def add_ghost_room(hasLab):
     """
     Adds ghost room to ghostRooms global variable
     """
-    ghostID = f"ghost-{len(ghostRooms) + 1}"
+    connection = create_connection(r".\database\database.db")
+    database_ghosts = readClassroomItem(connection, 'ghost%')
+    close_connection(connection)
+
+    ghostID = f"ghost-{len(ghostRooms) + len(database_ghosts) + 1}"
     ghostRoom = Classroom(ghostID, 30, hasLab)
 
     rooms.append(ghostRoom)
@@ -276,3 +287,5 @@ if __name__ == '__main__':
     fillClassrooms(2)
     print(roomHours)
     print(ghostRooms)
+
+    # delete_ghost_rooms()
