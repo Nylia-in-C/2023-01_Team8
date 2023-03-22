@@ -1,4 +1,3 @@
-
 #===================================================================================================
 # Imports
 import sys
@@ -17,36 +16,13 @@ from database.database  import *
 
 #===================================================================================================
 # Setup
-PROGRAMHOURS    = 2*13*9 #days*weeks*hours
+COREHOURS       = 2*13*9
+PROGRAMHOURS    = 2*13*8.5 #days*weeks*hours
 FSPRROGRAMHOURS = 2*13*4
 #PROGRAMHOURS = 60
 #COREHOURS
 
-programCoursesByTerm = {
-    "PM01":  [Course("PRDV 0201", "NA", 21, 1, 2, False, False, False), Course("PRDV 0202", "NA", 14, 1, 2, False, False, False), Course("PRDV 0203", "NA", 21, 1, 2, False, False, False)], 
-    "PM02":  [Course("PRDV 0204", "NA", 14, 2, 2, False, False, False), Course("PRDV 0205", "NA", 21, 2, 2, False, False, False), Course("PCOM 0130", "NA", 21, 2, 2, False, False, False), Course("PRDV 0206", "NA", 14, 2, 2, False, False, False)], 
-    "PM03":  [Course("PRDV 0207", "NA", 14, 3, 2, False, False, False), Course("PCOM 0131", "NA", 39, 3, 2, False, False, False)],
-    "BA01":  [Course("PRDV 0640", "NA", 21, 1, 2, False, False, False), Course("PRDV 0652", "NA", 14, 1, 2, False, False, False), Course("PRDV 0653", "NA", 21, 1, 2, False, False, False), Course("PRDV 0642", "NA", 14, 1, 2, False, False, False)], 
-    "BA02":  [Course("PRDV 0644", "NA", 21, 2, 2, False, False, False), Course("PRDV 0648", "NA", 14, 2, 2, False, False, False), Course("PCOM 0140", "NA", 35, 2, 2, False, False, False)], 
-    "BA03":  [Course("PRDV 0646", "NA", 14, 3, 2, False, False, False), Course("PCOM 0141", "NA", 39, 3, 3, False, False, False)],
-    "GLM01": [Course("SCMT 0501", "NA", 21, 1, 2, False, False, False), Course("SCMT 0502", "NA", 21, 1, 2, False, False, False), Course("PRDV 0304", "NA", 15, 1, 2, False, False, False)], 
-    "GLM02": [Course("SCMT 0503", "NA", 15, 2, 2, False, False, False), Course("SCMT 0504", "NA", 21, 2, 2, False, False, False)],
-    "GLM03": [Course("SCMT 0505", "NA", 21, 3, 2, False, False, False), Course("PCOM 0151", "NA", 39, 3, 3, False, False, False)],
-    #"FS01":  [Course("CMSK 0150", "NA", 16, 1, 2, False, False, True ), Course("CMSK 0151", "NA", 16, 1, 2, False, False, True ), Course("CMSK 0152", "NA", 16, 1, 2, False, False, True ), Course("CMSK 0157", "NA", 16, 1, 2, False, False, True ), Course("CMSK 0154", "NA", 16, 1, 2, False, False, True )], 
-    #"FS02":  [Course("CMSK 0153", "NA", 18, 2, 2, False, False, True ), Course("CMSK 0200", "NA", 16, 2, 2, False, False, True ), Course("CMSK 0201", "NA", 18, 2, 2, False, False, True ), Course("CMSK 0203", "NA", 16, 2, 2, False, False, True ), Course("CMSK 0202", "NA", 18, 2, 2, False, False, True )], 
-    #"FS03":  [Course("PCOM 0160", "NA", 50, 3, 2, False, False, True )],
-    "DXD01": [Course("AVDM 0165", "NA", 18, 1, 2, False, False, True ), Course("DXDI 0101", "NA", 24, 1, 2, False, False, True ), Course("DXDI 0102", "NA", 24, 1, 2, False, False, True )], 
-    "DXD02": [Course("AVDM 0170", "NA", 18, 2, 2, False, False, True ), Course("AVDM 0138", "NA", 18, 2, 2, False, False, True ), Course("DXDI 0103", "NA", 24, 2, 2, False, False, True ), Course("DXDI 0104", "NA", 24, 2, 2, False, False, True )], 
-    "DXD03": [Course("AVDM 0238", "NA", 18, 3, 2, False, False, True ), Course("AVDM 0270", "NA", 18, 3, 2, False, False, True ), Course("DXDI 9901", "NA", 45, 3, 2, False, False, True )],
-    "BKC01": [Course("ACCT 0201", "NA", 18, 1, 2, False, False, False), Course("ACCT 0202", "NA", 12, 1, 2, False, False, False), Course("ACCT 0203", "NA", 12, 1, 2, False, False, False)], 
-    "BKC02": [Course("ACCT 0206", "NA", 12, 2, 2, False, False, False), Course("ACCT 0210", "NA", 28, 2, 2, False, False, True ), Course("ACCT 0211", "NA", 28, 2, 2, False, False, True)], 
-    "BKC03": [Course("ACCT 0208", "NA", 21, 3, 2, False, False, True ), Course("ACCT 9901", "NA", 33, 3, 2, False, False, True ) ],
-    "PCOM01": [Course('PCOM 0101', 'Business Writing 1', 35,1, 1.5, True, False, False), Course('PCOM 0105', 'Intercultural Communication Skills', 35,1, 1.5, True, False, False), Course('PCOM 0107', 'Tech Development 1', 18,1, 2, True, False, True), Course('CMSK 0233', 'MS Project Essentials', 7,1, 2, True, False, True), Course('CMSK 0235', 'MS Visio Essentials', 6,1, 2, True, False, True)]
-}
-
-coreCoursesByTerm = {
-    "PCOM01": [Course('PCOM 0101', 'Business Writing 1', 35,1, 1.5, True, False, False), Course('PCOM 0105', 'Intercultural Communication Skills', 35,1, 1.5, True, False, False), Course('PCOM 0107', 'Tech Development 1', 18,1, 2, True, False, True), Course('CMSK 0233', 'MS Project Essentials', 7,1, 2, True, False, True), Course('CMSK 0235', 'MS Visio Essentials', 6,1, 2, True, False, True)]
-}
+programCoursesByTerm = {}
 
 rooms = [
          Classroom("11-458", 40, False),
@@ -85,20 +61,20 @@ roomHours = {
              "11-562": 0,
              "11-564": 0,
              "11-532": 0
+    },
+    "FS": {
+             "11-458": 0,
+             "11-533": 0, 
+             "11-534": 0,
+             "11-430": 0, 
+             "11-320": 0,
+             "11-560": 0,
+             "11-562": 0,
+             "11-564": 0,
+             "11-532": 0
     } 
 }
 
-fsRoomHours = {"11-532": 0}
-
-roomFill  = {"11-458": [],
-             "11-533": [], 
-             "11-534": [],
-             "11-430": [], 
-             "11-320": [],
-             "11-560": [],
-             "11-562": [],
-             "11-564": [],
-             "11-532": []}
 
 #===================================================================================================
 # Functions
@@ -111,8 +87,9 @@ def add_ghost_room(hasLab):
 
     rooms.append(ghostRoom)
     ghostRooms.append(ghostRoom)
-    roomHours["Core"][ghostID] = 0
+    roomHours["Core"][ghostID]    = 0
     roomHours["Program"][ghostID] = 0
+    roomHours["FS"][ghostID]      = 0
 
 def enough_hours(program, cohorts, isCore):
     """
@@ -122,13 +99,17 @@ def enough_hours(program, cohorts, isCore):
     # Uses a copy of the hours for each room
     temp_roomHours = roomHours[isCore].copy()
 
+    if   isCore == "Core": maxHours = COREHOURS
+    elif isCore == "FS":   maxHours = FSPRROGRAMHOURS
+    else:                  maxHours = PROGRAMHOURS 
+
     for cohort_count in cohorts:
         for course in programCoursesByTerm[program]:
             scheduled = False
 
             for room in rooms:
                 # Fits courses in rooms with enough hours
-                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.isLab == course.hasLab:
+                if temp_roomHours[room.ID] + course.termHours <= maxHours and room.isLab == course.hasLab:
                     temp_roomHours[room.ID] += course.termHours
                     scheduled = True
                     break
@@ -148,13 +129,17 @@ def cohorts_fits(program, cohorts, isCore):
     # Uses a copy of the hours for each room
     temp_roomHours = roomHours[isCore].copy()
 
+    if   isCore == "Core": maxHours = COREHOURS
+    elif isCore == "FS":   maxHours = FSPRROGRAMHOURS
+    else:                  maxHours = PROGRAMHOURS 
+
     for cohort_count in cohorts:
         for course in programCoursesByTerm[program]:
             scheduled = False
 
             for room in rooms:
                 # Fits courses in rooms with enough hours and capacity
-                if temp_roomHours[room.ID] + course.termHours <= PROGRAMHOURS and room.isLab == course.hasLab and room.capacity >= cohort_count:
+                if temp_roomHours[room.ID] + course.termHours <= maxHours and room.isLab == course.hasLab and room.capacity >= cohort_count:
                     temp_roomHours[room.ID] += course.termHours
                     scheduled = True
                     break
@@ -176,7 +161,10 @@ def fillPrograms(program_counts):
     """
     for program in program_counts.keys():
         if programCoursesByTerm[program][0].isCore: isCore = "Core"
-        else: isCore = "Program"
+        elif program[0:2] == "FS":                  isCore = "FS"
+        else:                                       isCore = "Program"
+
+        print(isCore)
         total_size = program_counts[program]
         number_of_cohorts = 1
         cohorts = [total_size]
@@ -204,17 +192,45 @@ def fillPrograms(program_counts):
                 scheduled = True
                 print(program + ':', cohorts)
 
-    # Upload ghostrooms to database
-    connection = create_connection(r".\database\database.db") 
+def fillClassrooms(term):
+    if   term == 1: term = "13"
+    elif term == 2: term = "21"
+    elif term == 3: term = "32"
+
+    connection = create_connection(r".\database\database.db")
+
+    programString = readProgramItem(connection, '%')
+    for program in programString:
+        course = readCourseItem(connection, program[1])
+        if course == []: continue
+        
+        course = course[0]
+        course = Course(course[0], course[1], course[2], course[3], course[4], course[5], course[6], course[7])
+
+        if str(course.term) not in term: continue
+
+        programTerm = f"{program[0]}{course.term}"
+
+        if programTerm not in programCoursesByTerm.keys(): programCoursesByTerm[programTerm] = []
+
+        programCoursesByTerm[programTerm].append(course)
+
+    program_counts = {}
+    for key in programCoursesByTerm.keys():
+        program_counts[key] = random.randint(18, 189)
+    
+    fillPrograms(program_counts)
+
     for room in ghostRooms:
         addClassroomItem(connection, room)
+    
     close_connection(connection)
 
 # TODO:
-#   - 2 terms at a time
 #   - Database integration
 
 # Nice to have:
+#   - Reduced program hours only on lab rooms
 #   - Programs with the most students are scheduled first
 #   - When ghost room is added do entire scheduling again?
 #   - Bigger wrapper function that interacts with database and calls fillPrograms
@@ -243,9 +259,12 @@ if __name__ == '__main__':
     #         addClassroomItem(connection, room)
     #         close_connection(connection)
 
-    program_counts = {}
-    for key in programCoursesByTerm.keys():
-        program_counts[key] = random.randint(18, 189)
-    fillPrograms(program_counts)
+    # program_counts = {}
+    # for key in programCoursesByTerm.keys():
+    #     program_counts[key] = random.randint(18, 189)
+    # fillPrograms(program_counts)
+    # print(roomHours)
+    # print(ghostRooms)
+    fillClassrooms(3)
     print(roomHours)
     print(ghostRooms)
