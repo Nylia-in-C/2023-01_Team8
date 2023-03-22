@@ -151,6 +151,11 @@ def fillPrograms(program_counts):
                 print(program + ':', cohorts)
 
 def fillClassrooms(term):
+    """
+    Loads course and room data from database, calculates ghostrooms, and adds ghostrooms to the database.
+
+    Need to load students from database.
+    """
     global programCoursesByTerm
     global rooms
     global ghostRooms
@@ -217,14 +222,14 @@ def fillClassrooms(term):
     # Calculate ghost rooms
     fillPrograms(program_counts)
 
-    # for room in ghostRooms:
-    #     addClassroomItem(connection, room)
+    for room in ghostRooms:
+        addClassroomItem(connection, room)
     
     close_connection(connection)
 
 # TODO:
-#   - Database integration
 #   - Take student count input
+#   - Adding ghostroom calls database for next id
 
 # Nice to have:
 #   - Reduced program hours only on lab rooms
