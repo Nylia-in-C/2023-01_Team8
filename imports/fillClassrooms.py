@@ -24,55 +24,14 @@ FSPRROGRAMHOURS = 2*13*4
 
 programCoursesByTerm = {}
 
-rooms = [
-         Classroom("11-458", 40, False),
-         Classroom("11-533", 36, False), 
-         Classroom("11-534", 36, False),
-         Classroom("11-430", 30, False), 
-         Classroom("11-320", 30, False),
-         Classroom("11-560", 24, False),
-         Classroom("11-562", 24, False),
-         Classroom("11-564", 24, False),
-         Classroom("11-532", 30, True ) 
-         ]
-rooms.sort(key= lambda Classroom: Classroom.capacity)
+rooms = []
 
 ghostRooms = []
 
 roomHours = {
-    "Core": {
-             "11-458": 0,
-             "11-533": 0, 
-             "11-534": 0,
-             "11-430": 0, 
-             "11-320": 0,
-             "11-560": 0,
-             "11-562": 0,
-             "11-564": 0,
-             "11-532": 0
-    },
-    "Program": {
-             "11-458": 0,
-             "11-533": 0, 
-             "11-534": 0,
-             "11-430": 0, 
-             "11-320": 0,
-             "11-560": 0,
-             "11-562": 0,
-             "11-564": 0,
-             "11-532": 0
-    },
-    "FS": {
-             "11-458": 0,
-             "11-533": 0, 
-             "11-534": 0,
-             "11-430": 0, 
-             "11-320": 0,
-             "11-560": 0,
-             "11-562": 0,
-             "11-564": 0,
-             "11-532": 0
-    } 
+    "Core": {},
+    "Program": {},
+    "FS": {} 
 }
 
 
@@ -164,7 +123,6 @@ def fillPrograms(program_counts):
         elif program[0:2] == "FS":                  isCore = "FS"
         else:                                       isCore = "Program"
 
-        print(isCore)
         total_size = program_counts[program]
         number_of_cohorts = 1
         cohorts = [total_size]
@@ -193,11 +151,27 @@ def fillPrograms(program_counts):
                 print(program + ':', cohorts)
 
 def fillClassrooms(term):
+    global programCoursesByTerm
+    global rooms
+    global ghostRooms
+    global roomHours
+
+    programCoursesByTerm = {}
+    rooms = []
+    ghostRooms = []
+    roomHours = {
+        "Core": {},
+        "Program": {},
+        "FS": {} 
+    }
+
+    connection = create_connection(r".\database\database.db")
+
+    #--------------------------------------------------------
+    # Pull Courses from database
     if   term == 1: term = "13"
     elif term == 2: term = "21"
     elif term == 3: term = "32"
-
-    connection = create_connection(r".\database\database.db")
 
     programString = readProgramItem(connection, '%')
     for program in programString:
@@ -205,37 +179,59 @@ def fillClassrooms(term):
         if course == []: continue
         
         course = course[0]
-        course = Course(course[0], course[1], course[2], course[3], course[4], course[5], course[6], course[7])
+        if int(course[5]) == 1: isCore = True
+        else:                   isCore = False
+        if int(course[6]) == 1: isOnline = True
+        else:                   isOnline = False
+        if int(course[7]) == 1: hasLab = True
+        else:                   hasLab = False
+        course = Course(course[0], course[1], int(course[2]), int(course[3]), int(course[4]), isCore, isOnline, hasLab)
 
         if str(course.term) not in term: continue
 
         programTerm = f"{program[0]}{course.term}"
-
         if programTerm not in programCoursesByTerm.keys(): programCoursesByTerm[programTerm] = []
-
         programCoursesByTerm[programTerm].append(course)
 
+    # Random generation: Remove when getting actual inputs
     program_counts = {}
     for key in programCoursesByTerm.keys():
         program_counts[key] = random.randint(18, 189)
+
+    #--------------------------------------------------------
+    # Pull Classrooms from database
+    classrooms = readClassroomItem(connection, '%')
+    for room in classrooms:
+        isLab = False
+        if int(room[2]) == 1: isLab = True
+        rooms.append(Classroom(room[0], int(room[1]), isLab))
+
+    for room in rooms:
+        roomHours["Core"][room.ID]    = 0
+        roomHours["Program"][room.ID] = 0
+        roomHours["FS"][room.ID]      = 0
     
+    rooms.sort(key= lambda Classroom: Classroom.capacity)
+
+    #--------------------------------------------------------
+    # Calculate ghost rooms
     fillPrograms(program_counts)
 
-    for room in ghostRooms:
-        addClassroomItem(connection, room)
+    # for room in ghostRooms:
+    #     addClassroomItem(connection, room)
     
     close_connection(connection)
 
 # TODO:
 #   - Database integration
+#   - Take student count input
 
 # Nice to have:
 #   - Reduced program hours only on lab rooms
 #   - Programs with the most students are scheduled first
+#   - Extensive testing: Efficient and proper fill
 #   - When ghost room is added do entire scheduling again?
-#   - Bigger wrapper function that interacts with database and calls fillPrograms
 #   - Add rhyme and reason to ghostroom capacity in add_ghost_room()
-#   - Extensive testing
 #   - Better cohort split algorithm
 
 
@@ -265,6 +261,13 @@ if __name__ == '__main__':
     # fillPrograms(program_counts)
     # print(roomHours)
     # print(ghostRooms)
+
     fillClassrooms(3)
+    print(roomHours)
+    print(ghostRooms)
+    fillClassrooms(1)
+    print(roomHours)
+    print(ghostRooms)
+    fillClassrooms(2)
     print(roomHours)
     print(ghostRooms)
