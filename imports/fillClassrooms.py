@@ -129,6 +129,7 @@ def fillPrograms(program_counts):
 
     Adds ghost rooms to database.
     """
+    cohortDict = {}
     for program in program_counts.keys():
         if programCoursesByTerm[program][0].isCore: isCore = "Core"
         elif program[0:2] == "FS":                  isCore = "FS"
@@ -159,11 +160,16 @@ def fillPrograms(program_counts):
                 
             else: 
                 scheduled = True
+                cohortDict[program] = cohorts
                 print(program + ':', cohorts)
+        
+    return cohortDict
 
 def fillClassrooms(term):
     """
     Loads course and room data from database, calculates ghostrooms, and adds ghostrooms to the database.
+
+    Returns a dictionary of the cohorts per program and term
 
     Need to load students from database.
     """
@@ -231,12 +237,14 @@ def fillClassrooms(term):
 
     #--------------------------------------------------------
     # Calculate ghost rooms
-    fillPrograms(program_counts)
+    cohortDict = fillPrograms(program_counts)
 
     for room in ghostRooms:
         addClassroomItem(connection, room)
     
     close_connection(connection)
+
+    return cohortDict
 
 # TODO:
 #   - Take student count input
@@ -277,14 +285,19 @@ if __name__ == '__main__':
     # print(roomHours)
     # print(ghostRooms)
 
-    fillClassrooms(3)
-    print(roomHours)
-    print(ghostRooms)
-    fillClassrooms(1)
-    print(roomHours)
-    print(ghostRooms)
-    fillClassrooms(2)
-    print(roomHours)
-    print(ghostRooms)
+    print(fillClassrooms(1))
+    # print(roomHours)
+    # print(ghostRooms)
+    # fillClassrooms(1)
+    # print(roomHours)
+    # print(ghostRooms)
+    # fillClassrooms(2)
+    # print(roomHours)
+    # print(ghostRooms)
 
     # delete_ghost_rooms()
+    # connection = create_connection(r".\database\database.db")
+
+    # addStudentItem(connection, "", Term, Count)
+
+    # close_connection(connection)
