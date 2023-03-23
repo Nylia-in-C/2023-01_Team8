@@ -1076,15 +1076,9 @@ class UI(QMainWindow):
         # be able to just read from the database eventually.
 
         global CORE_SCHEDULE, PROG_SCHEDULE
-        CORE_SCHEDULE  = imports.schedulers.core_scheduler.get_sched(1)
+        CORE_SCHEDULE  = imports.schedulers.core_scheduler.get_sched(2)
         # scheduling program-specific courses isnt implemented yet, so just use core schedules twice for UI testing -Andrew
         PROG_SCHEDULE  = CORE_SCHEDULE
-        
-        #CORE_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(lec_hours, lectures, imports.schedulers.initialize_data.lecture_rooms,
-                                                                            #    lab_hours, labs,     imports.schedulers.initialize_data.lab_rooms)
-
-        # PROG_SCHEDULE = imports.schedulers.core_scheduler.create_term_schedule(prog_lec_hours, prog_lectures, imports.schedulers.initialize_data.lecture_rooms,
-                                                                            #    prog_lab_hours, prog_labs,     imports.schedulers.initialize_data.lab_rooms)
 
 
         global CORE_PREV, PROG_PREV

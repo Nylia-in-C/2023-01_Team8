@@ -1,5 +1,6 @@
 import os, sys
 from imports.classes.courses import *
+
 from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
 from imports.schedulers.scheduling_functions import *
@@ -96,8 +97,17 @@ def get_term_courses(termA: int, termB: int) -> Tuple[Dict[str, Dict[str, Course
 def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     
     # in theory this will never happen, but just to be safe:
-    if term not in [1,2,3]: 
+    if term not in [1, 2, 3]:
         return None
+    
+    # this works, but using hardcoded values is easier to deal with
+    # if  (term == 1):
+    #     lectures, labs, online = get_term_courses(1, 3)
+    # elif (term == 2):
+    #     lecture, labs, online = get_term_courses(1, 2)
+    # elif (term == 3):
+    #     lecture, labs, online = get_term_courses(2, 3)
+    
     
     if (term == 1):
         #lectures, labs, online = get_term_courses(1, 3)
@@ -177,6 +187,13 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         
     return create_core_term_schedule(lectures, labs, online, rooms)
         
+        
+def convert_to_lecture_obj(day: int, sched: pd.DataFrame) -> Lecture:
+    
+    
+    
+    return         
+
 
 if __name__ == '__main__':
 
@@ -185,6 +202,11 @@ if __name__ == '__main__':
     term = int(input())
 
     full_schedule = get_sched(term)
+    
+    lecture_objs = []
+    # create lecture objects for each df in schedule dict
+    for day, sched in full_schedule.items():
+        convert_to_lecture_obj(day, sched)
 
     for day, sched in full_schedule.items():
         # if (day > 5):
