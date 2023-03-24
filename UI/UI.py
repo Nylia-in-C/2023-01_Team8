@@ -22,6 +22,8 @@ import datetime
 
 BG_COLOURS = QtGui.QColor.colorNames()
 
+SEM = {"Fall":1, "Winter":2, "Spring / Summer":3}
+
 LEFT_MAX_WIDTH = 450
 global CORE_SCHEDULE
 global PROG_SCHEDULE
@@ -59,8 +61,7 @@ class UI(QMainWindow):
         remove_colours()
 
         self.setWindowTitle("Scheduler")
-        self.setGeometry(0,0,1240,700)
-        self.setFixedSize(1240, 700)
+        self.setFixedSize(1240, 850)
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -73,6 +74,8 @@ class UI(QMainWindow):
         font.setPointSize(16)
         self.week_label.setFont(font)
         self.week_label.setAlignment(Qt.AlignCenter)
+        self.pick_semester = QComboBox()
+        self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
         self.class_id = QLineEdit()
@@ -524,6 +527,7 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(self.pick_semester)
         vbox.addWidget(create_sched)
         vbox.addWidget(self.select_room)
 
@@ -680,11 +684,11 @@ class UI(QMainWindow):
         for each_class in range(len(db_classes)):
 
             if db_classes[each_class][2] == 1:
-                self.select_room.addItem(db_classes[each_class][0] + " (LAB)")
-                self.classroom_list.addItem(db_classes[each_class][0] + " (LAB)")
+                self.select_room.addItem(db_classes[each_class][0] + f" Capacity: [{db_classes[each_class][1]}] (LAB)")
+                self.classroom_list.addItem(db_classes[each_class][0] + f" Capacity: [{db_classes[each_class][1]}] (LAB)")
             else:
-                self.select_room.addItem(db_classes[each_class][0])
-                self.classroom_list.addItem(db_classes[each_class][0])
+                self.select_room.addItem(db_classes[each_class][0] + f" Capacity: [{db_classes[each_class][1]}]")
+                self.classroom_list.addItem(db_classes[each_class][0] + f" Capacity: [{db_classes[each_class][1]}]")
 
     def reset_table(self):
         # Use this to populate table with values to allow
@@ -808,7 +812,8 @@ class UI(QMainWindow):
 
 
     def add_ghost_rooms(self):
-        imports.fillClassrooms.fillClassrooms(2)
+        imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
+        print(SEM[self.pick_semester.currentText()])
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
