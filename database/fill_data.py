@@ -194,7 +194,7 @@ def createDefaultDatabase():
                     Duration INT NOT NULL,
                     isCore BIT NOT NULL,
                     isOnline BIT NOT NULL,
-                    hasLab BIT NOT NULL, 
+                    isLab BIT NOT NULL, 
                     PreReqs VARCHAR(200)
                 ); """ 
         PROGRAMSTableCols = """ CREATE TABLE IF NOT EXISTS PROGRAMS (
@@ -219,7 +219,7 @@ def createDefaultDatabase():
                     StartTime VARCHAR(100) NOT NULL,
                     isCore BIT NOT NULL,
                     isOnline BIT NOT NULL,
-                    hasLab BIT NOT NULL,
+                    isLab BIT NOT NULL,
                     PreReqs VARCHAR(200)
                 ); """
         COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (

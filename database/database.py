@@ -188,7 +188,7 @@ def deleteClassroomItem(conn, ClassID):
 def addCourseItem(conn,course):
      #add item to table from passed connection and course object
     courseObject = course.createCourseItemInfo()
-    #CourseID, title, termHours, duration, isCore, isOnline, hasLab, preReq 
+    #CourseID, title, termHours, duration, isCore, isOnline, isLab, preReq 
     CourseID = courseObject[0]
     title = courseObject[1]
     termHours = courseObject[2]
@@ -196,10 +196,10 @@ def addCourseItem(conn,course):
     duration = courseObject[4]
     isCore = courseObject[5]
     isOnline = courseObject[6]
-    hasLab = courseObject[7]
+    isLab = courseObject[7]
     preReq = courseObject[8]
     try:
-        rowString = f"INSERT INTO COURSES (CourseID, Title, TermHours,Term, Duration, isCore, isOnline, hasLab, preReqs) VALUES ('{CourseID}','{title}',{termHours},{term},{duration} ,{isCore}, {isOnline},  {hasLab}, '{preReq}')" 
+        rowString = f"INSERT INTO COURSES (CourseID, Title, TermHours,Term, Duration, isCore, isOnline, isLab, preReqs) VALUES ('{CourseID}','{title}',{termHours},{term},{duration} ,{isCore}, {isOnline},  {isLab}, '{preReq}')" 
         #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -278,11 +278,11 @@ def addLectureItem(conn, lecture):
     StartTime = lectureObject[9]
     isCore = lectureObject[10]
     isOnline = lectureObject[11]
-    hasLab = lectureObject[12]
+    isLab = lectureObject[12]
     PreReqs = lectureObject[13]
     try:
-        rowString = f"INSERT INTO LECTURE (CourseID, Title, CohortID, Room, TermHours,Term, Duration, StartWeek, StartDay ,StartTime,isCore,isOnline,hasLab, PreReqs) \
-                        VALUES ('{CourseID}','{Title}','{CohortID}','{Room}' ,{TermHours}, {Term},{Duration}, {StartWeek}, {StartDay}, '{StartTime}',{isCore},{isOnline},{hasLab},'{PreReqs}')" 
+        rowString = f"INSERT INTO LECTURE (CourseID, Title, CohortID, Room, TermHours,Term, Duration, StartWeek, StartDay ,StartTime,isCore,isOnline,isLab, PreReqs) \
+                        VALUES ('{CourseID}','{Title}','{CohortID}','{Room}' ,{TermHours}, {Term},{Duration}, {StartWeek}, {StartDay}, '{StartTime}',{isCore},{isOnline},{isLab},'{PreReqs}')" 
         #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
@@ -364,7 +364,7 @@ def mainTest():
                     Duration INT NOT NULL,
                     isCore BIT NOT NULL,
                     isOnline BIT NOT NULL,
-                    hasLab BIT NOT NULL, 
+                    isLab BIT NOT NULL, 
                     PreReqs VARCHAR(200)
                 ); """ 
         PROGRAMSTableCols = """ CREATE TABLE IF NOT EXISTS PROGRAMS (
@@ -389,7 +389,7 @@ def mainTest():
                     StartTime VARCHAR(100) NOT NULL,
                     isCore BIT NOT NULL,
                     isOnline BIT NOT NULL,
-                    hasLab BIT NOT NULL,
+                    isLab BIT NOT NULL,
                     PreReqs VARCHAR(200)
                 ); """
         COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
@@ -449,6 +449,5 @@ def mainTest():
  
     return 
 
-mainTest()
 
  
