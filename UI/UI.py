@@ -22,7 +22,6 @@ import datetime
 BG_COLOURS = QtGui.QColor.colorNames()
 
 LEFT_MAX_WIDTH = 450
-CLASSROOMS = {} # key = room id, value = tuple with all values
 global CORE_SCHEDULE
 global PROG_SCHEDULE
 global PROG_LABELS
@@ -60,6 +59,7 @@ class UI(QMainWindow):
 
         self.setWindowTitle("Scheduler")
         self.setGeometry(0,0,1240,700)
+        self.setFixedSize(1240, 700)
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -488,18 +488,7 @@ class UI(QMainWindow):
         create_sched.clicked.connect(self.create_schedule)
 
         # Read Current items in teh Database
-        db = r".\database\database.db"  # database.db file path
-        connection = create_connection(db)
-        db_classes = readClassroomItem(connection, "%")
-        close_connection(connection)
-        for each_class in range(len(db_classes)):
-
-            CLASSROOMS[db_classes[each_class][0]] = db_classes[each_class]
-
-            if db_classes[each_class][2] == 1:
-                self.select_room.addItem(db_classes[each_class][0] + " (LAB)")
-            else:
-                self.select_room.addItem(db_classes[each_class][0])
+        self.update_class_combos()
 
 
         vbox.addWidget(title)
@@ -653,17 +642,19 @@ class UI(QMainWindow):
         self.classroom_list.clear()
         self.select_room.clear()
 
-        keys = list(CLASSROOMS.keys())
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        db_classes = readClassroomItem(connection, "%")
+        close_connection(connection)
 
-        for each_class in range(len(keys)):
-            tup = CLASSROOMS[keys[each_class]]
+        for each_class in range(len(db_classes)):
 
-            if tup[2] == 1:
-                self.classroom_list.addItem(keys[each_class] + " (LAB)")
-                self.select_room.addItem(keys[each_class] + " (LAB)")
+            if db_classes[each_class][2] == 1:
+                self.select_room.addItem(db_classes[each_class][0] + " (LAB)")
+                self.classroom_list.addItem(db_classes[each_class][0] + " (LAB)")
             else:
-                self.select_room.addItem(keys[each_class])
-                self.classroom_list.addItem(keys[each_class])
+                self.select_room.addItem(db_classes[each_class][0])
+                self.classroom_list.addItem(db_classes[each_class][0])
 
     def reset_table(self):
         # Use this to populate table with values to allow
@@ -1217,6 +1208,9 @@ class UI(QMainWindow):
 
         try:
 
+            # Adds a classroom if it does not exist in database currently.
+            # If it does, treat is as an edit (i.e. remove it from db, then add it fresh)
+
             classroom_id = self.class_id.text().strip()
             wanted_class = readClassroomItem(connection, classroom_id)
             lab = self.class_lab.checkedButton().text()
@@ -1227,7 +1221,7 @@ class UI(QMainWindow):
 
             val = 0
 
-            if (lab == "Yes"):
+            if (lab == "Lab"):
                 val = 1
             if(len(wanted_class) == 1):
                 deleteClassroomItem(connection, self.class_id.text().strip())
@@ -1235,16 +1229,16 @@ class UI(QMainWindow):
             new_room = Classroom(self.class_id.text().strip(), self.class_capacity.value(), val)
             addClassroomItem(connection, new_room)
 
-            CLASSROOMS[self.class_id.text().strip()] = (self.class_id.text().strip(), self.class_capacity.value(), val)
+            # Must close connection to update db before updating comboboxes
+            close_connection(connection)
 
-            # Update the combobox / global Lists
+            # Update the combobox
             self.update_class_combos()
 
 
         except:
             print("error adding classroom")
-
-        close_connection(connection)
+            close_connection(connection)
 
     def remove_classroom(self):
         db = r".\database\database.db"  # database.db file path
@@ -1252,22 +1246,20 @@ class UI(QMainWindow):
 
         try:
 
+            # Remove the classroom from the DB
             classroom = self.classroom_list.currentText()
-            splits = classroom.split(" ")
-            wanted_class = readClassroomItem(connection, splits[0])
 
-            if (len(wanted_class) == 1):
-                deleteClassroomItem(connection, splits[0])
-                del CLASSROOMS[splits[0]]
+            deleteClassroomItem(connection, classroom.replace("(LAB)", "").strip())
 
-            # Update the combobox / global Lists
+            close_connection(connection)
+
+            # Update the combobox
             self.update_class_combos()
 
 
         except:
             print("error adding classroom")
-
-        close_connection(connection)
+            close_connection(connection)
 
     def save_course(self):
         db = r".\database\database.db"  # database.db file path
