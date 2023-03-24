@@ -1015,7 +1015,7 @@ class UI(QMainWindow):
 
 
 
-    def create_schedule_v2(self):
+    def create_schedule(self):
         # Will eventually replace create_schedule, as it will pull form the db
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
@@ -1029,22 +1029,22 @@ class UI(QMainWindow):
 
         # Retrieve lecture items for the week
 
-        week1 = self.get_lecture_items()
+        # week1 = self.get_lecture_items()
 
         # Create a list for each day, (26 slots) for each list to correspond for each time
-        for each_day in range(len(week1)):
-            schedule_list = [""] * 26
+        # for each_day in range(len(week1)):
+        #     schedule_list = [""] * 26
+        #
+        #     for each_lecture in range(len(week1[each_day])):
+        #         #TODO match start time of lecture to its spot in the schedule_list
+        #         # Separate the cohorts within it
+        #         # put them in list
+        #         # Pass to show schedule function
+        #         return
 
-            for each_lecture in range(len(week1[each_day])):
-                #TODO match start time of lecture to its spot in the schedule_list
-                # Separate the cohorts within it
-                # put them in list
-                # Pass to show schedule function
-                return
 
 
-
-    def create_schedule(self):
+    def create_schedule_old(self):
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
         global WEEK
@@ -1181,12 +1181,26 @@ class UI(QMainWindow):
         term_2 = self.retrieve_term_inputs(self.term_2_inputs)
         term_3 = self.retrieve_term_inputs(self.term_3_inputs)
 
-        collective = []
-        collective.append(term_1)
-        collective.append(term_2)
-        collective.append(term_3)
+        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
 
-        #TODO pass this to algorithm functions.
+        try:
+            db = r".\database\database.db"  # database.db file path
+            connection = create_connection(db)
+
+            # Takes the currently input numbers, and adds them to the DB.
+            for each_input in range(8):
+
+                addStudentItem(connection, programs[each_input], 1, term_1[each_input])
+                addStudentItem(connection, programs[each_input], 2, term_2[each_input])
+                addStudentItem(connection, programs[each_input], 3, term_3[each_input])
+
+            close_connection(connection)
+
+        except:
+            print("Could not read database")
+            close_connection(connection)
+
+        return
 
     def get_lecture_items(self):
         #TODO see if easy to change to search by week / class
@@ -1270,7 +1284,7 @@ class UI(QMainWindow):
             if self.courses_edit_new.checkedButton().text() == "New Course":
                 course_id = self.course_id.text().strip()
             else:
-                course_id = self.courses.currentText()
+                course_id = self.courses.currentText().strip()
 
             if course_id.isspace() or course_id == "":
                 close_connection(connection)
