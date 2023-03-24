@@ -3,7 +3,12 @@ import math
 import datetime
 import pandas as pd
 import numpy as np
+import holidays
 import static_frame as sf
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+grandparentdir = os.path.dirname(parentdir)
+sys.path.append(grandparentdir)
 from imports.classes.courses import *
 from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
@@ -13,10 +18,7 @@ from more_itertools import chunked
 from typing import *
 
 
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-grandparentdir = os.path.dirname(parentdir)
-sys.path.append(grandparentdir)
+
 
 #===================== TODOs (in no particular order) ==========================
 
@@ -590,3 +592,88 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]], labs: Dict[str,
         
     print(course_hours)
     return full_schedule
+
+
+def getHolidaysMonWed(fallYear):
+    '''
+    Pass the year of the fall term, and will make a list of holidays that land on 
+    mondays and wednesdays in the 3 terms. Returns list of datetime objects
+    '''
+    holidayList = []
+    nextYear = fallYear + 1
+    FallmonthList = [9,10,11]
+    TARD = datetime.date(fallYear,9,30)
+    nextMonthList = [1,2,3,4, 5,6,7,8]
+    
+    #FALL:
+    for ptr in holidays.Canada(years = fallYear).items():
+        if ( ptr[0].month in FallmonthList):
+            if("Observed" not in ptr[1] and (ptr[0].weekday() == 0 or ptr[0].weekday() == 2)):
+                holidayList.append(ptr[0])
+    if(TARD.weekday()== 0 or TARD.weekday() == 2):
+        holidayList.insert(1,TARD)
+    #WIN/SPRING OF NEXT YEAR
+    for ptr in holidays.Canada(years = nextYear).items():
+        if ( ptr[0].month in nextMonthList and (ptr[0].weekday() == 0 or ptr[0].weekday() == 2)):
+            if("Observed" not in ptr[1] and 'New Year' not in ptr[1]):
+                holidayList.append(ptr[0])
+    return holidayList  
+
+def getHolidaysTuesThurs(fallYear):
+    '''
+    Pass the year of the fall term, and will make a list of holidays that land on 
+    Tuesdays and Thursdays in the 3 terms. Returns list of datetime objects
+    '''
+    holidayList = []
+    nextYear = fallYear + 1
+    FallmonthList = [9,10,11]
+    TARD = datetime.date(fallYear,9,30)
+    nextMonthList = [1,2,3,4, 5,6,7,8]
+
+    #FALL:
+    for ptr in holidays.Canada(years = fallYear).items():
+        if ( ptr[0].month in FallmonthList):
+            if("Observed" not in ptr[1] and (ptr[0].weekday() == 1 or ptr[0].weekday() == 3)):
+                holidayList.append(ptr[0])
+    if(TARD.weekday()== 1 or TARD.weekday() == 3):
+        holidayList.insert(1,TARD)
+
+    #WIN/SPRING OF NEXT YEAR
+    for ptr in holidays.Canada(years = nextYear).items():
+        if ( ptr[0].month in nextMonthList and (ptr[0].weekday() == 1 or ptr[0].weekday() == 3)):
+            if("Observed" not in ptr[1] and 'New Year' not in ptr[1]):
+                holidayList.append(ptr[0])  
+    return holidayList  
+
+
+'''reading week in fall - happens after week with remb.day or week after if it lands on a weekend'''
+'''reading week in wint - happens after week with fam day in feb or week after if it lands on a weekend '''
+'''No reading break in sp/su'''
+
+def getFallStartDay(year):
+    '''Returns datetime object of the first day of fall term in passed year
+    first Wednesday of September '''
+    sept1 = datetime.date(year,9,1)
+    offset = 2-sept1.weekday() #weekday = 2 means wednesday
+    if offset < 0:
+        offset+=7
+    return sept1+datetime.timedelta(offset)
+
+def getWinterStartDay(year):
+    '''Returns datetime object of the first day of winter term in passed year
+    first Wednesday of Janurary'''
+    jan1 = datetime.date(year,1,1)
+    offset = 2-jan1.weekday() #weekday = 2 means wednesday
+    if offset < 0:
+        offset+=7
+    return jan1+datetime.timedelta(offset)
+def getSpringStartDay(year):
+    '''Returns datetime object of the first day of spring term in passed year
+    May 1st if lands on a weekday, otherwise the first Monday of May'''
+    startday = datetime.date(year,5,1) #may 1
+    if (startday.weekday() == 5):
+        startday = datetime.date(year,5,3)
+    if(startday.weekday() == 6):
+        startday = datetime.date(year,5,2)
+    return startday
+
