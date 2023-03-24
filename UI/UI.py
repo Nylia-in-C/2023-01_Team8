@@ -171,14 +171,16 @@ class UI(QMainWindow):
     def make_main_tab(self):
         main_table_box = QVBoxLayout(self)
         week_choose = QHBoxLayout(self)
+
+        #Left/Right Navigation Arrows
         arrowfont = QFont()
         arrowfont.setBold(True)
         arrowfont.setPointSize(20)
-
         left = QPushButton("←")
         left.setFont(arrowfont)
         right = QPushButton("→")
         right.setFont(arrowfont)
+
         right.clicked.connect(self.forward_week)
         left.clicked.connect(self.back_week)
 
