@@ -12,6 +12,7 @@ from openpyxl.workbook import Workbook
 import random
 import database.database
 from database.database import *
+import imports.fillClassrooms
 
 import imports.schedulers.initialize_data
 import imports.schedulers.core_scheduler
@@ -787,6 +788,16 @@ class UI(QMainWindow):
                 self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
 
+    def add_ghost_rooms(self):
+        imports.fillClassrooms.fillClassrooms(2)
+
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+        if (len(readClassroomItem(connection, "ghost%")) != 0):
+            QMessageBox.information(self, "Ghost Rooms", "Be advised Ghost Rooms are required.")
+
+        close_connection(connection)
+
     '''
     Action Event functions
     '''
@@ -1032,7 +1043,13 @@ class UI(QMainWindow):
         global WEEK
         WEEK = 1
 
+        # Pass in student numbers to db
+        # Then calculate ghost rooms
+        # Then parse the schedule.
         self.pass_stu_num_db()
+        self.add_ghost_rooms()
+        self.update_class_combos()
+
 
         random.shuffle(BG_COLOURS)
         self.reset_table()
