@@ -28,9 +28,8 @@ pcom_0108 = Course("PCOM 0108", "Technical Development II; Microsoft Word, Excel
 # term 3 Professional Communication (PCOM) courses
 pcom_0202 = Course("PCOM 0202", "Advanced Business Presentation",33,3, 1.5, 1, 0, 0,[])
 pcom_0103 = Course("PCOM 0103", "Canadian Workplace Culture",35, 3, 1.5, 1, 0, 0, [])
-# pcom_01091 = Course("PCOM 0109 1", "The Job Hunt in Canada lab",8,3, 2, 1, 0, 1,[])
-# pcom_01092 = Course("PCOM 0109 2", "The Job Hunt in Canada ",6,3, 2, 1, 0, 0,[])
-pcom_0109 = Course("PCOM 0109", "The Job Hunt in Canada",14,3, 2, 1, 0, 0,[])
+pcom_0109_module_1 = Course('PCOM 0109 M1', 'Resume and Cover Letter', 8, 3, 2, 1,0,1,[])
+pcom_0109_module_2 = Course('PCOM 0109 M2', 'Interview Practice', 6, 3, 2, 1,0,1,[])
 
 
 # term 1 Business Communication (BCOM) courses
@@ -153,6 +152,7 @@ room_458 = Classroom('11-458', 40, 0)
 room_430 = Classroom('11-430', 30, 0)
 room_320 = Classroom('11-320', 30, 0)
 room_532 = Classroom('11-532', 30, 1)
+online   = Classroom('ONLINE', 1000, 0)
 #-----------------------------------------------------------------------
 # default programs
 #Project Management (PM)
@@ -261,7 +261,8 @@ def createDefaultDatabase():
         database.addCourseItem(connection,pcom_0103) 
         #  database.addCourseItem(connection,pcom_01091)
         #  database.addCourseItem(connection,pcom_01092)
-        database.addCourseItem(connection,pcom_0109)
+        database.addCourseItem(connection,pcom_0109_module_1)
+        database.addCourseItem(connection, pcom_0109_module_2)
 
        # term 1 Business Communication (BCOM) courses
         database.addCourseItem(connection,pcom_0203)
@@ -377,6 +378,7 @@ def createDefaultDatabase():
         database.addClassroomItem(connection,room_430)
         database.addClassroomItem(connection,room_320)
         database.addClassroomItem(connection,room_532)
+        database.addClassroomItem(connection, online)
         # end of add clasrooms**********************************************************************
                 
         # start of add Programs********************************************************************

@@ -266,23 +266,23 @@ def readCohortItem(conn, PID, CohortID):
 def addLectureItem(conn, lecture):
      #add item to table from passed connection and lecture object
     lectureObject = lecture.createLectureItemInfo()
-    CourseID = lectureObject[0]
-    Title = lectureObject[1]
-    CohortID = lectureObject[2]
-    Room = lectureObject[3]
+    CourseID  = lectureObject[0]
+    Title     = lectureObject[1]
+    CohortID  = lectureObject[2]
+    Room      = lectureObject[3]
     TermHours = lectureObject[4]
-    Term = lectureObject[5]
-    Duration = lectureObject[6]
+    Term      = lectureObject[5]
+    Duration  = lectureObject[6]
     StartWeek = lectureObject[7]
-    StartDay = lectureObject[8]
+    StartDay  = lectureObject[8]
     StartTime = lectureObject[9]
-    isCore = lectureObject[10]
-    isOnline = lectureObject[11]
-    isLab = lectureObject[12]
-    PreReqs = lectureObject[13]
+    isCore    = 0 if lectureObject[10] == False else 1
+    isOnline  = 0 if lectureObject[11] == False else 1
+    isLab     = 0 if lectureObject[12] == False else 1
+    PreReqs   = lectureObject[13]
     try:
         rowString = f"INSERT INTO LECTURE (CourseID, Title, CohortID, Room, TermHours,Term, Duration, StartWeek, StartDay ,StartTime,isCore,isOnline,isLab, PreReqs) \
-                        VALUES ('{CourseID}','{Title}','{CohortID}','{Room}' ,{TermHours}, {Term},{Duration}, {StartWeek}, {StartDay}, '{StartTime}',{isCore},{isOnline},{isLab},'{PreReqs}')" 
+            VALUES ('{CourseID}','{Title}','{CohortID}','{Room}' ,{TermHours}, {Term},{Duration}, {StartWeek}, {StartDay}, '{StartTime}',{isCore},{isOnline},{isLab},'{PreReqs}')" 
         #print(rowString)
         c = conn.cursor()
         c.execute(rowString)
