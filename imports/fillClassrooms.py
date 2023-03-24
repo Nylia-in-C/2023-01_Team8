@@ -7,11 +7,11 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
 import random
-from classes.classrooms import *
-from classes.legions    import *
-from classes.courses    import *
-from classes.programs   import *
-from create_legions     import *
+from imports.classes.classrooms import *
+from imports.classes.legions    import *
+from imports.classes.courses    import *
+from imports.classes.programs   import *
+from imports.create_legions     import *
 from database.database  import *
 
 #===================================================================================================
