@@ -157,14 +157,24 @@ class UI(QMainWindow):
         tabs = QTabWidget()
         tab1 = QWidget()
         tab2 = QWidget()
+        tab3 = QWidget()
 
         tabs.addTab(tab1, "Schedule")
         tabs.addTab(tab2, "Options")
+        tabs.addTab(tab3, "Instructions")
 
         self.create_schedule_base()
 
         tab1.setLayout(self.make_main_tab())
         tab2.setLayout(self.make_options_tab())
+
+        # Read me Doc
+        read_me = QTextEdit()
+        file_content = open("README.md").read()
+        read_me.setMarkdown(file_content)
+        layout = QHBoxLayout()
+        layout.addWidget(read_me)
+        tab3.setLayout(layout)
 
         return tabs
 
