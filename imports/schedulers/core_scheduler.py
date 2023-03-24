@@ -26,12 +26,18 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     if (term == 1):
         termA = 1
         termB = 3
+        start_day = getFallStartDay(2023)
+        holidays  = getHolidaysMonWed(2023)
     elif (term == 2):
         termA = 1
         termB = 2
+        start_day = getWinterStartDay(2024)
+        holidays  = getHolidaysMonWed(2023)
     elif (term == 3):
         termA = 2
         termB = 3
+        start_day = getSpringStartDay(2024)
+        holidays  = getHolidaysMonWed(2023)
 
     pcomA_lecs = get_lectures('PCOM', termA)
     pcomB_lecs = get_lectures('PCOM', termB)
@@ -80,14 +86,15 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     # (technically, we only need the lecture objects, but having this makes 
     # scheduling & debugging 1000x easier)
     full_schedule = create_core_term_schedule(
-        lectures, labs, online, cohorts, rooms
+        lectures, labs, online, cohorts, rooms, start_day, holidays
     )
     i = 0
     for day, sched in full_schedule.items():
-        if i > 3: break
         print(f"\n\t\t {day} :\n")
         print(sched)
         i += 1
+        
+    print(f"holidays: {holidays}")
 
     return 
 
