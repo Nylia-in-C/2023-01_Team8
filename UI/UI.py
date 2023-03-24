@@ -486,13 +486,15 @@ class UI(QMainWindow):
         font.setPointSize(20)
         title.setFont(font)
 
+        create_sched = QPushButton("Create Schedule")
+        font.setPointSize(16)
+        create_sched.setFont(font)
+        create_sched.clicked.connect(self.create_schedule)
+
         input_title = QLabel("Students per Term")
         input_title.setMaximumWidth(LEFT_MAX_WIDTH)
         font.setPointSize(12)
         input_title.setFont(font)
-
-        create_sched = QPushButton("Create Schedule")
-        create_sched.clicked.connect(self.create_schedule)
 
         # Read Current items in teh Database
         db = r".\database\database.db"  # database.db file path
@@ -534,6 +536,14 @@ class UI(QMainWindow):
 
         vbox = QVBoxLayout()
 
+        #Title
+        title = QLabel("Enrollment Import by Program")
+        title.setMaximumWidth(LEFT_MAX_WIDTH)
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(12)
+        title.setFont(font)
+
         hbox_file_choose = QHBoxLayout(self)
         choose_input_button = QPushButton("Choose File", self)
         choose_input_button.setMaximumWidth(100)
@@ -551,6 +561,8 @@ class UI(QMainWindow):
         create_template_button = QPushButton("Create Template")
         create_template_button.clicked.connect(self.create_template)
 
+        vbox.addWidget(title)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox_file_choose)
         vbox.addWidget(load_data)
         vbox.addWidget(create_template_button)
