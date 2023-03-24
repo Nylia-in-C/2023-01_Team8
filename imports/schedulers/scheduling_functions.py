@@ -25,13 +25,12 @@ from pprint import pprint
 
 #===================== TODOs (in no particular order) ==========================       
 
-#TODO: put lecture objects in the database
-
-#TODO: get actual cohort count from fillClassrooms.py, make sure this stuff works for any number of cohorts
-
 #TODO: dont assume theres only 1 lab room, use rooms from db
 
-#TODO: check for holidays (might be easier if we use date objects rather than day 1, day 2, etc.) 
+# TODO: when updating schedule, check if any courses are scheduled for more than their remaining hours
+#       if so, remove some blocks
+
+# TODO: find way to check if avdm should be scheduled (i.e. 2 days away from end date)
 
 
 day = 1
@@ -263,20 +262,32 @@ def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> p
     '''
 
     # courses that have met their required hours should be removed
-    finished_courses = [course_id for course_id in course_hours if
+    finished = [course_id for course_id in course_hours if
                         course_hours[course_id]['remaining'] <= 0]
 
     for time in prev_sched.index:
         for room in prev_sched.columns:
+            
+            course_no_ID = prev_sched.loc[time, room][:-2]
+            course_w_ID  = prev_sched.loc[time, room]
 
-            if prev_sched.loc[time, room][:-2] in finished_courses or \
-               prev_sched.loc[time, room] in finished_courses:
+            if course_no_ID in finished or course_w_ID in finished:
                 
                 # empty strings indicate an open time slot in the schedule
                 prev_sched.loc[time, room] = "" 
 
     return prev_sched
 
+def add_lectures_to_db():
+    '''
+    Add the lecture objects to the database so the UI can read & display them
+    '''
+    db = r".\database\database.db"  # database.db file path
+    connection = create_connection(db)
+    for lec in lecture_objs:
+        addLectureItem(connection, lec)
+    close_connection(connection)
+    return
 
 
 #===============================================================================
@@ -679,8 +690,8 @@ def make_online_sched(lectures: Dict[str, List[Course]], online: Dict[str, List[
                    and o.ID not in already_scheduled]
     
     # avdm 0260 should be scheduled at the end of the term
-    if (day < 23):
-        valid_bcomB = [o for o in valid_bcomB if o.ID != "AVDM 0260"]
+    # if (day < 23):
+    #     valid_bcomB = [o for o in valid_bcomB if o.ID != "AVDM 0260"]
 
     valid_bcomA.sort(key=lambda x: x.termHours)
     valid_bcomB.sort(key=lambda x: x.termHours)
@@ -714,7 +725,7 @@ def make_online_sched(lectures: Dict[str, List[Course]], online: Dict[str, List[
     return onl_col
 
 def schedule_online(onl_col: pd.DataFrame, online: Course, onl_hours: Dict[str, int],
-                    booked_lecs: Dict[int, List[str]]) -> pd.DataFrame:
+                    booked_lecs: Dict[int, List[str]]) -> Dict[datetime.date, pd.DataFrame]:
     '''
     Checks the lecture schedule `booked_lecs` to see if an online course can be 
     scheduled without any conflicts. Courses cannot be within 1.5 hours of an
@@ -812,13 +823,17 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
                               labs: Dict[str, List[Course]],
                               online: Dict[str, List[Course]], 
                               cohorts: Dict[str, List[str]], 
-                              rooms: List[Classroom]) -> Dict[str, pd.DataFrame]:
+                              rooms: List[Classroom],
+                              start_day: datetime.date, holidays: List[datetime.date]) -> Dict[str, pd.DataFrame]:
     '''
     Main schedule creation function that makes 26 single-day schedules (mon/wed, 13 weeks)
     each as a pandas DataFrame, and returns them in a dictionary
     '''
 
     global day, week, lecture_objs
+    
+    day = start_day
+    end_day = start_day + datetime.timedelta(weeks=13)
     
     all_courses = list(
         chain(*list(lectures.values())+list(labs.values())+list(online.values()))
@@ -833,13 +848,18 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
     prev_labs = create_empty_schedule([room for room in rooms if room.isLab])
     prev_onls = create_empty_schedule([room for room in rooms if room.ID == 'ONLINE'])
     
-    temp_sched_arr = []
+    full_schedule = {}
     invalid = 0
 
-    while day < 27:
+    while day < end_day:
         
-        if (day % 2 == 0):
-            week += 1
+        if day in holidays:
+            full_schedule[day] = (f"HOLIDAY")
+            if (day.weekday() == 0):
+                day += datetime.timedelta(days=2)
+            elif (day.weekday() == 2):
+                day += datetime.timedelta(days=5)
+            continue
         
         lecture_sched = make_core_lecture_sched(
             lectures, cohorts,
@@ -861,7 +881,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
         
         # store the combined schedules as an immutable static frame to 
         # prevent weird bug where schedules get messed up after this loop ends
-        temp_sched_arr.append(sf.Frame.from_pandas(joined_sched))
+        full_schedule[day] = (joined_sched)
         
         course_hours = update_course_hours(course_hours, joined_sched)
         
@@ -869,13 +889,11 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
         prev_labs = update_schedule(course_hours, lab_sched)
         prev_onls = update_schedule(course_hours, online_sched)
 
-        day += 1
-        
-    
-    # convert each static frame back to a dataframe & return them in a list
-    full_schedule = {}
-    for day, sf_sched in enumerate(temp_sched_arr):
-        full_schedule[f"day {day+1}"] = (sf_sched.to_pandas())
+        if (day.weekday() == 0):
+            day += datetime.timedelta(days=2)
+        elif (day.weekday() == 2):
+            day += datetime.timedelta(days=5)
+
         
     print(f"\n\nINVALID COUNT: {invalid}\n\n")
     pprint(course_hours)
@@ -884,18 +902,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
     return full_schedule
 
 
-def add_lectures_to_db():
-    '''
-    Add the lecture objects to the database so the UI can read & display them
-    '''
-    db = r".\database\database.db"  # database.db file path
-    connection = create_connection(db)
-    for lec in lecture_objs:
-        # replace booleans with 0/1
-        print(f"\nadding new lecture to db")
-        addLectureItem(connection, lec)
-    close_connection(connection)
-    return
+
 
 
 def getHolidaysMonWed(fallYear):
