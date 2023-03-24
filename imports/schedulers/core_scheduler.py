@@ -1,4 +1,8 @@
 import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+grandparentdir = os.path.dirname(parentdir)
+sys.path.append(grandparentdir)
 from imports.classes.courses import *
 
 from imports.classes.classrooms import *
@@ -8,10 +12,7 @@ import database.database as database
 from imports.schedulers.initialize_data import *
 from typing import *
 
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-grandparentdir = os.path.dirname(parentdir)
-sys.path.append(grandparentdir)
+
 
 
 def get_program_rows(program: str) -> List[str]:

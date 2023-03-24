@@ -178,7 +178,7 @@ def createDefaultDatabase():
    
     if connection is not None: 
        
-        database.delete_table(connection, "LECTURE")
+        #database.delete_table(connection, "LECTURE")
         LEGIONSTableCols = """ CREATE TABLE IF NOT EXISTS LEGIONS (
                     ProgID VARCHAR(100) NOT NULL,
                     TermID INT NOT NULL,
@@ -194,7 +194,7 @@ def createDefaultDatabase():
                     Duration INT NOT NULL,
                     isCore BIT NOT NULL,
                     isOnline BIT NOT NULL,
-                    hasLab BIT NOT NULL, 
+                    isLab BIT NOT NULL, 
                     PreReqs VARCHAR(200)
                 ); """ 
         PROGRAMSTableCols = """ CREATE TABLE IF NOT EXISTS PROGRAMS (
@@ -219,7 +219,7 @@ def createDefaultDatabase():
                     StartTime VARCHAR(100) NOT NULL,
                     isCore BIT NOT NULL,
                     isOnline BIT NOT NULL,
-                    hasLab BIT NOT NULL,
+                    isLab BIT NOT NULL,
                     PreReqs VARCHAR(200)
                 ); """
         COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
