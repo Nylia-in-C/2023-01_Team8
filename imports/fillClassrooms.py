@@ -208,8 +208,10 @@ def fillClassrooms(term):
         if int(course[7]) == 1: hasLab = True
         else:                   hasLab = False
         course = Course(course[0], course[1], int(course[2]), int(course[3]), int(course[4]), isCore, isOnline, hasLab)
+        
+        
 
-        if str(course.term) not in term: continue
+        if str(course.term) not in term or course.isOnline: continue
 
         programTerm = f"{program[0]}{course.term}"
         if programTerm not in programCoursesByTerm.keys(): programCoursesByTerm[programTerm] = []
@@ -224,6 +226,7 @@ def fillClassrooms(term):
     # Pull Classrooms from database
     classrooms = readClassroomItem(connection, '%')
     for room in classrooms:
+        if room[0] == "ONLINE": continue
         isLab = False
         if int(room[2]) == 1: isLab = True
         rooms.append(Classroom(room[0], int(room[1]), isLab))
@@ -286,7 +289,8 @@ if __name__ == '__main__':
     # print(ghostRooms)
 
     print(fillClassrooms(1))
-    # print(roomHours)
+    #print(rooms)
+    #print(roomHours)
     # print(ghostRooms)
     # fillClassrooms(1)
     # print(roomHours)
