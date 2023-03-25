@@ -779,6 +779,7 @@ class UI(QMainWindow):
 
 
     def add_ghost_rooms(self):
+
         imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
 
         db = r".\database\database.db"  # database.db file path
@@ -1262,6 +1263,10 @@ class UI(QMainWindow):
         try:
             db = r".\database\database.db"  # database.db file path
             connection = create_connection(db)
+
+            # Clear table
+            cur = connection.cursor()
+            cur.execute("DELETE FROM Student")
 
             # Takes the currently input numbers, and adds them to the DB.
             for each_input in range(8):
