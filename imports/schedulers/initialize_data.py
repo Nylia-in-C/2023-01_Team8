@@ -135,7 +135,7 @@ ba_courses = {
     'term 3': [prdv_0646, pcom_0141],
 }
 
-bkc_courses = {
+bk_courses = {
     'term 1': [acct_0201, acct_0202, acct_0203],
     'term 2': [acct_0206, acct_0210, acct_0211],
     'term 3': [acct_0208, acct_9901],
@@ -156,11 +156,11 @@ program_lab_courses = [acct_0210, acct_0211, acct_0208, acct_9901]
 
 program_term_courses = {
     # fall semester has term 1 and term 3 courses
-    1: pm_courses['term 1'] + pm_courses['term 3'] + ba_courses['term 1'] + ba_courses['term 3'] + bkc_courses['term 1'] + bkc_courses['term 3'],
+    1: pm_courses['term 1'] + pm_courses['term 3'] + ba_courses['term 1'] + ba_courses['term 3'] + bk_courses['term 1'] + bk_courses['term 3'],
     # winter semester has term 1 and 2 courses
-    2: pm_courses['term 1'] + pm_courses['term 2'] + ba_courses['term 1'] + ba_courses['term 2'] + bkc_courses['term 1'] + bkc_courses['term 2'],
+    2: pm_courses['term 1'] + pm_courses['term 2'] + ba_courses['term 1'] + ba_courses['term 2'] + bk_courses['term 1'] + bk_courses['term 2'],
     # spring/summer semester has term 2 and 3 courses
-    3: pm_courses['term 2'] + pm_courses['term 3'] + ba_courses['term 2'] + ba_courses['term 3'] + bkc_courses['term 2'] + bkc_courses['term 3'], 
+    3: pm_courses['term 2'] + pm_courses['term 3'] + ba_courses['term 2'] + ba_courses['term 3'] + bk_courses['term 2'] + bk_courses['term 3'], 
 }
 
 room_533 = Classroom('11-533', 36, False)
