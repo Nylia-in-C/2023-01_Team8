@@ -1162,20 +1162,83 @@ class UI(QMainWindow):
 
             try:
                 sheet = stu_numbers.active
-                term_1 = sheet["C2":"C9"]
-                term_2 = sheet["C10":"C17"]
-                term_3 = sheet["C18":"C25"]
 
-                for each_field in range(self.term_1_inputs.count()):
-                    self.term_1_inputs.itemAt(each_field).widget().setValue(term_1[each_field][0].value)
+                #----------------------------------------
+                # Template excel. Term, Program, Students
+                if sheet["A1"].value == "Term": 
+                    term_1 = sheet["C2":"C9"]
+                    term_2 = sheet["C10":"C17"]
+                    term_3 = sheet["C18":"C25"]
 
-                for each_field in range(self.term_2_inputs.count()):
-                    self.term_2_inputs.itemAt(each_field).widget().setValue(term_2[each_field][0].value)
+                    for each_field in range(self.term_1_inputs.count()):
+                        self.term_1_inputs.itemAt(each_field).widget().setValue(term_1[each_field][0].value)
 
-                for each_field in range(self.term_3_inputs.count()):
-                    self.term_3_inputs.itemAt(each_field).widget().setValue(term_3[each_field][0].value)
+                    for each_field in range(self.term_2_inputs.count()):
+                        self.term_2_inputs.itemAt(each_field).widget().setValue(term_2[each_field][0].value)
 
-                stu_numbers.close()
+                    for each_field in range(self.term_3_inputs.count()):
+                        self.term_3_inputs.itemAt(each_field).widget().setValue(term_3[each_field][0].value)
+
+                    stu_numbers.close()
+
+                #----------------------------------------
+                # Client requested excel. Student ID, Student Name, Program, Term
+                if sheet["A1"].value == "Student ID":
+                    i = 2
+
+                    program_counts = {"PCOM1": 0, "PCOM2": 0, "PCOM3": 0,
+                                      "BCOM1": 0, "BCOM2": 0, "BCOM3": 0,
+                                      "PM1":   0, "PM2":   0, "PM3":   0,
+                                      "BA1":   0, "BA2":   0, "BA3":   0,
+                                      "GLM1":  0, "GLM2":  0, "GLM3":  0,
+                                      "FS1":   0, "FS2":   0, "FS3":   0,
+                                      "DXD1":  0, "DXD2":  0, "DXD3":  0,
+                                      "BKC1":  0, "BKC2":  0, "BKC3":  0}
+
+                    while sheet[f"A{i}"].value:
+
+                        program  = sheet[f"C{i}"].value
+                        term = str(sheet[f"D{i}"].value)
+                        
+                        program_counts[program + term] += 1
+
+                        i += 1
+
+                    keys = list(program_counts.keys())
+                    for i in range(self.term_1_inputs.count()):
+                        print(3*i + 0)
+                        print(keys[3*i + 0])
+                        self.term_1_inputs.itemAt(i).widget().setValue(program_counts[keys[3*i + 0]])
+
+                    for i in range(self.term_2_inputs.count()):
+                        print(3*i + 1)
+                        self.term_2_inputs.itemAt(i).widget().setValue(program_counts[keys[3*i + 1]])
+
+                    for i in range(self.term_3_inputs.count()):
+                        print(3*i + 2)
+                        self.term_3_inputs.itemAt(i).widget().setValue(program_counts[keys[3*i + 2]])
+                    """
+                    program = ''
+                    term = 0
+                    count = 0
+                    while not sheet[f"A{i}"].value == "":
+                        if program == '' and term == 0:
+                            program = sheet[f"C{i}"].value
+                            term    = int(sheet[f"D{i}"].value)
+
+                        elif not (program == sheet[f"C{i}"] and term == sheet[f"D{i}"]):
+                            # Add value to textbox
+                            x = 'donothing'
+
+                            program = sheet[f"C{i}"].value
+                            term    = int(sheet[f"D{i}"].value)
+                            count = 1
+                        
+                        else: count += 1
+                    """
+
+                
+                else: print("Bad template!")
 
             except:
                 print("Error reading values")  # add error message here eventually

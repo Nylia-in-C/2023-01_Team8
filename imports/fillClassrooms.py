@@ -258,7 +258,7 @@ def fillClassrooms(term):
     return cohortDict
 
 # TODO:
-#   - Take student count input
+#   - Account for online classroom
 
 # Nice to have:
 #   - Reduced program hours only on lab rooms
