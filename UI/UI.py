@@ -603,7 +603,7 @@ class UI(QMainWindow):
 
         vbox_labels.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)) #for alignment
 
-        PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+        PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for label in PROG_LABELS:
             vbox_labels.addWidget(QLabel(label))
@@ -719,7 +719,7 @@ class UI(QMainWindow):
         GLM
         FS
         DXD
-        BKC
+        BK
         '''
         input_fields = layout.count()
         list_val = []
@@ -738,7 +738,7 @@ class UI(QMainWindow):
         db = r".\database\database.db"  # database.db file path
         conn = create_connection(db)
 
-        programs = ["PCOM", "BCOM" , "PM",  "BA",  "GLM",  "FS" , "DXD",  "BKC"]
+        programs = ["PCOM", "BCOM" , "PM",  "BA",  "GLM",  "FS" , "DXD",  "BK"]
 
         #TODO Need to get the legions made to parse the numbers to add to db
         # Anything with a '/' is what needs to be obtained
@@ -1169,7 +1169,7 @@ class UI(QMainWindow):
 
         sheet.append(fields)
 
-        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for term in range (1, 4):
             for program in range(len(programs)):
@@ -1235,7 +1235,7 @@ class UI(QMainWindow):
                                       "GLM1":  0, "GLM2":  0, "GLM3":  0,
                                       "FS1":   0, "FS2":   0, "FS3":   0,
                                       "DXD1":  0, "DXD2":  0, "DXD3":  0,
-                                      "BKC1":  0, "BKC2":  0, "BKC3":  0}
+                                      "BK1":   0, "BKC":   0, "BK3":   0}
 
                     while sheet[f"A{i}"].value:
 
@@ -1291,7 +1291,7 @@ class UI(QMainWindow):
         term_2 = self.retrieve_term_inputs(self.term_2_inputs)
         term_3 = self.retrieve_term_inputs(self.term_3_inputs)
 
-        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         try:
             db = r".\database\database.db"  # database.db file path
