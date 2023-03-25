@@ -1,6 +1,11 @@
 import os, sys
-from imports.classes.courses import *
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+grandparentdir = os.path.dirname(parentdir)
+sys.path.append(grandparentdir)
 
+from imports.classes.courses import *
+from imports.fillClassrooms import *
 from imports.classes.classrooms import *
 from imports.schedulers.initialize_data import *
 from imports.schedulers.scheduling_functions import *
@@ -8,191 +13,90 @@ import database.database as database
 from imports.schedulers.initialize_data import *
 from typing import *
 
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-grandparentdir = os.path.dirname(parentdir)
-sys.path.append(grandparentdir)
-
-
-def get_program_rows(program: str) -> List[str]:
-    db = r".\database\database.db"  # database.db file path
-    connection = database.create_connection(db)
-    
-    query = f"SELECT C.* FROM Courses C JOIN Programs P ON C.CourseID = P.CourseID WHERE P.ProgID = '{program}';"
-    
-    try:
-        cur = connection.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-    except:
-        print("unable to retrieve core courses from database")
-        database.close_connection(connection)
-        return None
-    
-    database.close_connection(connection)
-    return rows
-
-def get_program_courses(program: str) -> List[Course]:
-    
-    rows = get_program_rows(program)
-    
-    courses = []
-    for row in rows:
-        row = list(row)
-        # convert 0/1 to booleans
-        for i in range(5,8):
-            if   row[i] == 0: row[i] = False
-            elif row[i] == 1: row[i] = True
-            
-        courses.append( 
-            Course(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]) 
-        )
-        
-    return courses
-
-def get_term_courses(termA: int, termB: int) -> Tuple[Dict[str, Dict[str, Course]]]:
-    pcom = get_program_courses("PCOM")
-    bcom = get_program_courses("BCOM")
-
-    
-    pcomA_lecs = [c for c in pcom if c.term == termA and not c.hasLab and not c.isOnline]
-    pcomB_lecs = [c for c in pcom if c.term == termB and not c.hasLab and not c.isOnline]
-    
-    bcomA_lecs = [c for c in bcom if c.term == termA and not c.hasLab and not c.isOnline]
-    bcomB_lecs = [c for c in bcom if c.term == termB and not c.hasLab and not c.isOnline]
-    
-    pcomA_labs = [c for c in pcom if c.term == termA and c.hasLab]
-    pcomB_labs = [c for c in pcom if c.term == termB and c.hasLab]
-    
-    bcomA_onls = [c for c in bcom if c.term == termA and c.isOnline]
-    bcomB_onls = [c for c in bcom if c.term == termB and c.isOnline] 
-
-    
-    lectures = {
-        'pcom': {
-            'term A': pcomA_lecs, 
-            'term B': pcomB_lecs
-        },
-        'bcom': {
-            'term A': bcomA_lecs, 
-            'term B': bcomB_lecs
-        }
-    }
-    labs = {
-        'pcom': {
-            'term A': pcomA_labs, 
-            'term B': pcomB_labs
-        }
-    }
-    online = {
-        'bcom': {
-            'term A': bcomA_onls, 
-            'term B': bcomB_onls
-        }
-    }
-    
-    return lectures, labs, online
-    
 
 def get_sched(term: int) -> Dict[str, pd.DataFrame]:
-    
+    '''
+    Main driver function for generating the core course term schedule, where
+    term indicates if the schedule is for fall, winter, or spring semester
+    '''
     # in theory this will never happen, but just to be safe:
     if term not in [1, 2, 3]:
         return None
     
-    # this works, but using hardcoded values is easier to deal with
-    # if  (term == 1):
-    #     lectures, labs, online = get_term_courses(1, 3)
-    # elif (term == 2):
-    #     lecture, labs, online = get_term_courses(1, 2)
-    # elif (term == 3):
-    #     lecture, labs, online = get_term_courses(2, 3)
-    
-    
     if (term == 1):
-        #lectures, labs, online = get_term_courses(1, 3)
-        lectures = {
-            'pcom': {
-                'term A': pcom1_lecs,
-                'term B': pcom3_lecs
-            },
-            'bcom': {
-                'term A': bcom1_lecs,
-                'term B': bcom3_lecs
-            }
-        }
-        labs = {
-            'pcom': {
-                'term A': pcom1_labs,
-                'term B': pcom3_labs
-            }
-        }
-        online = {
-            'bcom': {
-                'term A': bcom1_onl,
-                'term B': bcom3_onl
-            }
-        }
-
+        termA = 1
+        termB = 3
+        start_day = getFallStartDay(2023)
+        holidays  = getHolidaysMonWed(2023)
     elif (term == 2):
-        #lectures, labs, online = get_term_courses(1, 2)
-        lectures = {
-            'pcom': {
-                'term A': pcom1_lecs,
-                'term B': pcom2_lecs
-            },
-            'bcom': {
-                'term A': bcom1_lecs,
-                'term B': bcom2_lecs
-            }
-        }
-        labs = {
-            'pcom': {
-                'term A': pcom1_labs,
-                'term B': pcom2_labs
-            }
-        }
-        online = {
-            'bcom': {
-                'term A': bcom1_onl,
-                'term B': bcom2_onl
-            }
-        }
-
+        termA = 1
+        termB = 2
+        start_day = getWinterStartDay(2024)
+        holidays  = getHolidaysMonWed(2023)
     elif (term == 3):
-        #lectures, labs, online = get_term_courses(2, 3)
-        
-        lectures = {
-            'pcom': {
-                'term A': pcom2_lecs,
-                'term B': pcom3_lecs
-            },
-            'bcom': {
-                'term A': bcom2_lecs,
-                'term B': bcom3_lecs
-            }
-        }
-        labs = {
-            'pcom': {
-                'term A': pcom2_labs,
-                'term B': pcom3_labs
-            }
-        }
-        online = {
-            'bcom': {
-                'term A': bcom2_onl,
-                'term B': bcom3_onl
-            }
-        }
-        
-    return create_core_term_schedule(lectures, labs, online, rooms)
-        
-        
-def convert_to_lecture_obj(day: int, sched: pd.DataFrame) -> Lecture:
+        termA = 2
+        termB = 3
+        start_day = getSpringStartDay(2024)
+        holidays  = getHolidaysMonWed(2023)
+
+    pcomA_lecs = get_lectures('PCOM', termA)
+    pcomB_lecs = get_lectures('PCOM', termB)
+    bcomA_lecs = get_lectures('BCOM', termA)
+    bcomB_lecs = get_lectures('BCOM', termB)
     
+    # only pcom has labs
+    pcomA_labs = get_labs('PCOM', termA)
+    pcomB_labs = get_labs('PCOM', termB)
     
+    # only bcom has online courses
+    bcomA_onls = get_onlines('BCOM', termA)
+    bcomB_onls = get_onlines('BCOM', termB)
+        
+    rooms   = get_rooms()
+    cohorts = get_cohort_counts(term)
     
-    return         
+    # list of uppercase letters, length vary
+    pcomA_cohorts = string.ascii_uppercase[:cohorts[f'PCOM{termA}']]
+    pcomB_cohorts = string.ascii_uppercase[:cohorts[f'PCOM{termB}']]
+    bcomA_cohorts = string.ascii_uppercase[:cohorts[f'BCOM{termA}']]
+    bcomB_cohorts = string.ascii_uppercase[:cohorts[f'BCOM{termB}']]
+    
+    lectures = {
+        'pcomA': pcomA_lecs,
+        'pcomB': pcomB_lecs,
+        'bcomA': bcomA_lecs,
+        'bcomB': bcomB_lecs,
+    }
+    labs = {
+        'pcomA': pcomA_labs,
+        'pcomB': pcomB_labs,
+    }
+    online = {
+        'bcomA': bcomA_onls,
+        'bcomB': bcomB_onls,
+    }
+    cohorts = {
+        'pcomA': pcomA_cohorts,
+        'pcomB': pcomB_cohorts,
+        'bcomA': bcomA_cohorts,
+        'bcomB': bcomB_cohorts,
+    }
+
+    # get all 26 day schedules as a dictionary of dataframes
+    # (technically, we only need the lecture objects, but having this makes 
+    # scheduling & debugging 1000x easier)
+    full_schedule = create_core_term_schedule(
+        lectures, labs, online, cohorts, rooms, start_day, holidays
+    )
+    i = 0
+    for day, sched in full_schedule.items():
+        print(f"\n\t\t {day} :\n")
+        print(sched)
+        i += 1
+        
+    print(f"holidays: {holidays}")
+
+    return 
 
 
 if __name__ == '__main__':
@@ -201,18 +105,4 @@ if __name__ == '__main__':
           \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
 
-    full_schedule = get_sched(term)
-    
-    lecture_objs = []
-    # create lecture objects for each df in schedule dict
-    for day, sched in full_schedule.items():
-        convert_to_lecture_obj(day, sched)
-
-    for day, sched in full_schedule.items():
-        # if (day > 5):
-        #     break
-        print(f"\n\t\t {day} :\n")
-        print(sched)
-        
-        
-    
+    get_sched(term)

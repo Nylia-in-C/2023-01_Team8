@@ -3,50 +3,50 @@ import math
 import datetime
 import pandas as pd
 import numpy as np
+import holidays
 import static_frame as sf
-from imports.classes.courses import *
-from imports.classes.classrooms import *
-from imports.schedulers.initialize_data import *
-
-from database.database import *
-import string
-from itertools import permutations, cycle
-from typing import *
-from pprint import pprint
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
 sys.path.append(grandparentdir)
 
+from imports.classes.courses import *
+from imports.classes.classrooms import *
+from imports.schedulers.initialize_data import *
+from imports.fillClassrooms import *
+from database.database import *
+import string
+from itertools import permutations, cycle, chain
+from typing import *
+from pprint import pprint
+
+
+
 #===================== TODOs (in no particular order) ==========================       
 
-#TODO: get actual cohort count from fillClassrooms.py, make sure this stuff works for any number of cohorts
+#TODO: dont assume theres only 1 lab room, use rooms from db
 
+# TODO: when updating schedule, check if any courses are scheduled for more than their remaining hours
+#       if so, remove some blocks
 
-#TODO: check for holidays (might be easier if we use date objects rather than day 1, day 2, etc.) 
-
-#TODO: create lecture objects either:
-#           - after the schedule is made, or
-#           - before: store each lecture's ID in the dataframe & update it's hours when it gets added to the schedule
-
+# TODO: find way to check if avdm should be scheduled (i.e. 2 days away from end date)
 
 
 day = 1
 week = 1
 lecture_objs = []
-
-# after accounting for holidays, max lecture cohorts = 4 (120), max labs = 3 (90)
-LEC_COHORT_COUNT = 4
-LAB_COHORT_COUNT = 3
 # ==============================================================================
 
-def get_courses(program: str) -> List[Course]:
-    ''' fetch all courses for a given program from the database '''
+#=========================== INITIAL DATA RETREIVAL ============================
+def get_lectures(prog: str, term: int) -> List[Course]:
+    ''' fetch a program's lectures for a given term from the database '''
     db = r".\database\database.db"  # database.db file path
     connection = create_connection(db)
 
-    query = f"SELECT C.* FROM Courses C JOIN Programs P ON C.CourseID = P.CourseID WHERE P.ProgID = '{program}';"
+    query = f"SELECT C.* FROM \
+              Courses C JOIN Programs P ON C.CourseID = P.CourseID WHERE \
+              P.ProgID = '{prog}' AND C.Term = {term} AND C.isLab = 0 AND c.isOnline = 0;"
 
     try:
         cur = connection.cursor()
@@ -54,40 +54,118 @@ def get_courses(program: str) -> List[Course]:
         rows = cur.fetchall()
     except:
         print("unable to retrieve core courses from database")
+        return
 
     close_connection(connection)
-    
+
+    # convert strings from the database into Course objects
     courses = []
     for row in rows:
         row = list(row)
         # convert 0/1 to booleans
         for i in range(5, 8):
-            if row[i] == 0:   row[i] = False
-            elif row[i] == 1: row[i] = True
+            if row[i] == 0:
+                row[i] = False
+            elif row[i] == 1:
+                row[i] = True
 
         courses.append(
-            Course(row[0], row[1], row[2], row[3], row[4], 
+            Course(row[0], row[1], row[2], row[3], row[4],
+                   row[5], row[6], row[7], row[8])
+        )
+
+    return courses
+
+def get_labs(prog: str, term: int) -> Dict[str, List[Course]]:
+    ''' fetch a program's labs for a given term from the database '''
+    db = r".\database\database.db"  # database.db file path
+    connection = create_connection(db)
+
+    query = f"SELECT C.* FROM \
+              Courses C JOIN Programs P ON C.CourseID = P.CourseID WHERE \
+              P.ProgID = '{prog}' AND C.Term = {term} AND C.isLab = 1;"
+
+    try:
+        cur = connection.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+    except:
+        print("unable to retrieve core courses from database")
+        return
+
+    close_connection(connection)
+
+    # convert strings from the database into Course objects
+    courses = []
+    for row in rows:
+        row = list(row)
+        # convert 0/1 to booleans
+        for i in range(5, 8):
+            if row[i] == 0:
+                row[i] = False
+            elif row[i] == 1:
+                row[i] = True
+
+        courses.append(
+            Course(row[0], row[1], row[2], row[3], row[4],
+                   row[5], row[6], row[7], row[8])
+        )
+
+    return courses
+
+def get_onlines(prog: str, term: int) -> List[Course]:
+    ''' fetch a program's online courses for a given term from the database'''
+    db = r".\database\database.db"  # database.db file path
+    connection = create_connection(db)
+
+    query = f"SELECT C.* FROM \
+              Courses C JOIN Programs P ON C.CourseID = P.CourseID WHERE \
+              P.ProgID = '{prog}' AND C.Term = {term} AND c.isOnline = 1;"
+
+    try:
+        cur = connection.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+    except:
+        print("unable to retrieve core courses from database")
+        return
+
+    close_connection(connection)
+
+    # convert strings from the database into Course objects
+    courses = []
+    for row in rows:
+        row = list(row)
+        # convert 0/1 to booleans
+        for i in range(5, 8):
+            if row[i] == 0:
+                row[i] = False
+            elif row[i] == 1:
+                row[i] = True
+
+        courses.append(
+            Course(row[0], row[1], row[2], row[3], row[4],
                    row[5], row[6], row[7], row[8])
         )
 
     return courses
 
 def get_rooms() -> List[Classroom]:
-    ''' fetch all classrooms from the database'''
+    ''' fetch all non-ghost classrooms from the database'''
     db = r".\database\database.db"  # database.db file path
     connection = create_connection(db)
-    
+
     query = f"SELECT * FROM Classrooms C WHERE C.ClassID NOT LIKE 'ghost%';"
-    
+
     try:
         cur = connection.cursor()
         cur.execute(query)
         rows = cur.fetchall()
     except:
         print("unable to retrieve classrooms from database")
-        
+
     close_connection(connection)
-    
+
     rooms = []
     for row in rows:
         row = list(row)
@@ -95,14 +173,23 @@ def get_rooms() -> List[Classroom]:
         if int(row[2]) == 1:
             isLab = True
         rooms.append(Classroom(row[0], int(row[1]), isLab))
-    
+
     return rooms
 
-def get_cohorts() -> List[int]:
+def get_cohort_counts(term: int) -> Dict[str, int]:
+    ''' 
+    call `fillClassrooms` to get a breakdown of all cohorts, then return a 
+    cohort count for each program/term
+    '''
+    cohort_dict = fillClassrooms(term)
+    counts = {}
+    for program, cohorts in cohort_dict.items():
+        counts[program] = len(cohorts)
     
-    
-    return
-    
+    return counts
+#===============================================================================
+
+#============================ GENERAL FUNCTIONS ================================
 def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
     '''
     make an empty pandas dataframe to represent the schedule for a single day. 
@@ -175,42 +262,196 @@ def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> p
     '''
 
     # courses that have met their required hours should be removed
-    finished_courses = [course_id for course_id in course_hours if
+    finished = [course_id for course_id in course_hours if
                         course_hours[course_id]['remaining'] <= 0]
 
     for time in prev_sched.index:
         for room in prev_sched.columns:
+            
+            course_no_ID = prev_sched.loc[time, room][:-2]
+            course_w_ID  = prev_sched.loc[time, room]
 
-            if prev_sched.loc[time, room][:-2] in finished_courses or \
-               prev_sched.loc[time, room] in finished_courses:
+            if course_no_ID in finished or course_w_ID in finished:
                 
-                prev_sched.loc[time, room] = ""
+                # empty strings indicate an open time slot in the schedule
+                prev_sched.loc[time, room] = "" 
 
     return prev_sched
 
-def get_available_times(sched: pd.DataFrame, blocks: int, cohorts: int) -> Dict[str, List[int]]:
+def add_lectures_to_db():
+    '''
+    Add the lecture objects to the database so the UI can read & display them
+    '''
+    db = r".\database\database.db"  # database.db file path
+    connection = create_connection(db)
+    for lec in lecture_objs:
+        addLectureItem(connection, lec)
+    close_connection(connection)
+    return
+
+
+#===============================================================================
+
+#============================= LECTURE SCHEDULING ==============================
+def make_core_lecture_sched(lectures: Dict[str, List[Course]], cohorts: Dict[str, List[str]],
+                            course_hours: Dict[str, int], sched: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Takes lists of pcom & bcom lectures for terms A & B, a dictionary of course_hours, 
+    and a room list to create a schedule for a single day and return it as a 
+    DataFrame. Courses are scheduled by pcom/bcom and term, moving from rooms
+    left to right, starting at 8 am, where each cohort takes up half a day.
+    '''
+    pcomA = lectures['pcomA']
+    pcomB = lectures['pcomB']
+    bcomA = lectures['bcomA']
+    bcomB = lectures['bcomB']
+
+    # lists of course IDs used to ensure no scheduling conflicts occur
+    pcomA_strs = [c.ID for c in pcomA]
+    pcomB_strs = [c.ID for c in pcomB]
+    bcomA_strs = [c.ID for c in bcomA]
+    bcomB_strs = [c.ID for c in bcomB]
+
+    # parse cohorts for each program/term
+    pcomA_cohorts = cohorts['pcomA']
+    pcomB_cohorts = cohorts['pcomB']
+    bcomA_cohorts = cohorts['bcomA']
+    bcomB_cohorts = cohorts['bcomB']
+
+    # dont schedule courses that are already in the previous day's schedule,
+    # or ones that have already been fully scheduled
+    scheduled = [course[:-2] for course in sched.values.flatten()]
+
+    valid_pcomA = [c for c in pcomA if c.ID not in scheduled and
+                   course_hours[c.ID]['remaining'] > 0]
+
+    valid_pcomB = [c for c in pcomB if c.ID not in scheduled and
+                   course_hours[c.ID]['remaining'] > 0]
+
+    valid_bcomA = [c for c in bcomA if c.ID not in scheduled and
+                   course_hours[c.ID]['remaining'] > 0]
+
+    valid_bcomB = [c for c in bcomB if c.ID not in scheduled and
+                   course_hours[c.ID]['remaining'] > 0]
+
+    # sort courses by required hours in descending order
+    valid_pcomA.sort(key=lambda x: x.termHours, reverse=True)
+    valid_pcomB.sort(key=lambda x: x.termHours, reverse=True)
+    valid_bcomA.sort(key=lambda x: x.termHours, reverse=True)
+    valid_bcomB.sort(key=lambda x: x.termHours, reverse=True)
+
+    # max of 8 courses in a single program/term
+    for i in range(5):
+        
+        if len(valid_pcomB) > i:
+            sched = add_lecture(
+                valid_pcomB[i], pcomB_cohorts, course_hours, pcomB_strs, sched
+            )
+        
+        if len(valid_bcomB) > i:
+            sched = add_lecture(
+                valid_bcomB[i], bcomB_cohorts, course_hours, bcomB_strs, sched
+            )
+
+        if len(valid_bcomA) > i:
+            sched = add_lecture(
+                valid_bcomA[i], bcomA_cohorts, course_hours, bcomA_strs, sched
+            )
+
+        if len(valid_pcomA) > i:
+            sched = add_lecture(
+                valid_pcomA[i], pcomA_cohorts, course_hours, pcomA_strs, sched
+            )
+
+
+    return sched
+
+def add_lecture(course: Course, cohorts: List[str], course_hours: Dict[str, int],
+                invalid_courses: List[str], sched: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Checks when/if a given course can be scheduled and if so, what order the 
+    cohorts should be scheduled. Returns an updated schedule if the course can
+    be added, otherwise this returns an unaltered schedule
+    '''
+
+    if course.isOnline or course.hasLab:
+        return sched
+
+    hours_left = course_hours[course.ID]['remaining']
+
+    if (hours_left >= course.duration):
+        blocks = int(course.duration // 0.5)
+    else:
+        blocks = math.ceil(hours_left / 0.5)
+
+    # dict mapping rooms to their available times (indexes, not strs)
+    open_times = get_available_times(sched, blocks, len(cohorts))
+    if (open_times == {}):
+        return sched
+
+    cohort_times = {}
+    for room, times in open_times.items():
+        # for each start time, find out which cohorts can be scheduled 
+        for st, et in times:
+            valid = sorted(get_valid_cohorts(
+                invalid_courses, st, et, cohorts, room, sched
+            ))
+
+            for cohort_ID in valid:
+                # already found a valid time for this cohort
+                if cohort_ID in cohort_times.keys() or (room, st) in cohort_times.values():
+                    continue
+                cohort_times[cohort_ID] = (room, st)
+
+    # not all cohorts can fit in the schedule
+    if len(cohort_times.keys()) < len(cohorts):
+        return sched
+
+    for ID, time_slot in cohort_times.items():
+
+        room, start = time_slot
+        room_index = sched.columns.get_loc(room)
+        start_label = list(sched.index)[start]
+
+        # store the scheduled course's info in a lecture object
+        lecture_objs.append(
+            Lecture(
+                course.ID, course.title, course.termHours, course.term,
+                course.duration, course.isCore, course.isOnline, course.hasLab,
+                course.preReqs, ID, room, week, day, start_label
+            )
+        )
+
+        course_strs = [course.ID + '-' + ID] * blocks
+        sched.iloc[start:(start+blocks), room_index] = course_strs
+
+    return sched
+
+def get_available_times(sched: pd.DataFrame, 
+                        blocks: int, cohorts: int) -> Dict[str, List[Tuple[int, int]]]:
     '''
     Takes the current schedule, the number of half-hour blocks a given course 
     will take up, and the number of cohorts needed. Returns a dictionary mapping
     room names to a list of available start times (indexes). If there arent enough
-    available times, returns None
+    available times for all cohorts, returns an empty dict
     '''
     available = {}
     required_gap = [""] * blocks
     
-    # use a sliding window to find an available time
+    # use a sliding window to find an available time & keep track of how many you find
     left = 0
     right = blocks
     count = 0
 
+    # iterate room by room, starting at 8:00. Move to the next time period when
+    # we reach the last room
     for room in cycle(sched.columns.tolist()):
         
+        # at the last room & the last time slot
         if room == list(sched.columns)[-1] and right >= 20:
             break
         
-        curr = list(sched[room][left:right])
-        
-        if curr == required_gap:
+        if list(sched[room][left:right]) == required_gap:
             
             if room not in available.keys():
                 available[room] = [(left, right)]
@@ -238,7 +479,7 @@ def get_valid_cohorts(invalid_courses: List[str], start: int, end: int,
                       cohorts: List[str], curr_room: str, sched: pd.DataFrame) -> List[str]:
     '''
     Given a potential start time and duration for a course, returns a list of 
-    cohort IDs that can be used. 
+    cohort IDs that can be used (prevent scheduling conflicts). 
     '''
     # list of all times the course will occupy
     occupied_times = [t for t in range(start, end)]
@@ -260,7 +501,7 @@ def get_valid_cohorts(invalid_courses: List[str], start: int, end: int,
     
     
     invalid_cohorts = set()
-    # for each occupied time for the new course, adds the unavailable cohorts to a set
+    # for each occupied time for the new course, add the unavailable cohorts to a set
     for room, times in matching_courses.items():
         for time in times:
             
@@ -268,183 +509,76 @@ def get_valid_cohorts(invalid_courses: List[str], start: int, end: int,
             
     return list(set(cohorts).difference(invalid_cohorts))
 
-
-def add_lecture(course: Course, course_hours: Dict[str, int], 
-                invalid_courses: List[str], sched: pd.DataFrame) -> pd.DataFrame:
+#===============================================================================
     
-    if course.isOnline or course.hasLab:
-        return sched
-    
-    hours_left = course_hours[course.ID]['remaining']
-
-    if (hours_left >= course.duration):
-        blocks = int(course.duration // 0.5)
-    else:
-        blocks = math.ceil(hours_left / 0.5)
-        
-    open_times = get_available_times(sched, blocks, LEC_COHORT_COUNT)
-    
-    cohorts = list(string.ascii_uppercase[:LEC_COHORT_COUNT])
-    
-    cohort_times = {}
-    for room, times in open_times.items():
-        for st, et in times:
-            valid = get_valid_cohorts(invalid_courses, st, et, cohorts, room, sched)
-            valid.sort()
-            
-            for cohort_ID in valid:
-                if cohort_ID in cohort_times.keys() or (room, st) in cohort_times.values():
-                    continue
-                cohort_times[cohort_ID] = (room, st)
-    
-    
-    if len(cohort_times.keys()) < LEC_COHORT_COUNT:
-        return sched
-    
-    for ID, time_slot in cohort_times.items():
-        
-        room, start = time_slot
-        room_index  = sched.columns.get_loc(room)
-        start_label = list(sched.index)[start]
-
-        lecture_objs.append(
-            Lecture(
-                course.ID, course.title, course.termHours, course.term,
-                course.duration, course.isCore, course.isOnline, course.hasLab, 
-                course.preReqs, ID, room, week, day, start_label
-            )
-        )
-        
-        course_strs = [course.ID + '-' + ID] * blocks
-        
-        sched.iloc[start:(start+blocks), room_index] = course_strs
-         
-    
-    return sched
-    
-
-def make_lecture_sched(term_A_pcom: List[Course], term_B_pcom: List[Course], 
-                       term_A_bcom: List[Course], term_B_bcom: List[Course],
-                       course_hours: Dict[str, int], sched: pd.DataFrame) -> pd.DataFrame:
-    '''
-    Takes lists of pcom & bcom lectures for terms A & B, a dictionary of course_hours, 
-    and a room list to create a schedule for a single day and return it as a 
-    DataFrame. Courses are scheduled by pcom/bcom and term, moving from rooms
-    left to right, starting at 8 am, where each cohort takes up half a day.
-    '''
-
-    # dont schedule courses that are already in the previous day's schedule,
-    # or ones that have already been fully scheduled
-    scheduled = [course[:-2] for course in sched.values.flatten()]
-    
-    pcomA = [c for c in term_A_pcom if c.ID not in scheduled and
-             course_hours[c.ID]['remaining'] > 0]
-    
-    pcomB = [c for c in term_B_pcom if c.ID not in scheduled and
-             course_hours[c.ID]['remaining'] > 0]
-    
-    bcomA = [c for c in term_A_bcom if c.ID not in scheduled and
-             course_hours[c.ID]['remaining'] > 0]
-    
-    bcomB = [c for c in term_B_bcom if c.ID not in scheduled and
-             course_hours[c.ID]['remaining'] > 0]
-    
-    # sort courses by required hours in descending order
-    pcomA.sort(key=lambda x: x.termHours, reverse=True)
-    pcomB.sort(key=lambda x: x.termHours, reverse=True)
-    bcomA.sort(key=lambda x: x.termHours, reverse=True)
-    bcomB.sort(key=lambda x: x.termHours, reverse=True)
-    
-    # lists of course IDs used to ensure no scheduling conflicts occur
-    pcomA_strs = [c.ID for c in term_A_pcom]
-    pcomB_strs = [c.ID for c in term_B_pcom]
-    bcomA_strs = [c.ID for c in term_A_bcom]
-    bcomB_strs = [c.ID for c in term_B_bcom]
-    
-    # # max of 6 courses in a single program/term
-    for i in range(8):
-        
-        if len(pcomB) > i:
-            sched = add_lecture(pcomB[i], course_hours, pcomB_strs, sched)
-            
-        if len(bcomB) > i:
-            sched = add_lecture(bcomB[i], course_hours, bcomB_strs, sched)
-    
-        if len(bcomA) > i:
-            sched = add_lecture(bcomA[i], course_hours, bcomA_strs, sched)
-        
-        if len(pcomA) > i:
-            sched = add_lecture(pcomA[i], course_hours, pcomA_strs, sched)
-    
-    return sched
-
-
-def make_lab_sched(lectures: Dict[str, List[Course]], labs: Dict[str, List[Course]], 
-                   course_hours: Dict[str, int], lab_col: pd.DataFrame, sched: pd.DataFrame) -> pd.DataFrame:
+#=============================== LAB SCHEDULING ================================
+def make_core_lab_sched(lectures: Dict[str, List[Course]], labs: Dict[str, List[Course]],
+                        cohorts: Dict[str, List[str]], course_hours: Dict[str, int], 
+                        lec_sched: pd.DataFrame, lab_col: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes the existing lecture schedule and information on what labs to schedule,
     and checks at each row (time) if a lab can be scheduled without any conflicts
     '''
+    # lists of lecture & lab IDs used to ensure no scheduling conflicts occur
+    pcomA_lec_IDs = [c.ID for c in lectures['pcomA']]
+    pcomB_lec_IDs = [c.ID for c in lectures['pcomB']]
+
+    # parse cohorts for each program/term
+    pcomA_cohorts = cohorts['pcomA']
+    pcomB_cohorts = cohorts['pcomB']
+
     already_scheduled = [l[:-2] for l in lab_col.values.flatten()]
     
     # bcom has no labs
-    filtered_pcom_A = [l for l in labs['pcom']['term A'] 
-                       if (course_hours[l.ID])['remaining'] > 0 and
-                       l.ID not in already_scheduled]
+    valid_pcomA = [l for l in labs['pcomA'] 
+                    if (course_hours[l.ID])['remaining'] > 0 
+                    and l.ID not in already_scheduled]
     
-    filtered_pcom_B = [l for l in labs['pcom']['term B'] 
-                       if (course_hours[l.ID])['remaining'] > 0 and 
-                       l.ID not in already_scheduled]
+    valid_pcomB = [l for l in labs['pcomB']
+                    if (course_hours[l.ID])['remaining'] > 0 
+                    and l.ID not in already_scheduled]
     
-    filtered_pcom_A.sort(key=lambda x: x.termHours)
-    filtered_pcom_B.sort(key=lambda x: x.termHours)
+    valid_pcomA.sort(key=lambda x: x.termHours)
+    valid_pcomB.sort(key=lambda x: x.termHours)
     
-    lec_ID_dict = {
-        'pcom A': [c.ID for c in lectures['pcom']['term A']],
-        'pcom B': [c.ID for c in lectures['pcom']['term B']],
-    }
-    
-    transposed_lecs = sched.T
-    # dictionary of courses scheduled at each time during the day
-    booked_pcom = {'pcom A': {}, 'pcom B': {}}
+    # column operations are more efficient
+    transposed_lecs = lec_sched.T
+    # map each time of day to the lectures that are scheduled during that time
+    booked_pcomA_lecs = {}
+    booked_pcomB_lecs = {}
     for index, time in enumerate(list(transposed_lecs.columns)):
         
-        pcom_A = [course for course in transposed_lecs[time].tolist() if
-                  course[:-2] in lec_ID_dict['pcom A']]
+        booked_pcomA_lecs[index] = [c for c in transposed_lecs[time].tolist() 
+                                    if c[:-2] in pcomA_lec_IDs]
         
-        pcom_B = [course for course in transposed_lecs[time].tolist() if
-                  course[:-2] in lec_ID_dict['pcom B']]
-        
-        booked_pcom['pcom A'][index] = pcom_A
-        booked_pcom['pcom B'][index] = pcom_B
-        
+        booked_pcomB_lecs[index] = [c for c in transposed_lecs[time].tolist() 
+                                    if c[:-2] in pcomB_lec_IDs]
         
     for i in range(len(lab_col.index)):
-        for lab in filtered_pcom_A:
-            if (len(booked_pcom['pcom A'][i]) >= LAB_COHORT_COUNT):
+        for lab in valid_pcomA:
+            
+            if (len(booked_pcomA_lecs[i]) >= len(pcomA_cohorts)):
                 continue
             lab_col = schedule_lab(
-                lab_col, lab, booked_pcom['pcom A'], i, course_hours
+                lab_col, lab, booked_pcomA_lecs, i, course_hours, pcomA_cohorts
             )
-             
-        for lab in filtered_pcom_B:
-            if (len(booked_pcom['pcom A'][i]) >= LAB_COHORT_COUNT):
+            
+        for lab in valid_pcomB:
+            
+            if (len(booked_pcomB_lecs[i]) >= len(pcomB_cohorts)):
                 continue
             lab_col = schedule_lab(
-                lab_col, lab, booked_pcom['pcom B'], i, course_hours
+                lab_col, lab, booked_pcomB_lecs, i, course_hours, pcomB_cohorts
             )
                 
     return lab_col
-
             
 def schedule_lab(lab_col: pd.DataFrame, lab: Course, booked_lecs: Dict[int, List[str]], 
-                 start: int, lab_hours: Dict[str, int]) -> pd.DataFrame:
+                 start: int, lab_hours: Dict[str, int], cohorts: List[str]) -> pd.DataFrame:
     '''
     Checks the lecture schedule `booked_lecs` to see if a given lab can be scheduled 
     without any conflicts. Courses are scheduled with each cohort one after the other
     '''
-    
-    cohorts = string.ascii_uppercase[:LAB_COHORT_COUNT]
 
     hours_left = lab_hours[lab.ID]['remaining']
     
@@ -496,7 +630,6 @@ def schedule_lab(lab_col: pd.DataFrame, lab: Course, booked_lecs: Dict[int, List
     
     return lab_col
 
-
 def get_lab_cohort_order(booked_lecs: Dict[int, List[str]], start: int, 
                          blocks: int, cohorts: List[str]) -> List[str]:
     '''
@@ -517,7 +650,7 @@ def get_lab_cohort_order(booked_lecs: Dict[int, List[str]], start: int,
 
 
     for invalid_ID_list in booked_cohorts.values():
-        if len(invalid_ID_list) >= LEC_COHORT_COUNT:
+        if len(invalid_ID_list) >= len(cohorts):
             return []
     
     # remove invalid cohort permutations from list of all possible permutations
@@ -533,10 +666,11 @@ def get_lab_cohort_order(booked_lecs: Dict[int, List[str]], start: int,
     
     return valid[0] if len(valid) > 0 else []
 
+#============================== ONLINE SCHEDULING ==============================
 
 def make_online_sched(lectures: Dict[str, List[Course]], online: Dict[str, List[Course]], 
                       course_hours: Dict[str, int], onl_col: pd.DataFrame, 
-                      sched: pd.DataFrame, day: int) -> pd.DataFrame:
+                      lec_sched: pd.DataFrame, day: int) -> pd.DataFrame:
     '''
     Takes the existing lecture schedule and information on what online courses
     to schedule, and checks at each row (time) if an online course can be 
@@ -545,55 +679,53 @@ def make_online_sched(lectures: Dict[str, List[Course]], online: Dict[str, List[
     '''
     # dont schedule courses that are already in the previous day's schedule,
     # or ones that have already been fully scheduled
-    already_scheduled = [course for course in onl_col.values.flatten()]
+    already_scheduled = [o for o in onl_col.values.flatten()]
     
-    filtered_bcom_A = [l for l in online['bcom']['term A'] if 
-                      (course_hours[l.ID]['remaining'] > 0) and
-                       l.ID not in already_scheduled]
+    valid_bcomA = [o for o in online['bcomA'] 
+                   if (course_hours[o.ID]['remaining'] > 0) 
+                   and o.ID not in already_scheduled]
     
-    filtered_bcom_B = [l for l in online['bcom']['term B'] if
-                      (course_hours[l.ID]['remaining'] > 0) and
-                       l.ID not in already_scheduled]
+    valid_bcomB = [o for o in online['bcomB']
+                   if (course_hours[o.ID]['remaining'] > 0)
+                   and o.ID not in already_scheduled]
     
     # avdm 0260 should be scheduled at the end of the term
-    if day < 23 and avdm_0260 in filtered_bcom_B:
-        filtered_bcom_B.remove(avdm_0260)
+    # if (day < 23):
+    #     valid_bcomB = [o for o in valid_bcomB if o.ID != "AVDM 0260"]
 
-    filtered_bcom_A.sort(key=lambda x: x.termHours)
-    filtered_bcom_B.sort(key=lambda x: x.termHours)
+    valid_bcomA.sort(key=lambda x: x.termHours)
+    valid_bcomB.sort(key=lambda x: x.termHours)
     
-    bcom_lec_IDs = {
-        'bcom A': [c.ID for c in lectures['bcom']['term A']],
-        'bcom B': [c.ID for c in lectures['bcom']['term B']],
-    }
+    bcomA_lec_IDs = [c.ID for c in lectures['bcomA']]
+    bcomB_lec_IDs = [c.ID for c in lectures['bcomB']]
 
-    transposed_lecs = sched.T
-    booked_bcom = {'bcom A': {}, 'bcom B': {}}
+    # column operations are more efficient
+    transposed_lecs = lec_sched.T
+    # map each time of day to the lectures that are scheduled during that time
+    booked_bcomA_lecs = {}
+    booked_bcomB_lecs = {}
     for index, time in enumerate(list(transposed_lecs.columns)):
 
-        bcom_A = [course for course in transposed_lecs[time].tolist() if
-                  course[:-2] in bcom_lec_IDs['bcom A']]
-        bcom_B = [course for course in transposed_lecs[time].tolist() if
-                  course[:-2] in bcom_lec_IDs['bcom B']]
+        booked_bcomA_lecs[index] = [c for c in transposed_lecs[time].tolist()
+                                    if c[:-2] in bcomA_lec_IDs]
 
-        booked_bcom['bcom A'][index] = bcom_A
-        booked_bcom['bcom B'][index] = bcom_B
+        booked_bcomB_lecs[index] = [c for c in transposed_lecs[time].tolist()
+                                    if c[:-2] in bcomB_lec_IDs]
     
-    for course in filtered_bcom_A:
+    for course in valid_bcomA:
         onl_col = schedule_online(
-            onl_col, course, course_hours, booked_bcom['bcom A']
+            onl_col, course, course_hours, booked_bcomA_lecs
         )
         
-    for course in filtered_bcom_B:
+    for course in valid_bcomB:
         onl_col = schedule_online(
-            onl_col, course, course_hours, booked_bcom['bcom B']
+            onl_col, course, course_hours, booked_bcomB_lecs
         )
     
     return onl_col
 
-
 def schedule_online(onl_col: pd.DataFrame, online: Course, onl_hours: Dict[str, int],
-                    booked_lecs: Dict[int, List[str]]) -> pd.DataFrame:
+                    booked_lecs: Dict[int, List[str]]) -> Dict[datetime.date, pd.DataFrame]:
     '''
     Checks the lecture schedule `booked_lecs` to see if an online course can be 
     scheduled without any conflicts. Courses cannot be within 1.5 hours of an
@@ -639,7 +771,6 @@ def schedule_online(onl_col: pd.DataFrame, online: Course, onl_hours: Dict[str, 
         
     return onl_col
 
-
 def check_online_course_overlap(booked_lecs: Dict[int, List[str]], start: int, end: int) -> bool:
     '''
     Compares a possible start & end time for an online course and returns a 
@@ -651,17 +782,20 @@ def check_online_course_overlap(booked_lecs: Dict[int, List[str]], start: int, e
         
     return len(booked_times.intersection(invalid_times)) == 0
 
+#===============================================================================
+
+
 # testing only
 def is_valid_sched(lectures, sched):
 
     pcom_lec_IDs = {
-        'pcom A': [c.ID for c in lectures['pcom']['term A']],
-        'pcom B': [c.ID for c in lectures['pcom']['term B']],
+        'pcom A': [c.ID for c in lectures['pcomA']],
+        'pcom B': [c.ID for c in lectures['pcomB']],
     }
     
     bcom_lec_IDs = {
-        'bcom A': [c.ID for c in lectures['bcom']['term A']],
-        'bcom B': [c.ID for c in lectures['bcom']['term B']],
+        'bcom A': [c.ID for c in lectures['bcomA']],
+        'bcom B': [c.ID for c in lectures['bcomB']],
     }
     
     transposed = sched.T
@@ -682,34 +816,30 @@ def is_valid_sched(lectures, sched):
             # print(sched)
             return True
     return False
-        
 
 
-def create_core_term_schedule(lectures: Dict[str, List[Course]], labs: Dict[str, List[Course]],
-                              online: Dict[str, List[Course]], rooms: List[Classroom]) -> Dict[str, pd.DataFrame]:
+
+def create_core_term_schedule(lectures: Dict[str, List[Course]], 
+                              labs: Dict[str, List[Course]],
+                              online: Dict[str, List[Course]], 
+                              cohorts: Dict[str, List[str]], 
+                              rooms: List[Classroom],
+                              start_day: datetime.date, holidays: List[datetime.date]) -> Dict[str, pd.DataFrame]:
     '''
     Main schedule creation function that makes 26 single-day schedules (mon/wed, 13 weeks)
-    each as a pandas DataFrame, and returns them in a list
+    each as a pandas DataFrame, and returns them in a dictionary
     '''
-    
+
     global day, week, lecture_objs
     
-    pcomA_lecs = lectures['pcom']['term A']
-    pcomB_lecs = lectures['pcom']['term B']
+    day = start_day
+    end_day = start_day + datetime.timedelta(weeks=13)
     
-    pcomA_labs = labs['pcom']['term A']
-    pcomB_labs = labs['pcom']['term B']
-    
-    bcomA_lecs = lectures['bcom']['term A']
-    bcomB_lecs = lectures['bcom']['term B']
+    all_courses = list(
+        chain(*list(lectures.values())+list(labs.values())+list(online.values()))
+    )
 
-    bcomA_onl = online['bcom']['term A']
-    bcomB_onl = online['bcom']['term B']
-    
-    course_hours = get_course_hours((pcomA_lecs + pcomB_lecs +
-                                     pcomA_labs + pcomB_labs + 
-                                     bcomA_lecs + bcomB_lecs +
-                                     bcomA_onl + bcomB_onl))
+    course_hours = get_course_hours(all_courses)
 
     # create schedules for the first day, then reference this when making 
     # subsequent schedules to get consistent times and rooms for courses
@@ -718,26 +848,29 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]], labs: Dict[str,
     prev_labs = create_empty_schedule([room for room in rooms if room.isLab])
     prev_onls = create_empty_schedule([room for room in rooms if room.ID == 'ONLINE'])
     
-    
-    temp_sched_arr = []
+    full_schedule = {}
     invalid = 0
 
-    while day < 27:
+    while day < end_day:
         
-        if (day % 2 == 0):
-            week += 1
+        if day in holidays:
+            full_schedule[day] = (f"HOLIDAY")
+            if (day.weekday() == 0):
+                day += datetime.timedelta(days=2)
+            elif (day.weekday() == 2):
+                day += datetime.timedelta(days=5)
+            continue
         
-        lecture_sched = make_lecture_sched(
-            pcomA_lecs, pcomB_lecs,
-            bcomA_lecs, bcomB_lecs,
+        lecture_sched = make_core_lecture_sched(
+            lectures, cohorts,
             course_hours, prev_lecs
         )
         
         if is_valid_sched(lectures, lecture_sched): 
             invalid += 1
             
-        lab_sched = make_lab_sched(
-            lectures, labs, course_hours, prev_labs, lecture_sched
+        lab_sched = make_core_lab_sched(
+            lectures, labs, cohorts, course_hours, lecture_sched, prev_labs
         )
         
         online_sched = make_online_sched(
@@ -748,26 +881,110 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]], labs: Dict[str,
         
         # store the combined schedules as an immutable static frame to 
         # prevent weird bug where schedules get messed up after this loop ends
-        # (no idea why this happens, but good luck to whoever works on this next)
-        temp_sched_arr.append(sf.Frame.from_pandas(joined_sched))
+        full_schedule[day] = (joined_sched)
         
         course_hours = update_course_hours(course_hours, joined_sched)
-        # course_hours = update_course_hours(course_hours, lab_sched)
         
         prev_lecs = update_schedule(course_hours, lecture_sched)
         prev_labs = update_schedule(course_hours, lab_sched)
         prev_onls = update_schedule(course_hours, online_sched)
 
-        day += 1
+        if (day.weekday() == 0):
+            day += datetime.timedelta(days=2)
+        elif (day.weekday() == 2):
+            day += datetime.timedelta(days=5)
+
         
+    print(f"\n\nINVALID COUNT: {invalid}\n\n")
+    pprint(course_hours)
+        
+    add_lectures_to_db()
+    return full_schedule
+
+
+
+
+
+def getHolidaysMonWed(fallYear):
+    '''
+    Pass the year of the fall term, and will make a list of holidays that land on 
+    mondays and wednesdays in the 3 terms. Returns list of datetime objects
+    '''
+    holidayList = []
+    nextYear = fallYear + 1
+    FallmonthList = [9,10,11]
+    TARD = datetime.date(fallYear,9,30)
+    nextMonthList = [1,2,3,4, 5,6,7,8]
     
-    # convert each static frame back to a dataframe & return them in a list
-    full_schedule = {}
-    for day, sf_sched in enumerate(temp_sched_arr):
-        full_schedule[f"day {day+1}"] = (sf_sched.to_pandas())
-    
-    # print(f"\n\nfound {invalid} contradictions across all schedules\n")
-    # pprint(course_hours)
-    # pprint(lecture_objs)
-    # print(len(lecture_objs))
-    return full_schedule, lecture_objs
+    #FALL:
+    for ptr in holidays.Canada(years = fallYear).items():
+        if ( ptr[0].month in FallmonthList):
+            if("Observed" not in ptr[1] and (ptr[0].weekday() == 0 or ptr[0].weekday() == 2)):
+                holidayList.append(ptr[0])
+    if(TARD.weekday()== 0 or TARD.weekday() == 2):
+        holidayList.insert(1,TARD)
+    #WIN/SPRING OF NEXT YEAR
+    for ptr in holidays.Canada(years = nextYear).items():
+        if ( ptr[0].month in nextMonthList and (ptr[0].weekday() == 0 or ptr[0].weekday() == 2)):
+            if("Observed" not in ptr[1] and 'New Year' not in ptr[1]):
+                holidayList.append(ptr[0])
+    return holidayList  
+
+def getHolidaysTuesThurs(fallYear):
+    '''
+    Pass the year of the fall term, and will make a list of holidays that land on 
+    Tuesdays and Thursdays in the 3 terms. Returns list of datetime objects
+    '''
+    holidayList = []
+    nextYear = fallYear + 1
+    FallmonthList = [9,10,11]
+    TARD = datetime.date(fallYear,9,30)
+    nextMonthList = [1,2,3,4, 5,6,7,8]
+
+    #FALL:
+    for ptr in holidays.Canada(years = fallYear).items():
+        if ( ptr[0].month in FallmonthList):
+            if("Observed" not in ptr[1] and (ptr[0].weekday() == 1 or ptr[0].weekday() == 3)):
+                holidayList.append(ptr[0])
+    if(TARD.weekday()== 1 or TARD.weekday() == 3):
+        holidayList.insert(1,TARD)
+
+    #WIN/SPRING OF NEXT YEAR
+    for ptr in holidays.Canada(years = nextYear).items():
+        if ( ptr[0].month in nextMonthList and (ptr[0].weekday() == 1 or ptr[0].weekday() == 3)):
+            if("Observed" not in ptr[1] and 'New Year' not in ptr[1]):
+                holidayList.append(ptr[0])  
+    return holidayList  
+
+
+'''reading week in fall - happens after week with remb.day or week after if it lands on a weekend'''
+'''reading week in wint - happens after week with fam day in feb or week after if it lands on a weekend '''
+'''No reading break in sp/su'''
+
+def getFallStartDay(year):
+    '''Returns datetime object of the first day of fall term in passed year
+    first Wednesday of September '''
+    sept1 = datetime.date(year,9,1)
+    offset = 2-sept1.weekday() #weekday = 2 means wednesday
+    if offset < 0:
+        offset+=7
+    return sept1+datetime.timedelta(offset)
+
+def getWinterStartDay(year):
+    '''Returns datetime object of the first day of winter term in passed year
+    first Wednesday of Janurary'''
+    jan1 = datetime.date(year,1,1)
+    offset = 2-jan1.weekday() #weekday = 2 means wednesday
+    if offset < 0:
+        offset+=7
+    return jan1+datetime.timedelta(offset)
+def getSpringStartDay(year):
+    '''Returns datetime object of the first day of spring term in passed year
+    May 1st if lands on a weekday, otherwise the first Monday of May'''
+    startday = datetime.date(year,5,1) #may 1
+    if (startday.weekday() == 5):
+        startday = datetime.date(year,5,3)
+    if(startday.weekday() == 6):
+        startday = datetime.date(year,5,2)
+    return startday
+

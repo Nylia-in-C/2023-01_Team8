@@ -7,11 +7,11 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
 import random
-from classes.classrooms import *
-from classes.legions    import *
-from classes.courses    import *
-from classes.programs   import *
-from create_legions     import *
+from imports.classes.classrooms import *
+from imports.classes.legions    import *
+from imports.classes.courses    import *
+from imports.classes.programs   import *
+from imports.create_legions     import *
 from database.database  import *
 
 #===================================================================================================
@@ -216,6 +216,8 @@ def fillClassrooms(term):
         if int(course[7]) == 1: hasLab = True
         else:                   hasLab = False
         course = Course(course[0], course[1], int(course[2]), int(course[3]), int(course[4]), isCore, isOnline, hasLab)
+        
+        
 
         if str(course.term) not in term or course.isOnline: continue
 
@@ -227,6 +229,7 @@ def fillClassrooms(term):
     # Pull Classrooms from database
     classrooms = readClassroomItem(connection, '%')
     for room in classrooms:
+        if room[0] == "ONLINE": continue
         isLab = False
         if int(room[2]) == 1: isLab = True
         rooms.append(Classroom(room[0], int(room[1]), isLab))
