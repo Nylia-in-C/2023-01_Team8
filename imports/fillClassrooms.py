@@ -319,5 +319,6 @@ if __name__ == '__main__':
     # addStudentItem(connection, "BA", 1, 51)
     # addStudentItem(connection, "BA", 2, 23)
     # addStudentItem(connection, "BA", 3, 78)
+    # addStudentItem(connection, "BK", 3, 33)
 
     # close_connection(connection)
