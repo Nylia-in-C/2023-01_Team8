@@ -26,11 +26,13 @@ from pprint import pprint
 
 #===================== TODOs (in no particular order) ==========================       
 
+#TODO: add scheduling for full-stack
+
+#TODO: handle edge cases (e.g. avdm 0260 after all other courses)
 
 # TODO: when updating schedule, check if any courses are scheduled for more than their remaining hours
-#       if so, remove some blocks
+#       if so, remove some blocks (low priority)
 
-# TODO: find way to check if avdm should be scheduled (i.e. 2 days away from end date)
 
 
 day = 1
@@ -355,8 +357,6 @@ def is_valid_sched(lectures, sched):
         if len(pcom_A) != len(set(pcom_A)) or len(pcom_B) != len(set(pcom_B)) or \
            len(bcom_A) != len(set(bcom_A)) or len(bcom_B) != len(set(bcom_B)):
 
-            # print(f"\n\nconflict at {time}\n")
-            # print(sched)
             return True
     return False
 #===============================================================================
@@ -511,12 +511,9 @@ def add_lec(course: Course, cohorts: List[str], course_hours: Dict[str, int],
         return sched
 
     blocks = get_time_slot_count(course, course_hours)
-    
-    #print(f"blocks: {blocks}")
 
     # dict mapping room names to available start times (indexes, not strs)
     open_times = get_available_times(sched, blocks, len(cohorts))
-    #print(f"open times: {open_times}, cohort count: {len(cohorts)}")
     if (open_times == {}):
         return sched
 
