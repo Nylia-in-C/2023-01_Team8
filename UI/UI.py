@@ -1235,7 +1235,7 @@ class UI(QMainWindow):
                                       "GLM1":  0, "GLM2":  0, "GLM3":  0,
                                       "FS1":   0, "FS2":   0, "FS3":   0,
                                       "DXD1":  0, "DXD2":  0, "DXD3":  0,
-                                      "BK1":   0, "BKC":   0, "BK3":   0}
+                                      "BK1":   0, "BK2":   0, "BK3":   0}
 
                     while sheet[f"A{i}"].value:
 
