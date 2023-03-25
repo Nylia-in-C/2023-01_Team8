@@ -603,7 +603,7 @@ class UI(QMainWindow):
 
         vbox_labels.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)) #for alignment
 
-        PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+        PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for label in PROG_LABELS:
             vbox_labels.addWidget(QLabel(label))
@@ -719,7 +719,7 @@ class UI(QMainWindow):
         GLM
         FS
         DXD
-        BKC
+        BK
         '''
         input_fields = layout.count()
         list_val = []
@@ -781,7 +781,6 @@ class UI(QMainWindow):
 
     def add_ghost_rooms(self):
         imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
-        print(SEM[self.pick_semester.currentText()])
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
@@ -1138,7 +1137,7 @@ class UI(QMainWindow):
 
         sheet.append(fields)
 
-        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for term in range (1, 4):
             for program in range(len(programs)):
@@ -1201,7 +1200,7 @@ class UI(QMainWindow):
         term_2 = self.retrieve_term_inputs(self.term_2_inputs)
         term_3 = self.retrieve_term_inputs(self.term_3_inputs)
 
-        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BKC"]
+        programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         try:
             db = r".\database\database.db"  # database.db file path
@@ -1229,10 +1228,9 @@ class UI(QMainWindow):
         connection = create_connection(db)
         lectures_each_day = []
         room = self.select_room.currentText()
+        room = room[:room.find(" ")].strip()
 
-        for each_day in range(4):
-            lectures_each_day.append(database.database.readLectureItem(connection))
-
+        print(room)
         close_connection(connection)
 
         return lectures_each_day
