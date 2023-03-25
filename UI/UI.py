@@ -1183,7 +1183,7 @@ class UI(QMainWindow):
 
                 #----------------------------------------
                 # Client requested excel. Student ID, Student Name, Program, Term
-                if sheet["A1"].value == "Student ID":
+                elif sheet["A1"].value == "Student ID":
                     i = 2
 
                     program_counts = {"PCOM1": 0, "PCOM2": 0, "PCOM3": 0,
@@ -1206,16 +1206,12 @@ class UI(QMainWindow):
 
                     keys = list(program_counts.keys())
                     for i in range(self.term_1_inputs.count()):
-                        print(3*i + 0)
-                        print(keys[3*i + 0])
                         self.term_1_inputs.itemAt(i).widget().setValue(program_counts[keys[3*i + 0]])
 
                     for i in range(self.term_2_inputs.count()):
-                        print(3*i + 1)
                         self.term_2_inputs.itemAt(i).widget().setValue(program_counts[keys[3*i + 1]])
 
                     for i in range(self.term_3_inputs.count()):
-                        print(3*i + 2)
                         self.term_3_inputs.itemAt(i).widget().setValue(program_counts[keys[3*i + 2]])
                     """
                     program = ''
