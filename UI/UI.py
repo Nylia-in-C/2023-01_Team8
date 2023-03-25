@@ -730,38 +730,6 @@ class UI(QMainWindow):
         return list_val
 
 
-    # This function will store the input values
-    # into the database, after calling the create legions
-    # functions
-    #TODO: Not used atm, must be implemented
-    def store_legions(self):
-        db = r".\database\database.db"  # database.db file path
-        conn = create_connection(db)
-
-        programs = ["PCOM", "BCOM" , "PM",  "BA",  "GLM",  "FS" , "DXD",  "BKC"]
-
-        #TODO Need to get the legions made to parse the numbers to add to db
-        # Anything with a '/' is what needs to be obtained
-
-        # for each_field in range(8):
-        #
-        #     self.term_1_inputs.itemAt(each_field).widget().value()
-        #     # Calculate legions here
-        #     for each_legion in range(/legions):
-        #         database.database.addLegionItem(conn, programs[each_field], 1, /legion_num )
-        #
-        #     self.term_2_inputs.itemAt(each_field).widget().value()
-        #     for each_legion in range( / legions):
-        #         database.database.addLegionItem(conn, programs[each_field], 2, /legion_num)
-        #
-        #     self.term_3_inputs.itemAt(each_field).widget().value()
-        #     for each_legion in range( / legions):
-        #         database.database.addLegionItem(conn, programs[each_field], 3, /legion_num)
-
-        close_connection(conn)
-
-
-
     # weekday is 0 or 2, depending on if its monday or wednesday respectively
     # eventually 1 and 3 for tuesday, thursday
     def show_schedule(self, pd_dataframe, weekday):
@@ -1074,6 +1042,7 @@ class UI(QMainWindow):
         self.add_ghost_rooms()
         self.update_class_combos()
 
+        imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         random.shuffle(BG_COLOURS)
         self.reset_table()
