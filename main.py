@@ -1,5 +1,6 @@
 #main python file - 395 team 8
 
+import os
 from UI import UI
 from PyQt5.QtWidgets import *
 
