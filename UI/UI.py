@@ -193,6 +193,7 @@ class UI(QMainWindow):
 
         return tabs
 
+
     def make_main_tab(self):
         main_table_box = QVBoxLayout(self)
         week_choose = QHBoxLayout(self)
