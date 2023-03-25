@@ -174,8 +174,8 @@ class UI(QMainWindow):
 
         # Read me Doc
         read_me = QTextEdit()
-        file_content = open("README.md").read()
-        read_me.setMarkdown(file_content)
+        #file_content = open("README.md").read()
+        #read_me.setMarkdown(file_content)
         layout = QHBoxLayout()
         layout.addWidget(read_me)
         tab3.setLayout(layout)
