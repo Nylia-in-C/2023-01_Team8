@@ -165,6 +165,14 @@ def fillPrograms(program_counts):
         
     return cohortDict
 
+def ghostTestData():
+    
+    program_counts = {}
+    for key in programCoursesByTerm.keys():
+        program_counts[key] = random.randint(18, 189)
+    
+    return program_counts
+
 def fillClassrooms(term):
     """
     Loads course and room data from database, calculates ghostrooms, and adds ghostrooms to the database.
@@ -191,9 +199,9 @@ def fillClassrooms(term):
 
     #--------------------------------------------------------
     # Pull Courses from database
-    if   term == 1: term = "13"
-    elif term == 2: term = "21"
-    elif term == 3: term = "32"
+    if   term == 1: terms = "13"
+    elif term == 2: terms = "21"
+    elif term == 3: terms = "32"
 
     programString = readProgramItem(connection, '%')
     for program in programString:
@@ -217,11 +225,6 @@ def fillClassrooms(term):
         if programTerm not in programCoursesByTerm.keys(): programCoursesByTerm[programTerm] = []
         programCoursesByTerm[programTerm].append(course)
 
-    # Random generation: Remove when getting actual inputs
-    program_counts = {}
-    for key in programCoursesByTerm.keys():
-        program_counts[key] = random.randint(18, 189)
-
     #--------------------------------------------------------
     # Pull Classrooms from database
     classrooms = readClassroomItem(connection, '%')
@@ -239,6 +242,14 @@ def fillClassrooms(term):
     rooms.sort(key= lambda Classroom: Classroom.capacity)
 
     #--------------------------------------------------------
+    # Pull student counts from database
+    program_counts = {}
+    for term in terms:
+        studentCounts = readStudentItem(connection, '%', int(term))
+        for program in studentCounts:
+            program_counts[program[0] + str(program[1])] = int(program[2])
+
+    #--------------------------------------------------------
     # Calculate ghost rooms
     cohortDict = fillPrograms(program_counts)
 
@@ -250,7 +261,7 @@ def fillClassrooms(term):
     return cohortDict
 
 # TODO:
-#   - Take student count input
+#   - Account for online classroom
 
 # Nice to have:
 #   - Reduced program hours only on lab rooms
@@ -300,8 +311,15 @@ if __name__ == '__main__':
     # print(ghostRooms)
 
     # delete_ghost_rooms()
+
     # connection = create_connection(r".\database\database.db")
 
-    # addStudentItem(connection, "", Term, Count)
+    # addStudentItem(connection, "PCOM", 1, 103)
+    # addStudentItem(connection, "PCOM", 2, 123)
+    # addStudentItem(connection, "PCOM", 3, 87)
+    # addStudentItem(connection, "PM", 3, 18)
+    # addStudentItem(connection, "BA", 1, 51)
+    # addStudentItem(connection, "BA", 2, 23)
+    # addStudentItem(connection, "BA", 3, 78)
 
     # close_connection(connection)
