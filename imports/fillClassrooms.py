@@ -217,7 +217,7 @@ def fillClassrooms(term):
         else:                   hasLab = False
         course = Course(course[0], course[1], int(course[2]), int(course[3]), int(course[4]), isCore, isOnline, hasLab)
 
-        if str(course.term) not in terms: continue
+        if str(course.term) not in term or course.isOnline: continue
 
         programTerm = f"{program[0]}{course.term}"
         if programTerm not in programCoursesByTerm.keys(): programCoursesByTerm[programTerm] = []
@@ -297,8 +297,9 @@ if __name__ == '__main__':
     # print(ghostRooms)
 
     print(fillClassrooms(1))
-    print(roomHours)
-    print(ghostRooms)
+    #print(rooms)
+    #print(roomHours)
+    # print(ghostRooms)
     # fillClassrooms(1)
     # print(roomHours)
     # print(ghostRooms)
