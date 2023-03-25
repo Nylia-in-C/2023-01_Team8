@@ -23,6 +23,17 @@ import datetime
 BG_COLOURS = QtGui.QColor.colorNames()
 
 SEM = {"Fall":1, "Winter":2, "Spring / Summer":3}
+# Quickly match times to slots when displaying schedule.
+TIMES = {"08:00":0, "08:30":1,
+         "09:00":2, "09:30":3,
+         "10:00":4,"10:30":5,
+         "11:00":6,"11:30":7,
+         "12:00":8,"12:30":9,
+         "13:00":10,"13:30":11,
+         "14:00":12,"14:30":13,
+         "15:00":14,"15:30":15,
+         "16:00":16,"16:30":17,
+         "17:00":18}
 
 LEFT_MAX_WIDTH = 450
 global CORE_SCHEDULE
@@ -1288,11 +1299,10 @@ class UI(QMainWindow):
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
-        lectures_each_day = []
         room = self.select_room.currentText()
         room = room[:room.find(" ")].strip()
 
-        print(room)
+        lectures_each_day = readLectureItem_room_week(connection, room, WEEK)
         close_connection(connection)
 
         return lectures_each_day
