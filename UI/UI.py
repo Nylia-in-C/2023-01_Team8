@@ -1049,7 +1049,7 @@ class UI(QMainWindow):
 
         # Retrieve lecture items for the week
 
-        # week1 = self.get_lecture_items()
+        week1 = self.get_lecture_items()
 
         # Create a list for each day, (26 slots) for each list to correspond for each time
         # for each_day in range(len(week1)):
@@ -1228,6 +1228,7 @@ class UI(QMainWindow):
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
         lectures_each_day = []
+        room = self.select_room.currentText()
 
         for each_day in range(4):
             lectures_each_day.append(database.database.readLectureItem(connection))
@@ -1246,6 +1247,7 @@ class UI(QMainWindow):
             # If it does, treat is as an edit (i.e. remove it from db, then add it fresh)
 
             classroom_id = self.class_id.text().strip()
+            classroom_id = classroom_id.replace(" ","-")
             wanted_class = readClassroomItem(connection, classroom_id)
             lab = self.class_lab.checkedButton().text()
 
@@ -1258,9 +1260,9 @@ class UI(QMainWindow):
             if (lab == "Lab"):
                 val = 1
             if(len(wanted_class) == 1):
-                deleteClassroomItem(connection, self.class_id.text().strip())
+                deleteClassroomItem(connection, classroom_id)
 
-            new_room = Classroom(self.class_id.text().strip(), self.class_capacity.value(), val)
+            new_room = Classroom(classroom_id, self.class_capacity.value(), val)
             addClassroomItem(connection, new_room)
 
             # Must close connection to update db before updating comboboxes
@@ -1282,8 +1284,11 @@ class UI(QMainWindow):
 
             # Remove the classroom from the DB
             classroom = self.classroom_list.currentText()
+            # Remove all text past the room name
+            index = classroom.find(" ")
+            classroom = classroom[:index].strip()
 
-            deleteClassroomItem(connection, classroom.replace("(LAB)", "").strip())
+            deleteClassroomItem(connection, classroom)
 
             close_connection(connection)
 
