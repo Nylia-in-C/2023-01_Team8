@@ -3,3 +3,5 @@
 *.cpython
 **/.tempCodeRunnerFile.py
 .venv
+UI/UI.py
+*.xlsx
