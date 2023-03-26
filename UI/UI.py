@@ -344,7 +344,8 @@ class UI(QMainWindow):
             course_name_list.append(db_courses[each_course][0])
 
         self.courses.addItems(course_name_list)
-        self.courses.setMaximumWidth(200)
+        self.courses.setMinimumWidth(100)
+        self.courses.setMaximumWidth(100)
         self.course_pre_req_selector.addItems(course_name_list)
 
         # Creating inputs
@@ -361,10 +362,11 @@ class UI(QMainWindow):
         new_or_edit.addWidget(b2)
         #-----------------------------
 
-        course_id_sec = QVBoxLayout()
+        course_id_sec = QHBoxLayout()
         course_id_sec.addWidget(QLabel("Course Name"))
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
-        self.course_id.setMaximumWidth(100)
+        self.course_id.setMinimumWidth(200)
+        self.course_id.setMaximumWidth(200)
         course_id_sec.addWidget(self.courses)
         course_id_sec.addWidget(self.course_id)
         self.courses.hide()
@@ -390,23 +392,23 @@ class UI(QMainWindow):
 
         #--------------------------
 
-        vbox_online_lab = QVBoxLayout()
+        hbox_online_lab = QHBoxLayout()
 
         core_hbox = QHBoxLayout()
         core_hbox.addWidget(QLabel("Core Course: "))
         core_hbox.addWidget(self.course_core)
 
         online_hbox = QHBoxLayout()
-        online_hbox.addWidget(QLabel("Online?: "))
+        online_hbox.addWidget(QLabel("Online: "))
         online_hbox.addWidget(self.course_online)
 
         hbox_lab = QHBoxLayout()
-        hbox_lab.addWidget(QLabel("Has a lab?: "))
+        hbox_lab.addWidget(QLabel("Lab Component: "))
         hbox_lab.addWidget(self.course_lab)
 
-        vbox_online_lab.addLayout(core_hbox)
-        vbox_online_lab.addLayout(online_hbox)
-        vbox_online_lab.addLayout(hbox_lab)
+        hbox_online_lab.addLayout(core_hbox)
+        hbox_online_lab.addLayout(online_hbox)
+        hbox_online_lab.addLayout(hbox_lab)
         #--------------------------
 
         course_btn = QPushButton("Save Course")
@@ -430,21 +432,21 @@ class UI(QMainWindow):
         vbox_pre_reqs.addWidget(rem_pre_req)
 
         #-----------------------------
+        vbox_course_specs1 = QVBoxLayout()
+        vbox_course_specs1.addLayout(course_id_sec)
+        vbox_course_specs1.addLayout(hbox_online_lab)
+        #-----------------------------
 
         hbox.setSpacing(15)
         hbox.addLayout(new_or_edit)
         hbox.addWidget(self.create_vertical_line())
-        hbox.addLayout(course_id_sec)
-        hbox.addWidget(self.create_vertical_line())
-        hbox.addLayout(vbox_online_lab)
+        hbox.addLayout(vbox_course_specs1)
         hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(vbox_spin_boxes)
         hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(vbox_pre_reqs)
         hbox.addWidget(self.create_vertical_line())
         hbox.addWidget(course_btn)
-
-        #hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
         vbox_course.addLayout(hbox)
 
