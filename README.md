@@ -36,3 +36,7 @@ If no file exists yet, click the 'Create Template' button to make a compatible .
 If a file with the correct template already exists, click the "Choose File" button and navigate to the correct file to upload. Once a file has been chosen, click the "Load Data" button to import the student enrollment data into Scheduler. 
 
 ## Create Schedule
+Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the "Create Schedule" button to generate the schedule. 
+
+Note: If there are insufficient rooms available, Scheduler will give a warning. To add more rooms, see ADDDDDD SECTION HERE   
+
