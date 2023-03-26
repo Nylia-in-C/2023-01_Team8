@@ -246,6 +246,8 @@ def fillClassrooms(term):
         studentCounts = readStudentItem(connection, '%', int(term))
         for program in studentCounts:
             program_counts[program[0] + str(program[1])] = int(program[2])
+    
+    print(program_counts)
 
     #--------------------------------------------------------
     # Calculate ghost rooms
@@ -300,8 +302,8 @@ if __name__ == '__main__':
     print(fillClassrooms(1))
     #print(rooms)
     #print(roomHours)
-    # print(ghostRooms)
-    # fillClassrooms(1)
+    #print(ghostRooms)
+    #fillClassrooms(1)
     # print(roomHours)
     # print(ghostRooms)
     # fillClassrooms(2)

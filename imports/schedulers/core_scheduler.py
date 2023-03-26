@@ -38,19 +38,26 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         termB = 3
         start_day = getSpringStartDay(2024)
         holidays  = getHolidaysMonWed(2023)
+        
+    pcomA_courses = get_courses('PCOM', termA)
+    pcomB_courses = get_courses('PCOM', termB)
+    bcomA_courses = get_courses('BCOM', termA)
+    bcomB_courses = get_courses('BCOM', termB)
 
-    pcomA_lecs = get_lectures('PCOM', termA)
-    pcomB_lecs = get_lectures('PCOM', termB)
-    bcomA_lecs = get_lectures('BCOM', termA)
-    bcomB_lecs = get_lectures('BCOM', termB)
+    pcomA_lecs = [c for c in pcomA_courses if not c.hasLab and not c.isOnline]
+    pcomB_lecs = [c for c in pcomB_courses if not c.hasLab and not c.isOnline]
+    bcomA_lecs = [c for c in bcomA_courses if not c.hasLab and not c.isOnline]
+    bcomB_lecs = [c for c in bcomB_courses if not c.hasLab and not c.isOnline]
     
-    # only pcom has labs
-    pcomA_labs = get_labs('PCOM', termA)
-    pcomB_labs = get_labs('PCOM', termB)
+    pcomA_labs = [c for c in pcomA_courses if c.hasLab]
+    pcomB_labs = [c for c in pcomB_courses if c.hasLab]
+    bcomA_labs = [c for c in bcomA_courses if c.hasLab]
+    bcomB_labs = [c for c in bcomA_courses if c.hasLab]
     
-    # only bcom has online courses
-    bcomA_onls = get_onlines('BCOM', termA)
-    bcomB_onls = get_onlines('BCOM', termB)
+    pcomA_onls = [c for c in pcomA_courses if c.isOnline]
+    pcomB_onls = [c for c in pcomB_courses if c.isOnline]
+    bcomA_onls = [c for c in bcomA_courses if c.isOnline]
+    bcomB_onls = [c for c in bcomB_courses if c.isOnline]
         
     rooms   = get_rooms()
     cohorts = get_cohort_counts(term)
@@ -70,8 +77,12 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     labs = {
         'pcomA': pcomA_labs,
         'pcomB': pcomB_labs,
+        'bcomA': bcomA_labs,
+        'bcomB': bcomB_labs,
     }
     online = {
+        'pcomA': pcomA_onls,
+        'pcomB': pcomB_onls,
         'bcomA': bcomA_onls,
         'bcomB': bcomB_onls,
     }
