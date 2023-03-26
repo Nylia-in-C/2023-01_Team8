@@ -216,7 +216,6 @@ class UI(QMainWindow):
         vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addLayout(self.update_course_section())
 
-
         return vbox_overall
 
     def update_classroom_section(self):
@@ -309,22 +308,19 @@ class UI(QMainWindow):
 
         # Put deleting functions into layout
         room_delete_layout.addLayout(remove_section)
-        room_delete_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+        room_delete_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
         #Add sublayouts to big vbox_class object
         vbox_class.addLayout(room_add_layout)
-        vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
-
         vbox_class.addWidget(class_delete_text)
-
         vbox_class.addLayout(room_delete_layout)
-        vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox_class.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         
         return vbox_class
 
     def update_course_section(self):
         vbox_course = QVBoxLayout()
-        vbox_course.setContentsMargins(20,0,0,0)
+        vbox_course.setContentsMargins(20,0,0,100)
 
         font = QFont()
         font.setBold(True)
@@ -335,7 +331,7 @@ class UI(QMainWindow):
         
         vbox_course.addWidget(course_section_text)
         vbox_course.addWidget(self.create_horizontal_line())
-
+        vbox_course.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
@@ -361,7 +357,6 @@ class UI(QMainWindow):
         self.courses_edit_new.addButton(b1)
         self.courses_edit_new.addButton(b2)
 
-        new_or_edit.addWidget(QLabel("Edit?"))
         new_or_edit.addWidget(b1)
         new_or_edit.addWidget(b2)
         #-----------------------------
@@ -437,14 +432,13 @@ class UI(QMainWindow):
         #-----------------------------
 
         hbox.setSpacing(15)
-
         hbox.addLayout(new_or_edit)
         hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(course_id_sec)
         hbox.addWidget(self.create_vertical_line())
-        hbox.addLayout(vbox_spin_boxes)
-        hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(vbox_online_lab)
+        hbox.addWidget(self.create_vertical_line())
+        hbox.addLayout(vbox_spin_boxes)
         hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(vbox_pre_reqs)
         hbox.addWidget(self.create_vertical_line())
