@@ -22,11 +22,17 @@ Scheduler is broken into two main parts: the left sidebar with various user func
 On the left sidebar, the user can adjust the number of students either manually by program and term, or by uploading a pre-made template file to quickly populate predetermined enrollment numbers.
 
 ## Students per Term Menu
+The number of students per program per term can be manually adjusted here, either by clicking on the box and typing in the desired value, or by clicking the up/down arrows to the right of the box.  
+
+Note: Importing data via the Load Data function will overwrite previous input.   
 
 ## Enrollment by Program File Import
-
-### Import Template
+Optionally, the user can upload a file to populate enrollment numbers automatically. 
 
 ### Create Template
+If no file exists yet, click the 'Create Template' button to make a compatible .xlsx file that can be filled out with enrollment numbers via any available spreadsheet editor program (e.g. Microsoft Excel). 
+
+### Import Template
+If a file with the correct template already exists, click the "Choose File" button and navigate to the correct file to upload. Once a file has been chosen, click the "Load Data" button to import the student enrollment data into Scheduler. 
 
 ## Create Schedule
