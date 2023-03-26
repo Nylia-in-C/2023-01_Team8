@@ -216,7 +216,6 @@ class UI(QMainWindow):
         vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addLayout(self.update_course_section())
 
-
         return vbox_overall
 
     def update_classroom_section(self):
@@ -309,22 +308,19 @@ class UI(QMainWindow):
 
         # Put deleting functions into layout
         room_delete_layout.addLayout(remove_section)
-        room_delete_layout.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+        room_delete_layout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
         #Add sublayouts to big vbox_class object
         vbox_class.addLayout(room_add_layout)
-        vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
-
         vbox_class.addWidget(class_delete_text)
-
         vbox_class.addLayout(room_delete_layout)
-        vbox_class.addSpacerItem(QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox_class.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         
         return vbox_class
 
     def update_course_section(self):
         vbox_course = QVBoxLayout()
-        vbox_course.setContentsMargins(20,0,0,0)
+        vbox_course.setContentsMargins(20,0,0,100)
 
         font = QFont()
         font.setBold(True)
@@ -335,7 +331,7 @@ class UI(QMainWindow):
         
         vbox_course.addWidget(course_section_text)
         vbox_course.addWidget(self.create_horizontal_line())
-
+        vbox_course.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
@@ -348,7 +344,8 @@ class UI(QMainWindow):
             course_name_list.append(db_courses[each_course][0])
 
         self.courses.addItems(course_name_list)
-        self.courses.setMaximumWidth(200)
+        self.courses.setMinimumWidth(100)
+        self.courses.setMaximumWidth(100)
         self.course_pre_req_selector.addItems(course_name_list)
 
         # Creating inputs
@@ -361,15 +358,15 @@ class UI(QMainWindow):
         self.courses_edit_new.addButton(b1)
         self.courses_edit_new.addButton(b2)
 
-        new_or_edit.addWidget(QLabel("Edit?"))
         new_or_edit.addWidget(b1)
         new_or_edit.addWidget(b2)
         #-----------------------------
 
-        course_id_sec = QVBoxLayout()
+        course_id_sec = QHBoxLayout()
         course_id_sec.addWidget(QLabel("Course Name"))
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
-        self.course_id.setMaximumWidth(100)
+        self.course_id.setMinimumWidth(200)
+        self.course_id.setMaximumWidth(200)
         course_id_sec.addWidget(self.courses)
         course_id_sec.addWidget(self.course_id)
         self.courses.hide()
@@ -395,23 +392,23 @@ class UI(QMainWindow):
 
         #--------------------------
 
-        vbox_online_lab = QVBoxLayout()
+        hbox_online_lab = QHBoxLayout()
 
         core_hbox = QHBoxLayout()
         core_hbox.addWidget(QLabel("Core Course: "))
         core_hbox.addWidget(self.course_core)
 
         online_hbox = QHBoxLayout()
-        online_hbox.addWidget(QLabel("Online?: "))
+        online_hbox.addWidget(QLabel("Online: "))
         online_hbox.addWidget(self.course_online)
 
         hbox_lab = QHBoxLayout()
-        hbox_lab.addWidget(QLabel("Has a lab?: "))
+        hbox_lab.addWidget(QLabel("Lab Component: "))
         hbox_lab.addWidget(self.course_lab)
 
-        vbox_online_lab.addLayout(core_hbox)
-        vbox_online_lab.addLayout(online_hbox)
-        vbox_online_lab.addLayout(hbox_lab)
+        hbox_online_lab.addLayout(core_hbox)
+        hbox_online_lab.addLayout(online_hbox)
+        hbox_online_lab.addLayout(hbox_lab)
         #--------------------------
 
         course_btn = QPushButton("Save Course")
@@ -435,22 +432,21 @@ class UI(QMainWindow):
         vbox_pre_reqs.addWidget(rem_pre_req)
 
         #-----------------------------
+        vbox_course_specs1 = QVBoxLayout()
+        vbox_course_specs1.addLayout(course_id_sec)
+        vbox_course_specs1.addLayout(hbox_online_lab)
+        #-----------------------------
 
         hbox.setSpacing(15)
-
         hbox.addLayout(new_or_edit)
         hbox.addWidget(self.create_vertical_line())
-        hbox.addLayout(course_id_sec)
+        hbox.addLayout(vbox_course_specs1)
         hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(vbox_spin_boxes)
-        hbox.addWidget(self.create_vertical_line())
-        hbox.addLayout(vbox_online_lab)
         hbox.addWidget(self.create_vertical_line())
         hbox.addLayout(vbox_pre_reqs)
         hbox.addWidget(self.create_vertical_line())
         hbox.addWidget(course_btn)
-
-        #hbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
         vbox_course.addLayout(hbox)
 
@@ -518,13 +514,13 @@ class UI(QMainWindow):
         vbox.addWidget(title)
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addWidget(input_title)
-        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addLayout(self.legion_inputs())
+        vbox.addLayout(self.create_file_choose())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addLayout(self.create_file_choose())
+        vbox.addWidget(input_title)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addLayout(self.legion_inputs())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
