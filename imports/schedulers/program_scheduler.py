@@ -28,17 +28,17 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         termA = 1
         termB = 3
         start_day = getFallStartDay(2023)
-        holidays = getHolidaysMonWed(2023)
+        holidays = getHolidaysTuesThurs(2023)
     elif (term == 2):
         termA = 1
         termB = 2
         start_day = getWinterStartDay(2024)
-        holidays = getHolidaysMonWed(2023)
+        holidays = getHolidaysTuesThurs(2023)
     elif (term == 3):
         termA = 2
         termB = 3
         start_day = getSpringStartDay(2024)
-        holidays = getHolidaysMonWed(2023)
+        holidays = getHolidaysTuesThurs(2023)
 
     pmA_courses  = get_courses('PM' , termA)
     pmB_courses  = get_courses('PM' , termB)

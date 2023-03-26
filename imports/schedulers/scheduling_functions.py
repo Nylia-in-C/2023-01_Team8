@@ -547,7 +547,7 @@ def add_lec(course: Course, cohorts: List[str], course_hours: Dict[str, int],
             Lecture(
                 course.ID, course.title, course.termHours, course.term,
                 course.duration, course.isCore, course.isOnline, course.hasLab,
-                course.preReqs, ID, room, week, day, start_label
+                course.preReqs, ID, room, week, day_count, start_label
             )
         )
 
@@ -752,7 +752,7 @@ def add_lab(lab: Course, cohorts: List[str],
             Lecture(
                 lab.ID, lab.title, lab.termHours, lab.term,
                 lab.duration, lab.isCore, lab.isOnline, lab.hasLab,
-                lab.preReqs, ID, room, week, day, start_label
+                lab.preReqs, ID, room, week, day_count, start_label
             )
         )
 
@@ -932,7 +932,7 @@ def add_onl(online: Course, course_hours: Dict[str, int], invalid_courses: List[
                     online.ID, online.title, online.termHours, 
                     online.term, online.duration, online.isCore,
                     online.isOnline, online.hasLab, online.preReqs, "", 
-                    list(onl_sched.columns)[0], week, day, start
+                    list(onl_sched.columns)[0], week, day_count, onl_sched.index[start]
                 )
                 lecture_objs.append(new_lec)
                 
@@ -966,8 +966,9 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
     each as a pandas DataFrame, and returns them in a dictionary
     '''
 
-    global day, week, lecture_objs
+    global day, day_count, week, lecture_objs
     
+    day_count = 0
     day = start_day
     end_day = start_day + datetime.timedelta(weeks=13)
     
@@ -989,12 +990,15 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
 
     while day < end_day:
         
+        day_count += 1
+        
         if day in holidays:
             full_schedule[day] = (f"HOLIDAY")
             if (day.weekday() == 0):
                 day += datetime.timedelta(days=2)
             elif (day.weekday() == 2):
                 day += datetime.timedelta(days=5)
+                week += 1
             continue
         
         lecture_sched = make_core_lecture_sched(
@@ -1028,6 +1032,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             day += datetime.timedelta(days=2)
         elif (day.weekday() == 2):
             day += datetime.timedelta(days=5)
+            week += 1
 
         
     print(f"\n\nINVALID COUNT: {invalid}\n\n")
@@ -1048,9 +1053,10 @@ def create_program_term_schedule(lectures: Dict[str, List[Course]],
     each as a pandas DataFrame, and returns them in a dictionary
     '''
 
-    global day, week, lecture_objs
+    global day, day_count, week, lecture_objs
 
     day = start_day
+    day_count = 0
     end_day = start_day + datetime.timedelta(weeks=13)
 
     all_courses = list(
@@ -1069,6 +1075,8 @@ def create_program_term_schedule(lectures: Dict[str, List[Course]],
     full_schedule = {}
     
     while day < end_day:
+        
+        day_count += 1
 
         if day in holidays:
             full_schedule[day] = (f"HOLIDAY")
@@ -1076,6 +1084,7 @@ def create_program_term_schedule(lectures: Dict[str, List[Course]],
                 day += datetime.timedelta(days=2)
             elif (day.weekday() == 2):
                 day += datetime.timedelta(days=5)
+                week += 1
             continue
 
         lecture_sched = make_program_lecture_sched(
@@ -1105,6 +1114,7 @@ def create_program_term_schedule(lectures: Dict[str, List[Course]],
             day += datetime.timedelta(days=2)
         elif (day.weekday() == 2):
             day += datetime.timedelta(days=5)
+            week += 1
 
     pprint(course_hours)
 
