@@ -15,7 +15,7 @@ sys.path.append(grandparentdir)
 #TODO: create separate file/scheduling stuff for full stack web dev
 
 
-def get_sched(term: int) -> Dict[str, pd.DataFrame]:
+def get_sched(term: int):
     '''
     Main driver function for generating the term schedule for program-specific courses, 
     where the term passed indicates if the schedule is for fall, winter, or spring semester
@@ -39,17 +39,22 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         termB = 3
         start_day = getSpringStartDay(2024)
         holidays = getHolidaysTuesThurs(2023)
+        
+    rooms   = get_rooms()
+    cohorts = get_cohort_counts(term)
 
-    pmA_courses  = get_courses('PM' , termA)
-    pmB_courses  = get_courses('PM' , termB)
-    baA_courses  = get_courses('BA' , termA)
-    baB_courses  = get_courses('BA' , termB)
-    glmA_courses = get_courses('GLM', termA)
-    glmB_courses = get_courses('GLM', termB)
-    dxdA_courses = get_courses('DXD', termA)
-    dxdB_courses = get_courses('DXD', termB)
-    bkA_courses  = get_courses('bkA', termA)
-    bkB_courses  = get_courses('bkB', termB)
+    pmA_courses  = get_courses('PM' , termA) if cohorts[f'PM{termA}']  else []
+    pmB_courses  = get_courses('PM' , termB) if cohorts[f'PM{termB}']  else []
+    baA_courses  = get_courses('BA' , termA) if cohorts[f'BA{termA}']  else []
+    baB_courses  = get_courses('BA' , termB) if cohorts[f'BA{termB}']  else []
+    glmA_courses = get_courses('GLM', termA) if cohorts[f'GLM{termA}'] else []
+    glmB_courses = get_courses('GLM', termB) if cohorts[f'GLM{termB}'] else []
+    dxdA_courses = get_courses('DXD', termA) if cohorts[f'DXD{termA}'] else []
+    dxdB_courses = get_courses('DXD', termB) if cohorts[f'DXD{termB}'] else []
+    bkA_courses  = get_courses('BK' , termA) if cohorts[f'BK{termA}']  else []
+    bkB_courses  = get_courses('BK' , termB) if cohorts[f'BK{termB}']  else []
+    fsA_courses  = get_courses('FS' , termA) if cohorts[f'FS{termA}']  else []
+    fsB_courses  = get_courses('FS' , termB) if cohorts[f'FS{termB}']  else []
     
     pmA_lecs  = [c for c in pmA_courses  if not c.hasLab and not c.isOnline]
     pmB_lecs  = [c for c in pmB_courses  if not c.hasLab and not c.isOnline]
@@ -61,6 +66,8 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     dxdB_lecs = [c for c in dxdB_courses if not c.hasLab and not c.isOnline]
     bkA_lecs  = [c for c in bkA_courses  if not c.hasLab and not c.isOnline]
     bkB_lecs  = [c for c in bkB_courses  if not c.hasLab and not c.isOnline]
+    fsA_lecs  = [c for c in fsA_courses  if not c.hasLab and not c.isOnline]
+    fsB_lecs  = [c for c in fsB_courses  if not c.hasLab and not c.isOnline]
     
     pmA_labs  = [c for c in pmA_courses  if c.hasLab]
     pmB_labs  = [c for c in pmB_courses  if c.hasLab]
@@ -72,6 +79,8 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     dxdB_labs = [c for c in dxdB_courses if c.hasLab]
     bkA_labs  = [c for c in bkA_courses  if c.hasLab]
     bkB_labs  = [c for c in bkB_courses  if c.hasLab]
+    fsA_labs  = [c for c in fsA_courses  if c.hasLab]
+    fsB_labs  = [c for c in fsB_courses  if c.hasLab]
     
     pmA_onls  = [c for c in pmA_courses  if c.isOnline]
     pmB_onls  = [c for c in pmB_courses  if c.isOnline]
@@ -83,10 +92,10 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     dxdB_onls = [c for c in dxdB_courses if c.isOnline]
     bkA_onls  = [c for c in bkA_courses  if c.isOnline]
     bkB_onls  = [c for c in bkB_courses  if c.isOnline]
-    
-    rooms   = get_rooms()
-    cohorts = get_cohort_counts(term)
+    fsA_onls  = [c for c in fsA_courses  if c.isOnline]
+    fsB_onls  = [c for c in fsB_courses  if c.isOnline]
 
+    
     # list of uppercase letters, length vary
     pmA_cohorts  = string.ascii_uppercase[:cohorts[f'PM{termA}']]
     pmB_cohorts  = string.ascii_uppercase[:cohorts[f'PM{termB}']]
@@ -98,6 +107,8 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     dxdB_cohorts = string.ascii_uppercase[:cohorts[f'DXD{termB}']]
     bkA_cohorts  = string.ascii_uppercase[:cohorts[f'BK{termA}']]
     bkB_cohorts  = string.ascii_uppercase[:cohorts[f'BK{termB}']]
+    fsA_cohorts  = string.ascii_uppercase[:cohorts[f'FS{termA}']]
+    fsB_cohorts  = string.ascii_uppercase[:cohorts[f'FS{termB}']]
 
     lectures = {
         'pmA' : pmA_lecs,
@@ -110,6 +121,8 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         'dxdB': dxdB_lecs,
         'bkA' : bkA_lecs,
         'bkB' : bkB_lecs,
+        'fsA' : fsA_lecs,
+        'fsB' : fsB_lecs,
     }
     labs = {
         'pmA' : pmA_labs,
@@ -122,6 +135,8 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         'dxdB': dxdB_labs,
         'bkA' : bkA_labs,
         'bkB' : bkB_labs,
+        'fsA' : fsA_labs,
+        'fsB' : fsB_labs,
     }
     online = {
         'pmA' : pmA_onls,
@@ -134,6 +149,8 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         'dxdB': dxdB_onls,
         'bkA' : bkA_onls,
         'bkB' : bkB_onls,
+        'fsA' : fsA_onls,
+        'fsB' : fsB_onls,
     }
     cohorts = {
         'pmA' : pmA_cohorts,
@@ -145,7 +162,9 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         'dxdA': dxdA_cohorts,
         'dxdB': dxdB_cohorts,
         'bkA' : bkA_cohorts,
-        'bkB' : bkB_cohorts,    
+        'bkB' : bkB_cohorts,
+        'fsA' : fsA_cohorts,
+        'fsB' : fsB_cohorts,
     }
 
     # get all 26 day schedules as a dictionary of dataframes
