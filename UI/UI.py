@@ -19,6 +19,7 @@ import imports.schedulers.core_scheduler
 import imports.schedulers.program_scheduler
 import imports.classes.classrooms
 import datetime
+import copy
 
 
 BG_COLOURS = QtGui.QColor.colorNames()
@@ -38,15 +39,16 @@ TIMES = {"08:00":0, "08:30":1,
 
 LEFT_MAX_WIDTH = 450
 
-# Dictionaries where key = week number, value = 4-tuple of lists for each day that week
+# Dictionaries where key = week number, value =list of (2) lists for each day that week
 CORE_SCHEDULE = {}
 PROG_SCHEDULE = {}
+ROOM = ""
 global PROG_LABELS
 WEEK = 1
 CORE_DAY = 1
 PROG_DAY = 1
 COLOUR_INDEX = -1
-global COURSE_COLOUR
+COURSE_COLOUR = {}
 
 
 # Removes colours that make the text hard to read / separate from the background
@@ -740,41 +742,44 @@ class UI(QMainWindow):
 
     # weekday is 0 or 2, depending on if its monday or wednesday respectively
     # eventually 1 and 3 for tuesday, thursday
-    def show_schedule(self, pd_dataframe, weekday):
+    def show_schedule(self, lecture_list, weekday):
 
         global COLOUR_INDEX
 
         course = ""
 
-        day_list = pd_dataframe.tolist()
         font = QFont()
         font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
-            if day_list[cell] == "":
+            if lecture_list[cell] == "":
                 continue
 
-            elif day_list[cell] != "" and course == day_list[cell]:
+            # If this cell is the same name as the course from the previous cell,
+            # Consider it part of the same block
+            elif lecture_list[cell] != "" and course == lecture_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
                 side_fill = QLabel()
                 side_fill.setStyleSheet("border: solid black;"
                                         "border-width : 0px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and day_list[cell + 1] == "":
+                if cell + 1 <= 18 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid black;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.main_table.setCellWidget(cell, weekday, side_fill)
+
+            # The course listed is a new one, and must be given a new colour + block
             else:
-                course = day_list[cell]
-                label_fill = QLabel(day_list[cell])
+                course = lecture_list[cell]
+                label_fill = QLabel(lecture_list[cell])
                 label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid black;"
                                          "border-width : 2px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and day_list[cell + 1] != course:
+                if cell + 1 <= 18 and lecture_list[cell + 1] != course:
                     label_fill.setStyleSheet("border: solid black;"
                                             "border-width : 0px 2px 2px 2px;")
 
@@ -837,8 +842,15 @@ class UI(QMainWindow):
         # Will eventually replace create_schedule, as it will pull form the db
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
-        global WEEK
+        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM
+        # Reset values
+        CORE_DAY = 1
+        PROG_DAY = 1
+        CORE_SCHEDULE.clear()
+        PROG_SCHEDULE.clear()
         WEEK = 1
+        ROOM = self.select_room.currentText()
+        ROOM = ROOM[:ROOM.find(" ")].strip()
 
         # Pass in student numbers to db
         # Then calculate ghost rooms
@@ -853,10 +865,22 @@ class UI(QMainWindow):
         random.shuffle(BG_COLOURS)
         self.reset_table()
 
-        # Retrieve lecture items for the week
 
+        # All lecture items should now be recorded in the dictionaries
         self.get_lecture_items()
 
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
+
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
 
 
 
@@ -1024,35 +1048,58 @@ class UI(QMainWindow):
     # Get the schedule for a specified semester, and fill the dictionary
     # With the 4-tuple lists for each week
     def get_lecture_items(self):
-        #TODO see if easy to change to search by week / class
 
-        global CORE_SCHEDULE, PROG_SCHEDULE
+        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM
+        
+        core_week_list = []
+        prog_week_list = []
+
+        core_last_known_sched = [""] *26
+        prog_last_known_sched = [""] *26
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
-        room = self.select_room.currentText()
-        room = room[:room.find(" ")].strip()
+
 
         # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
         # 13 weeks in a semester
         for weeks in range(1, 14):
 
             # Create a list for each day (2), (26 slots) for each list to correspond for each time
+            # Recall that CORE_DAY and  PROG DAY are independant
+            # i.e. An odd COre Day / PRog day = Monday / Tuesday, even = Wednesday/ thursday
             for each_day in range(1, 3):
 
-                core_lectures_in_week = readLectureItem_UI(connection, room, each_day, 1)
-                prog_lectures_in_week = readLectureItem_UI(connection, room, each_day, 0)
+                core_lectures_in_week = readLectureItem_UI(connection, ROOM, CORE_DAY, 1)
+                prog_lectures_in_week = readLectureItem_UI(connection, ROOM, PROG_DAY, 0)
 
-                self.convert_to_list(core_lectures_in_week)
+                # Checking if there was any new differences in schedule
+                # if not, then simply add the last known schedule since it hasnt changed.
+                if len(core_lectures_in_week) != 0:
+                    core_last_known_sched = self.convert_to_list(core_lectures_in_week)
 
-                # for each_lecture in range(len(week1[each_day])):
-                #     #TODO match start time of lecture to its spot in the schedule_list
-                #     # Separate the cohorts within it
-                #     # put them in list
-                #     # Pass to show schedule function
+                if len(prog_lectures_in_week) != 0:
+                    prog_last_known_sched = self.convert_to_list(prog_lectures_in_week)
+
+                core_week_list.append(core_last_known_sched)
+                prog_week_list.append(prog_last_known_sched)
+
+                CORE_DAY += 1
+                PROG_DAY += 1
+                
+            # All weeks should be account for in the dictionaries now
+            # Deepcopies must be made, since python does by reference
+            CORE_SCHEDULE[weeks] = copy.deepcopy(core_week_list)
+            PROG_SCHEDULE[weeks] = copy.deepcopy(prog_week_list)
+            # Clear the list of lists
+            core_week_list.clear()
+            prog_week_list.clear()
 
         close_connection(connection)
 
+
+    # Creates a list using the data pulled from the DB
+    # The list matches what should be displayed in the UI.
     def convert_to_list(self, db_pull):
         global TIMES
         day_sched = [""] * 26
