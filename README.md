@@ -2,15 +2,20 @@
 
 # Table of Contents TODO: DOUBLECHECK ENTRIES.  
 
-[Introduction](https://github.com/MacEwanCMPT395/2023-01_Team8/blob/main/README.md#introduction)  
-[Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#installation)  
-[Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#basic-ui-overview)  
-    [Sidebar](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#sidebar)  
-    [File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#file-import)    
-        [Create Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-template)  
-        [Import Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#import-template)   
-    [Students per Term Menu](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#students-per-term-menu)  
-    [Create Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-schedule)
+[1. Introduction](https://github.com/MacEwanCMPT395/2023-01_Team8/blob/main/README.md#introduction)  
+[2. Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#installation)  
+[3. Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#basic-ui-overview)  
+    [3.1. Sidebar](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#sidebar)  
+        [3.1.1. File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#file-import)    
+        [3.1.2. Create Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-template)  
+        [3.1.3. Import Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#import-template)   
+        [3.1.4. Students per Term Menu](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#students-per-term-menu)  
+        [3.1.5. Create Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-schedule)
+    [3.2. Tabs](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#tabs)  
+        [3.2.1. Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#schedule)  
+        [3.2.2. Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#options)  
+        [3.2.3. Instructions](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#instructions)  
+
 
 # 1. Introduction
 Scheduler is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
