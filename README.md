@@ -4,10 +4,13 @@
 
 [Introduction](https://github.com/MacEwanCMPT395/2023-01_Team8/blob/main/README.md#introduction)  
 [Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#installation)  
-[Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#basic-ui-overview)    
-[File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#file-import)    
-    [Create Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-template)  
-    [Import Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#import-template)   
+[Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#basic-ui-overview)  
+    [Sidebar](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#sidebar)  
+    [File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#file-import)    
+        [Create Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-template)  
+        [Import Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#import-template)   
+    [Students per Term Menu](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#students-per-term-menu)  
+    [Create Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-schedule)
 
 # Introduction
 Scheduler is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
@@ -21,10 +24,10 @@ Scheduler is broken into two main parts: the left sidebar with various user func
 ## Sidebar
 On the left sidebar, the user can adjust the number of students either manually by program and term, or by uploading a pre-made template file to quickly populate predetermined enrollment numbers.
 
-## Enrollment by Program File Import
+## File Import
 Optionally, the user can upload a file to populate enrollment numbers automatically. 
 
-Scheduler will accept two types of templates:  
+Scheduler will accept two types of templates to create the same kind of output:  
 a) Template A (by program) <INSERT NAME INSERT NAME INSERT NAME>
 b) Template B (by student ID) <INSERT NAME INSERT NAME INSERT NAME>
 
@@ -41,3 +44,4 @@ Note: Importing data via the Load Data function will overwrite previous input.
 
 ## Create Schedule
 Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the "Create Schedule" button to generate the schedule. 
+
