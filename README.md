@@ -1,6 +1,6 @@
 # 2023-01_Team8 CMPT395 Project - Scheduler  
 
-# Table of Contents TODO: DOUBLECHECK ENTRIES.  
+# Table of Contents  
 
 [1. Introduction](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#1-introduction)  
 [2. Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#2-installation)  
