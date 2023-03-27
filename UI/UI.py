@@ -808,22 +808,31 @@ class UI(QMainWindow):
     '''
 
     def back_week(self):
-        global CORE_SCHEDULE
-        global WEEK
+        global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
 
-        # Only 13 weeks in a semester
+
+        # Can't go below week 1
         if WEEK == 1:
             return
         WEEK -= 1
 
-        room_requested = self.select_room.currentText().split(" ")[0]
-        if (len(self.select_room.currentText().split(" ")) > 1 and 
-            self.select_room.currentText().split(" ")[1] == "(LAB)"):
-            room_requested = room_requested + " (LAB)"
+        self.reset_table()
+        self.week_label.setText("Week " + str(WEEK))
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
+
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
 
     def forward_week(self):
-        global CORE_SCHEDULE
-        global WEEK
+        global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
 
 
         # Only 13 weeks in a semester
@@ -831,10 +840,22 @@ class UI(QMainWindow):
             return
         WEEK += 1
 
-        room_requested = self.select_room.currentText().split(" ")[0]
-        if (len(self.select_room.currentText().split(" ")) > 1 and 
-            self.select_room.currentText().split(" ")[1] == "(LAB)"):
-            room_requested = room_requested + " (LAB)"
+        self.reset_table()
+        self.week_label.setText("Week " + str(WEEK))
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
+
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
+
+
 
 
 
@@ -842,7 +863,7 @@ class UI(QMainWindow):
         # Will eventually replace create_schedule, as it will pull form the db
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
-        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM
+        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
@@ -863,6 +884,7 @@ class UI(QMainWindow):
         imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         random.shuffle(BG_COLOURS)
+        COURSE_COLOUR.clear()
         self.reset_table()
 
 
@@ -1028,6 +1050,7 @@ class UI(QMainWindow):
             # Clear table
             cur = connection.cursor()
             cur.execute("DELETE FROM Student")
+            cur.execute("DELETE FROM Lecture")
 
             # Takes the currently input numbers, and adds them to the DB.
             for each_input in range(8):
