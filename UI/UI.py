@@ -304,7 +304,6 @@ class UI(QMainWindow):
         room_add_layout.addWidget(self.create_vertical_line())
         room_add_layout.addLayout(class_lab_bool)
         room_add_layout.addWidget(class_btn)
-        room_add_layout.addWidget(self.create_vertical_line())
         
         #Deleting a Room
 
