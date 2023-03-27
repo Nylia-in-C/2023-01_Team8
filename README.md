@@ -26,7 +26,7 @@
 Download the *Scheduler.exe* file from the *dist* folder onto a Windows machine. The executable can run without further installation by double-clicking on the icon.  
 
 # 3. Basic UI Overview
-*Scheduler* is broken into two main parts: the left sidebar with various user functions, and the right side with three main tabs. The default tab *'Schedule'* shows any created schedules based on user input (see Section Schedule Tab for more information). Furthermore, there is also an 'Options' tab as well as the 'Instructions' tab in which the user can easily reference this guide in-app. 
+*Scheduler* is broken into two main parts: the left sidebar with various user functions, and the right side with three main tabs. The default tab *Schedule* shows any created schedules based on user input (see Section Schedule Tab for more information). Furthermore, there is also an *Options* tab as well as the *Instructions* tab in which the user can easily reference this guide in-app. 
 
 ## 3.1. Sidebar
 On the left sidebar, the user can adjust the number of students either manually by program and term, or by uploading a pre-made template file to quickly populate predetermined enrollment numbers.
@@ -34,26 +34,26 @@ On the left sidebar, the user can adjust the number of students either manually 
 ### 3.1.1. File Import
 Optionally, the user can upload a file to populate enrollment numbers automatically. 
 
-Scheduler will accept two types of templates to create the same kind of output:  
+*Scheduler* will accept two types of templates to create the same kind of output:  
 a) Template A (by program) <INSERT NAME INSERT NAME INSERT NAME>  
 b) Template B (by student ID) <INSERT NAME INSERT NAME INSERT NAME>  
 
 ### 3.1.2. Create Template
-If no file exists yet, click the 'Create Template' button to make a compatible .xlsx file that can be filled out with enrollment numbers via any available spreadsheet editor program (e.g. Microsoft Excel). 
+If no file exists yet, click the *Create Template* button to make a compatible .xlsx file that can be filled out with enrollment numbers via any available spreadsheet editor program *(e.g. Microsoft Excel)*. 
 
 ### 3.1.3. Import Template
-If a file with the correct template already exists, click the "Choose File" button and navigate to the correct file to upload. Once a file has been chosen, click the "Load Data" button to import the student enrollment data into Scheduler. 
+If a file with the correct template already exists, click the *Choose File* button and navigate to the correct file to upload. Once a file has been chosen, click the *Load Data* button to import the student enrollment data into *Scheduler*. 
 
 ### 3.1.4. Students per Term Menu
 The number of students per program per term can be manually adjusted here, either by clicking on the box and typing in the desired value, or by clicking the up/down arrows to the right of the box.  
 
-Note: Importing data via the Load Data function will overwrite previous input.   
+Note: Importing data via the *Load Data* function will overwrite previous input.   
 
 ### 3.1.5. Create Schedule
-Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the "Create Schedule" button to generate the schedule. 
+Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the *Create Schedule* button to generate the schedule. 
 
 ## 3.2. Tabs  
-Scheduler has tabs for the classroom schedules ('Schedule'), room and course adjustments ('Options'), and a copy of this ReadMe ('Instructions').
+Scheduler has tabs for the classroom schedules (*Schedule*), room and course adjustments (*Options*), and a copy of this ReadMe (*Instructions*).
 
 ### 3.2.1. Schedule
 The schedule of the first room in the list is displayed from Monday to Thursday of the relevant week (starting at Week 1), from 8:00am to 5:00pm. 
@@ -61,12 +61,12 @@ Each lecture is represented by a coloured block; matching colours denote lecture
 
 To view a different week, click on the left and right arrow navigation buttons above the schedule.
 
-To view a different classroom, select it from the dropdown menu below the "Create Schedule button". <CHANGE IF NECESSARY>
+To view a different classroom, select it from the dropdown menu below the *Create Schedule button*. <CHANGE IF NECESSARY>
 
 Note: The Full-Stack Development program has its own <INSERT TO FINISH THIS POINT ONCE FS IMPLEMENTED>
 
 ### 3.2.2. Options  
-The Options tab provides the ability to add/delete rooms and courses.   
+The *Options* tab provides the ability to add/delete rooms and courses.   
 
 #### 3.2.2.1 Room Options  
 Rooms can be added or deleted here.  
@@ -100,4 +100,4 @@ Courses can be added or edited here.
 
 
 ### 3.2.3. Instructions
-These instructions can be found in the Instructions tab for easy access without an internet connection. 
+These instructions can be found in the *Instructions* tab for easy access without an internet connection. 
