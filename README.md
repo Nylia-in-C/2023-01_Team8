@@ -21,13 +21,12 @@ Scheduler is broken into two main parts: the left sidebar with various user func
 ## Sidebar
 On the left sidebar, the user can adjust the number of students either manually by program and term, or by uploading a pre-made template file to quickly populate predetermined enrollment numbers.
 
-## Students per Term Menu
-The number of students per program per term can be manually adjusted here, either by clicking on the box and typing in the desired value, or by clicking the up/down arrows to the right of the box.  
-
-Note: Importing data via the Load Data function will overwrite previous input.   
-
 ## Enrollment by Program File Import
 Optionally, the user can upload a file to populate enrollment numbers automatically. 
+
+Scheduler will accept two types of templates:  
+a) Template A (by program) <INSERT NAME INSERT NAME INSERT NAME>
+b) Template B (by student ID) <INSERT NAME INSERT NAME INSERT NAME>
 
 ### Create Template
 If no file exists yet, click the 'Create Template' button to make a compatible .xlsx file that can be filled out with enrollment numbers via any available spreadsheet editor program (e.g. Microsoft Excel). 
@@ -35,12 +34,10 @@ If no file exists yet, click the 'Create Template' button to make a compatible .
 ### Import Template
 If a file with the correct template already exists, click the "Choose File" button and navigate to the correct file to upload. Once a file has been chosen, click the "Load Data" button to import the student enrollment data into Scheduler. 
 
+## Students per Term Menu
+The number of students per program per term can be manually adjusted here, either by clicking on the box and typing in the desired value, or by clicking the up/down arrows to the right of the box.  
+
+Note: Importing data via the Load Data function will overwrite previous input.   
+
 ## Create Schedule
 Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the "Create Schedule" button to generate the schedule. 
-
-<<<<<<< Updated upstream
-Note: If there are insufficient rooms available, Scheduler will give a warning. To add more rooms, see ADDDDDD SECTION HERE   
-
-=======
-Note: If there are insufficient rooms available, Scheduler will give a warning. To add more rooms, see ADDDDDD SECTION HERE   
->>>>>>> Stashed changes
