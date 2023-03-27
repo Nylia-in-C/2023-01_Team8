@@ -305,12 +305,12 @@ def readLectureItem(conn, CourseID, Cohort ):
         print("Issues reading from table: ", e)
     return rows
 
-def readLectureItem_room_week(conn, room, week):
+def readLectureItem_UI(conn, room, day, core):
     #reads lecture item from DB
     #parameters:Connection string,  room as string, week as int
     rows =[]
     try:
-        queryString = f"Select * from LECTURE where Room like '{room}' and StartWeek like '{week}'"
+        queryString = f"Select * from LECTURE where Room like '{room}' and StartDay like '{day}' and isCore={core}"
         cur = conn.cursor()
         cur.execute(queryString)
         rows = cur.fetchall()
