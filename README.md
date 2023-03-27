@@ -45,4 +45,12 @@ Note: Importing data via the Load Data function will overwrite previous input.
 ### 3.1.5. Create Schedule
 Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the "Create Schedule" button to generate the schedule. 
 
-## 3.2. Schedule
+## 3.2. Tabs
+
+### 3.2.1. Schedule
+
+### 3.2.2. Options
+The Options tab provides the means to do various 
+
+### 3.2.3. Instructions
+These instructions can be found in the Instructions tab for easy access without an internet connection. 
