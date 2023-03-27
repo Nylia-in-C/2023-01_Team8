@@ -133,7 +133,29 @@ def addProgramItem(conn, program):
             i= i+1      
         except Exception as e:
             print("Issues inserting into table: ", e)
-    return 
+    return
+
+def addProgramItem_UI(conn, program, course):
+    #parameters: passed connection and program ID, and courseID
+    try:
+        rowString = "INSERT INTO PROGRAMS (ProgID, CourseID) VALUES ('"+ program +"', '"+ course + "')"
+        #print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+    except Exception as e:
+        print("Issues inserting into table: ", e)
+    return
+
+def deleteProgramItem_UI(conn, course):
+    #parameters: passed connection and program ID, and courseID
+    try:
+        rowString = "DELETE FROM PROGRAMS WHERE CourseID='"+ course +"'"
+        #print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+    except Exception as e:
+        print("Issues deleting from table: ", e)
+    return
 def readProgramItem(conn, ProgID):
      #reads Program item from DB 
     #parameters:Connection string,  ProgID as a string
