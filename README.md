@@ -2,19 +2,21 @@
 
 # Table of Contents TODO: DOUBLECHECK ENTRIES.  
 
-[1. Introduction](https://github.com/MacEwanCMPT395/2023-01_Team8/blob/main/README.md#introduction)  
-[2. Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#installation)  
-[3. Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#basic-ui-overview)  
-    [3.1. Sidebar](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#sidebar)  
-        [3.1.1. File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#file-import)    
-        [3.1.2. Create Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-template)  
-        [3.1.3. Import Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#import-template)   
-        [3.1.4. Students per Term Menu](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#students-per-term-menu)  
-        [3.1.5. Create Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#create-schedule)
-    [3.2. Tabs](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#tabs)  
-        [3.2.1. Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#schedule)  
-        [3.2.2. Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#options)  
-        [3.2.3. Instructions](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#instructions)  
+[1. Introduction](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#1-introduction)  
+[2. Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#2-installation)  
+[3. Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3-basic-ui-overview)  
+    [3.1. Sidebar](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.1.-sidebar)  
+        [3.1.1. File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.1.1.-file-import)    
+        [3.1.2. Create Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.1.2.-create-template)  
+        [3.1.3. Import Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.1.3.-import-template)   
+        [3.1.4. Students per Term Menu](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.1.4.-students-per-term-menu)  
+        [3.1.5. Create Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.1.5.-create-schedule)  
+    [3.2. Tabs](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.2.-tabs)  
+        [3.2.1. Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.2.1.-schedule)  
+        [3.2.2. Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.2.2.-options)  
+            [3.2.2.1. Room Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.2.2.1.-room-options)  
+            [3.2.2.2. Course Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.2.2.2.-course-options)  
+        [3.2.3. Instructions](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3.2.3.-instructions)  
 
 
 # 1. Introduction
@@ -33,8 +35,8 @@ On the left sidebar, the user can adjust the number of students either manually 
 Optionally, the user can upload a file to populate enrollment numbers automatically. 
 
 Scheduler will accept two types of templates to create the same kind of output:  
-a) Template A (by program) <INSERT NAME INSERT NAME INSERT NAME>
-b) Template B (by student ID) <INSERT NAME INSERT NAME INSERT NAME>
+a) Template A (by program) <INSERT NAME INSERT NAME INSERT NAME>  
+b) Template B (by student ID) <INSERT NAME INSERT NAME INSERT NAME>  
 
 ### 3.1.2. Create Template
 If no file exists yet, click the 'Create Template' button to make a compatible .xlsx file that can be filled out with enrollment numbers via any available spreadsheet editor program (e.g. Microsoft Excel). 
@@ -72,8 +74,7 @@ a) To add a room, the following needs to be entered:
     i)      Classroom Name:     The room code. (e.g. 5-261)    
     ii)     Room Capacity:      The number of seats in the room  
     iii)    Room Type:          Lecture hall or Laboratory room  
-
-Once this data has been entered for the room, click the 'Add' button to add the room to the list of available classrooms. 
+    iv)     Once this data has been entered for the room, click the 'Add' button to add the room to the list of available classrooms. 
 
 b) To delete a room, select the room to be deleted from the dropdown menu, and then click the 'Remove' button to complete the process.  
 
@@ -88,11 +89,11 @@ a) To add a course:
     vi)     Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
     vii)    When finished, click the 'Save Course' button to add the course to the course list. 
 
-b) To edit an existing course:
+b) To edit an existing course:  
     i)      Select "Edit Course".    
     ii)     Select the course name from the drop down menu (e.g. PCOM101).  
     iii)    Optional: Check off if the course to be edited is a core course, online, and/or has a lab component.  
-    iv)     Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours. 
+    iv)     Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours.   
     v)      Optional: To add prerequisite courses, select the relevant prerequisite from the dropdown menu and click the 'Add Pre-Req' button.   
     vi)     Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
     vii)    When finished, click the 'Save Course' button to finish editing the course.  
