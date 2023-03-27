@@ -45,12 +45,53 @@ Note: Importing data via the Load Data function will overwrite previous input.
 ### 3.1.5. Create Schedule
 Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the "Create Schedule" button to generate the schedule. 
 
-## 3.2. Tabs
+## 3.2. Tabs  
+Scheduler has tabs for the classroom schedules ('Schedule'), room and course adjustments ('Options'), and a copy of this ReadMe ('Instructions').
 
 ### 3.2.1. Schedule
+The schedule of the first room in the list is displayed from Monday to Thursday of the relevant week (starting at Week 1), from 8:00am to 5:00pm. 
+Each lecture is represented by a coloured block; matching colours denote lectures of the same course. 
 
-### 3.2.2. Options
-The Options tab provides the means to do various 
+To view a different week, click on the left and right arrow navigation buttons above the schedule.
+
+To view a different classroom, select it from the dropdown menu below the "Create Schedule button". <CHANGE IF NECESSARY>
+
+Note: The Full-Stack Development program has its own <INSERT TO FINISH THIS POINT ONCE FS IMPLEMENTED>
+
+### 3.2.2. Options  
+The Options tab provides the ability to add/delete rooms and courses.   
+
+#### 3.2.2.1 Room Options  
+Rooms can be added or deleted here.  
+a) To add a room, the following needs to be entered:    
+    i)      Classroom Name:     The room code. (e.g. 5-261)    
+    ii)     Room Capacity:      The number of seats in the room  
+    iii)    Room Type:          Lecture hall or Laboratory room  
+
+Once this data has been entered for the room, click the 'Add' button to add the room to the list of available classrooms. 
+
+b) To delete a room, select the room to be deleted from the dropdown menu, and then click the 'Remove' button to complete the process.  
+
+#### 3.2.2.2 Course Options  
+Courses can be added or edited here. 
+a) To add a course:  
+    i)      Select "New Course".  
+    ii)     Enter the Course Name (e.g. PCOM101).  
+    iii)    Optional: Check off if the course to be added is a core course, online, and/or has a lab component.  
+    iv)     Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours. 
+    v)      Optional: To add prerequisite courses, select the relevant prerequisite from the dropdown menu and click the 'Add Pre-Req' button. 
+    vi)     Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
+    vii)    When finished, click the 'Save Course' button to add the course to the course list. 
+
+b) To edit an existing course:
+    i)      Select "Edit Course".    
+    ii)     Select the course name from the drop down menu (e.g. PCOM101).  
+    iii)    Optional: Check off if the course to be edited is a core course, online, and/or has a lab component.  
+    iv)     Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours. 
+    v)      Optional: To add prerequisite courses, select the relevant prerequisite from the dropdown menu and click the 'Add Pre-Req' button.   
+    vi)     Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
+    vii)    When finished, click the 'Save Course' button to finish editing the course.  
+
 
 ### 3.2.3. Instructions
 These instructions can be found in the Instructions tab for easy access without an internet connection. 
