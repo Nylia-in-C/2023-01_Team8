@@ -108,30 +108,38 @@ def get_cohort_counts(term: int) -> Dict[str, int]:
     cohort_dict = fillClassrooms(term)
     counts = {}
     for program, cohorts in cohort_dict.items():
-        counts[program] = len(cohorts)
+        if all(c == 0 for c in cohorts): 
+            counts[program] = 0
+        else:
+            counts[program] = len(cohorts)
     
     return counts
 #===============================================================================
 
 
 #============================ HELPER FUNCTIONS =================================
-def create_empty_schedule(room_list: List[Classroom]) -> pd.DataFrame:
+def create_empty_schedule(room_list: List[Classroom], is_program: bool = False) -> pd.DataFrame:
     '''
     make an empty pandas dataframe to represent the schedule for a single day. 
     Column headers are room numbers & row indexes are times (half hour increments)
     '''
+    # schedule for program-specific courses goes from 8:00 - 8:30 pm 
+    # (4:30 - 8:30 is for fullstack)
+    if is_program:
+        times = [datetime.time(i, j).strftime("%H:%M")
+                 for i in range(8, 21) for j in [0, 30]]
+    else:
+        times = [datetime.time(i, j).strftime("%H:%M")
+                 for i in range(8, 17) for j in [0, 30]]
+        times.append(datetime.time(17, 0).strftime("%H:%M"))
     
-    times = [datetime.time(i, j).strftime("%H:%M")
-             for i in range(8, 17) for j in [0, 30]]
-    times.append(datetime.time(17, 0).strftime("%H:%M"))
-
     sched = pd.DataFrame(index=times)
     
     for room in room_list:
         if not room.isLab:
-            sched[room.ID] = [""] * 19
+            sched[room.ID] = [""] * len(sched.index)
         else:
-            sched[f"{room.ID} (LAB)"] = [""] * 19
+            sched[f"{room.ID} (LAB)"] = [""] * len(sched.index)
 
     return sched
 
@@ -240,8 +248,8 @@ def get_time_slot_count(course: Course, course_hours: Dict[str, int]) -> int:
     else:
         return math.ceil(hours_left / 0.5)
 
-def get_available_times(sched: pd.DataFrame,
-                        blocks: int, cohorts: int) -> Dict[str, List[int]]:
+def get_available_times(sched: pd.DataFrame, blocks: int, 
+                        cohorts: int, is_fs: bool = False) -> Dict[str, List[int]]:
     '''
     Takes the current schedule, the number of half-hour blocks a given course 
     will take up, and the number of cohorts needed. Returns a dictionary mapping
@@ -252,19 +260,21 @@ def get_available_times(sched: pd.DataFrame,
     required_gap = [""] * blocks
 
     # use a sliding window to find an available time & keep track of how many you find
-    left = 0
-    right = blocks
+    # full-stack starts at 4:30, everything else at 8:00
+    left = 0 if not is_fs else 17
+    right = left + blocks
+    
     count = 0
 
     # keep track of when the last added course ends to prevent overlapping courses
     prev_course_end = -1
 
-    # iterate room by room, starting at 8:00. Move to the next time period when
-    # we reach the last room
+    # iterate rooms, move to the next time when we cycle back around to the first room
     for room in cycle(sched.columns.tolist()):
 
         # at the last room & the last time slot
-        if room == list(sched.columns)[-1] and right >= 20:
+        if room == list(sched.columns)[-1] and \
+            ((is_fs and right > 25) or (not is_fs and right > 18)):
             break
 
         # found an open time gap
@@ -285,12 +295,12 @@ def get_available_times(sched: pd.DataFrame,
         return {}
 
     return available
-
+    
 def get_valid_cohorts(invalid_courses: List[str], start: int, end: int,
                       cohorts: List[str], curr_room: str, sched: pd.DataFrame) -> Set[str]:
     '''
     Given a potential start time and duration for a course, returns a set of 
-    unique cohort IDs that can be used (prevent scheduling conflicts). 
+    unique cohort IDs that can be used (prevents scheduling conflicts). 
     '''
     # list of all times the course will occupy
     occupied_times = [t for t in range(start, end)]
@@ -435,6 +445,8 @@ def make_program_lecture_sched(lectures: Dict[str, List[Course]],
     dxdB_strs = [c.ID for c in lectures['dxdB']]
     bkA_strs  = [c.ID for c in lectures['bkA']]
     bkB_strs  = [c.ID for c in lectures['bkB']]
+    fsA_strs  = [c.ID for c in lectures['fsA']]
+    fsB_strs  = [c.ID for c in lectures['fsB']]
 
     # parse cohorts for each program/term
     pmA_cohorts  = cohorts['pmA']
@@ -447,6 +459,8 @@ def make_program_lecture_sched(lectures: Dict[str, List[Course]],
     dxdB_cohorts = cohorts['dxdB']
     bkA_cohorts  = cohorts['bkA']
     bkB_cohorts  = cohorts['bkB']
+    fsA_cohorts  = cohorts['fsA']
+    fsB_cohorts  = cohorts['fsB']
 
     # filter out courses that dont need scheduling
     pmA  = filter_courses(lectures['pmA'],  sched, c_hours)
@@ -459,61 +473,55 @@ def make_program_lecture_sched(lectures: Dict[str, List[Course]],
     dxdB = filter_courses(lectures['dxdB'], sched, c_hours)
     bkA  = filter_courses(lectures['bkA'],  sched, c_hours)
     bkB  = filter_courses(lectures['bkB'],  sched, c_hours)
+    fsA  = filter_courses(lectures['fsA'],  sched, c_hours)
+    fsB  = filter_courses(lectures['fsB'],  sched, c_hours)
     
     # schedule as many courses as possible
     most_courses = max(
-        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB, 
+        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB, fsA, fsB,
         key=lambda x: len(x)
     )
     for i in range(len(most_courses)):
 
         if len(pmA) > i:
             sched = add_lec(pmA[i], pmA_cohorts, c_hours, pmA_strs, sched)
-
         if len(pmB) > i:
             sched = add_lec(pmB[i], pmB_cohorts, c_hours, pmB_strs, sched)
-
         if len(baA) > i:
             sched = add_lec(baA[i], baA_cohorts, c_hours, baA_strs, sched)
-
         if len(baB) > i:
             sched = add_lec(baB[i], baB_cohorts, c_hours, baB_strs, sched)
-            
         if len(glmA) > i:
             sched = add_lec(glmA[i], glmA_cohorts, c_hours, glmA_strs, sched)
-
         if len(glmB) > i:
             sched = add_lec(glmB[i], glmB_cohorts, c_hours, glmB_strs, sched)
-
         if len(dxdA) > i:
             sched = add_lec(dxdA[i], dxdA_cohorts, c_hours, dxdA_strs, sched)
-
         if len(dxdB) > i:
             sched = add_lec(dxdB[i], dxdB_cohorts, c_hours, dxdB_strs, sched)
-            
         if len(bkA) > i:
             sched = add_lec(bkA[i], bkA_cohorts, c_hours, bkA_strs, sched)
-
         if len(bkB) > i:
-            sched = add_lec(bkB[i], bkB_cohorts, c_hours, bkB_strs, sched)
+            sched = add_lec(bkB[i], bkB_cohorts, c_hours, bkB_strs, sched)    
+        if len(fsA) > i:
+            sched = add_lec(fsA[i], fsA_cohorts, c_hours, fsA_strs, sched, True)
+        if len(fsB) > i:
+            sched = add_lec(fsB[i], fsB_cohorts, c_hours, fsB_strs, sched, True)
 
     return sched
 
-def add_lec(course: Course, cohorts: List[str], course_hours: Dict[str, int],
-            invalid_courses: List[str], sched: pd.DataFrame) -> pd.DataFrame:
+def add_lec(course: Course, cohorts: List[str], 
+            course_hours: Dict[str, int], invalid_courses: List[str], 
+            sched: pd.DataFrame, is_fs: bool = False) -> pd.DataFrame:
     '''
     Checks when/if a given course can be scheduled and if so, what order the 
     cohorts should be scheduled. Returns an updated schedule if the course can
     be added, otherwise this returns an unaltered schedule
     '''
 
-    if course.isOnline or course.hasLab:
-        return sched
-
-    blocks = get_time_slot_count(course, course_hours)
-
-    # dict mapping room names to available start times (indexes, not strs)
-    open_times = get_available_times(sched, blocks, len(cohorts))
+    blocks     = get_time_slot_count(course, course_hours)
+    open_times = get_available_times(sched, blocks, len(cohorts), is_fs)
+        
     if (open_times == {}):
         return sched
 
@@ -531,7 +539,6 @@ def add_lec(course: Course, cohorts: List[str], course_hours: Dict[str, int],
                 if (room, start) not in cohort_times.values():
                     cohort_times[cohort_ID] = (room, start)
                 
-
     # not all cohorts can fit in the schedule
     if len(cohort_times.keys()) < len(cohorts):
         return sched
@@ -635,6 +642,8 @@ def make_program_lab_sched(lectures: Dict[str, List[Course]],
     dxdB_strs = [c.ID for c in lectures['dxdB']] + [c.ID for c in labs['dxdB']]
     bkA_strs  = [c.ID for c in lectures['bkA']]  + [c.ID for c in labs['bkA']]
     bkB_strs  = [c.ID for c in lectures['bkB']]  + [c.ID for c in labs['bkB']]
+    fsA_strs  = [c.ID for c in lectures['fsA']]  + [c.ID for c in labs['fsA']]
+    fsB_strs  = [c.ID for c in lectures['fsB']]  + [c.ID for c in labs['fsB']]
 
     # parse cohorts for each program/term
     pmA_cohorts  = cohorts['pmA']
@@ -647,6 +656,8 @@ def make_program_lab_sched(lectures: Dict[str, List[Course]],
     dxdB_cohorts = cohorts['dxdB']
     bkA_cohorts  = cohorts['bkA']
     bkB_cohorts  = cohorts['bkB']
+    fsA_cohorts  = cohorts['fsA']
+    fsB_cohorts  = cohorts['fsB']
 
     # filter out courses that dont need scheduling
     pmA  = filter_courses(labs['pmA'],  lab_sched, c_hours)
@@ -659,10 +670,12 @@ def make_program_lab_sched(lectures: Dict[str, List[Course]],
     dxdB = filter_courses(labs['dxdB'], lab_sched, c_hours)
     bkA  = filter_courses(labs['bkA'],  lab_sched, c_hours)
     bkB  = filter_courses(labs['bkB'],  lab_sched, c_hours)
+    fsA  = filter_courses(labs['fsA'],  lab_sched, c_hours)
+    fsB  = filter_courses(labs['fsB'],  lab_sched, c_hours)
 
     # schedule as many courses as possible
     most_courses = max(
-        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB,
+        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB, fsA, fsB,
         key=lambda x: len(x)
     )
     for i in range(len(most_courses)):
@@ -691,13 +704,13 @@ def make_program_lab_sched(lectures: Dict[str, List[Course]],
             lab_sched = add_lab(
                 glmB[i], glmB_cohorts, c_hours, glmB_strs, lec_sched, lab_sched
             )
-        if len(dxdA) > i:
-            lab_sched = add_lab(
-                dxdA[i], dxdA_cohorts, c_hours, dxdA_strs, lec_sched, lab_sched
-            )
         if len(dxdB) > i:
             lab_sched = add_lab(
                 dxdB[i], dxdB_cohorts, c_hours, dxdB_strs, lec_sched, lab_sched
+            )
+        if len(dxdA) > i:
+            lab_sched = add_lab(
+                dxdA[i], dxdA_cohorts, c_hours, dxdA_strs, lec_sched, lab_sched
             )
         if len(bkA) > i:
             lab_sched = add_lab(
@@ -707,13 +720,21 @@ def make_program_lab_sched(lectures: Dict[str, List[Course]],
             lab_sched = add_lab(
                 bkB[i], bkB_cohorts, c_hours, bkB_strs, lec_sched, lab_sched
             )
+        if len(fsB) > i:
+            lab_sched = add_lab(
+                fsB[i], fsB_cohorts, c_hours, fsB_strs, lec_sched, lab_sched, True
+            )
+        if len(fsA) > i:
+            lab_sched = add_lab(
+                fsA[i], fsA_cohorts, c_hours, fsA_strs, lec_sched, lab_sched, True
+            )
 
     return lab_sched
          
 
-def add_lab(lab: Course, cohorts: List[str], 
-            course_hours: Dict[str, int], invalid_courses: List[str], 
-            lec_sched: pd.DataFrame, lab_sched: pd.DataFrame) -> pd.DataFrame:
+def add_lab(lab: Course, cohorts: List[str], course_hours: Dict[str, int], 
+            invalid_courses: List[str], lec_sched: pd.DataFrame, 
+            lab_sched: pd.DataFrame, is_fs: bool = False) -> pd.DataFrame:
     '''
     Checks when/if a given lab can be scheduled without conflicting with any 
     lectures, what order the lab cohorts should be scheduled. Returns an updated 
@@ -722,7 +743,7 @@ def add_lab(lab: Course, cohorts: List[str],
     blocks = get_time_slot_count(lab, course_hours)
 
     # dict mapping room names to available start times (indexes, not strs)
-    open_times = get_available_times(lab_sched, blocks, len(cohorts))
+    open_times = get_available_times(lab_sched, blocks, len(cohorts), is_fs)
     
     if (open_times == {}):
         return lab_sched
@@ -740,6 +761,10 @@ def add_lab(lab: Course, cohorts: List[str],
                 # only add rooms & start times that have not been assigned yet
                 if (room, start) not in cohort_times.values():
                     cohort_times[cohort_ID] = (room, start)
+                    
+    # not all cohorts can fit in the schedule
+    if len(cohort_times.keys()) < len(cohorts):
+        return lab_sched
         
     for ID, time_slot in cohort_times.items():
 
@@ -840,6 +865,8 @@ def make_program_online_sched(lectures: Dict[str, List[Course]],
     dxdB_strs = [c.ID for c in lectures['dxdB']] + [c.ID for c in labs['dxdB']]
     bkA_strs  = [c.ID for c in lectures['bkA']]  + [c.ID for c in labs['bkA']]
     bkB_strs  = [c.ID for c in lectures['bkB']]  + [c.ID for c in labs['bkB']]
+    fsA_strs  = [c.ID for c in lectures['fsA']]  + [c.ID for c in labs['fsA']]
+    fsB_strs  = [c.ID for c in lectures['fsB']]  + [c.ID for c in labs['fsB']]
 
     # filter out courses that dont need scheduling
     pmA  = filter_courses(online['pmA'],  onl_sched, c_hours)
@@ -852,10 +879,13 @@ def make_program_online_sched(lectures: Dict[str, List[Course]],
     dxdB = filter_courses(online['dxdB'], onl_sched, c_hours)
     bkA  = filter_courses(online['bkA'],  onl_sched, c_hours)
     bkB  = filter_courses(online['bkB'],  onl_sched, c_hours)
+    fsA  = filter_courses(online['fsA'],  onl_sched, c_hours)
+    fsB  = filter_courses(online['fsB'],  onl_sched, c_hours)
+    
 
     # schedule as many courses as possible
     most_courses = max(
-        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB,
+        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB, fsA, fsB,
         key=lambda x: len(x)
     )
     for i in range(len(most_courses)):
@@ -896,16 +926,21 @@ def make_program_online_sched(lectures: Dict[str, List[Course]],
             onl_sched = add_onl(
                 bkA[i], c_hours, bkA_strs, curr_sched, onl_sched
             )
-        if len(bkB) > i:
+        if len(fsB) > i:
             onl_sched = add_onl(
-                bkB[i], c_hours, bkB_strs, curr_sched, onl_sched
+                fsB[i], c_hours, fsB_strs, curr_sched, onl_sched, True
+            )
+        if len(fsB) > i:
+            onl_sched = add_onl(
+                fsB[i], c_hours, fsB_strs, curr_sched, onl_sched, True
             )
 
     return onl_sched
 
 
-def add_onl(online: Course, course_hours: Dict[str, int], invalid_courses: List[str],
-            curr_sched: pd.DataFrame, onl_sched: pd.DataFrame) -> pd.DataFrame:
+def add_onl(online: Course, course_hours: Dict[str, int], 
+            invalid_courses: List[str], curr_sched: pd.DataFrame, 
+            onl_sched: pd.DataFrame, is_fs: bool = False) -> pd.DataFrame:
     '''
     Checks the current schedule to see if an online course can be 
     scheduled without any conflicts. Courses cannot be within 1.5 hours of an
@@ -916,7 +951,7 @@ def add_onl(online: Course, course_hours: Dict[str, int], invalid_courses: List[
     blocks = get_time_slot_count(online, course_hours)
 
     # dict mapping room names to available start times (indexes, not strs)
-    open_times = get_available_times(onl_sched, blocks, 1)
+    open_times = get_available_times(onl_sched, blocks, 1, is_fs)
     
     if (open_times == {}):
         return onl_sched
@@ -1068,9 +1103,9 @@ def create_program_term_schedule(lectures: Dict[str, List[Course]],
     # create schedules for the first day, then reference this when making
     # subsequent schedules to get consistent times and rooms for courses
     prev_lecs = create_empty_schedule([r for r in rooms if not r.isLab
-                                       and not r.ID.startswith('ONLINE')])
-    prev_labs = create_empty_schedule([r for r in rooms if r.isLab])
-    prev_onls = create_empty_schedule([r for r in rooms if r.ID == 'ONLINE'])
+                                       and not r.ID.startswith('ONLINE')], True)
+    prev_labs = create_empty_schedule([r for r in rooms if r.isLab], True)
+    prev_onls = create_empty_schedule([r for r in rooms if r.ID == 'ONLINE'], True)
 
     full_schedule = {}
     
@@ -1120,8 +1155,6 @@ def create_program_term_schedule(lectures: Dict[str, List[Course]],
 
     add_lectures_to_db()
     return full_schedule
-
-
 
 def getHolidaysMonWed(fallYear):
     '''

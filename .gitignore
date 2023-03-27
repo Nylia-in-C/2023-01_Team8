@@ -6,3 +6,4 @@
 UI/UI.py
 *.xlsx
 database/database.db
+**/build/

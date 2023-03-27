@@ -24,7 +24,7 @@ cmsk_0235 = Course("CMSK 0235", "MS Visio Essentials",6,1, 2, 1, 0, 1,[])
 # term 2 Professional Communication (PCOM) courses
 pcom_0102 = Course("PCOM 0102", "Business Writing II", 35, 2, 1.5, 1, 0, 0, [])
 pcom_0201 = Course("PCOM 0201", "Fundamentals of Public Speaking", 35, 2, 1.5, 1, 0, 0, [])
-pcom_0108 = Course("PCOM 0108", "Technical Development II; Microsoft Word, Excel and Power Point",18,2,2, 1, 0, 1,[])
+pcom_0108 = Course("PCOM 0108", "Technical Development II; Microsoft Word, Excel and Power Point",18,2,3, 1, 0, 1,[])
 # term 3 Professional Communication (PCOM) courses
 pcom_0202 = Course("PCOM 0202", "Advanced Business Presentation",33,3, 1.5, 1, 0, 0,[])
 pcom_0103 = Course("PCOM 0103", "Canadian Workplace Culture",35, 3, 1.5, 1, 0, 0, [])
@@ -91,10 +91,10 @@ acct_0203 = Course("ACCT 0203", "Understanding Financial Statements", 12,1, 2, 0
 # term 2 Book Keeping (BK) program courses
 acct_0206 = Course("ACCT 0206", "Controllership for SMEs", 12,2, 2, 0, 0, 0,[])
 acct_0210 = Course("ACCT 0210", "Quickbooks", 28,2, 2, 0, 0, 1,[] )
-acct_0211 = Course("ACCT 0211", "SAGE 50 & Data Analytics", 28,2, 2, 0, 0, 1,[])
+acct_0211 = Course("ACCT 0211", "SAGE 50 & Data Analytics", 28,2, 1.5, 0, 0, 1,[])
 # term 3 Book Keeping (BK) program courses
 acct_0208 = Course("ACCT 0208", "Accounting for Entrepreneurs", 21,3, 2, 0, 0, 1,[])
-acct_9901 = Course("ACCT 9901", "Integrated Case Studies in Accounting", 33,3, 2, 0, 0, 1,[])
+acct_9901 = Course("ACCT 9901", "Integrated Case Studies in Accounting", 33,3, 1.5, 0, 0, 1,[])
 
 
 #term 1 Supply Chain Management & Logistics (GLM) program courses
@@ -123,7 +123,7 @@ dxdi_0104 = Course("DXDI 0104", "User Interface Design II",24,2,2,0,0,1,['DXDI 0
 #term 3 Digital Experience Design Foundation (DXD) program courses
 avdm_0238 = Course("AVDM 0238", "Adobe InDesign Level II",18,3,2,0,0,1,[])
 avdm_0270 = Course("AVDM 0270", "Adobe Illustrator Level II",18,3,2,0,0,1,[])
-dxdi_9901 = Course("DXDI 9901", "DXD Capstone",45,3,2,0,0,1,[])
+dxdi_9901 = Course("DXDI 9901", "DXD Capstone",45,3,1.5,0,0,1,[])
 
 #term 1 Full Stack Web Development (FS) program courses
 cmsk_0150 = Course("CMSK 0150", "Introduction to Web Development",16,1,2,0,0,1,[])
@@ -132,11 +132,11 @@ cmsk_0152 = Course("CMSK 0152", "Introduction to JavaScript",16,1,2,0,0,1,['CMSK
 cmsk_0157 = Course("CMSK 0157", "Introduction to Azure DevOps",16,1,2,0,0,1,[]) #Recommended to run at the same time as CMSK0154
 cmsk_0154 = Course("CMSK 0154", "Introduction to C#",16,1,2,0,0,1,[]) #Recommended to run at the same time as CMSK0157
 #term 2 Full Stack Web Development (FS) program courses
-cmsk_0153 = Course("CMSK 0153", "Introduction to Angular",18,2,2,0,0,1,['CMSK 0151','CMSK 0152','CMSK 0157'])
+cmsk_0153 = Course("CMSK 0153", "Introduction to Angular",18,2,3,0,0,1,['CMSK 0151','CMSK 0152','CMSK 0157'])
 cmsk_0200 = Course("CMSK 0200", "Advanced C#",16,2,2,0,0,1,['CMSK 0154'])
-cmsk_0201 = Course("CMSK 0201", "Entity Framework Core Fundamentals",18,2,2,0,0,1,['CMSK 0154', 'CMSK 0200'])
+cmsk_0201 = Course("CMSK 0201", "Entity Framework Core Fundamentals",18,2,3,0,0,1,['CMSK 0154', 'CMSK 0200'])
 cmsk_0203 = Course("CMSK 0203", "RESTful Web Services using .NET Core",16,2,2,0,0,1,['CMSK 0201']) #recommend to run the same time as CMSK202
-cmsk_0202 = Course("CMSK 0202", "Advanced Angular",18,2,2,0,0,1,[]) #recommend to run the same time as CMSK203
+cmsk_0202 = Course("CMSK 0202", "Advanced Angular",18,2,3,0,0,1,[]) #recommend to run the same time as CMSK203
 #term 3 Full Stack Web Development (FS) program courses
 pcom_0160 = Course("PCOM 0160", "Capstone Project",50,3,2,0,0,1,[])
 
