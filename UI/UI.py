@@ -75,7 +75,8 @@ class UI(QMainWindow):
         remove_colours()
 
         self.setWindowTitle("Scheduler")
-        self.setFixedSize(1240, 850)
+        self.setFixedSize(1280, 900)
+        self.setStyleSheet("background-color: #c9b698")
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -83,12 +84,18 @@ class UI(QMainWindow):
         self.file_label = QLabel()
         self.legion_size = QLabel()
         self.select_room = QComboBox()
+        self.select_room.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         self.week_label = QLabel()
         font = QFont()
         font.setPointSize(16)
         self.week_label.setFont(font)
         self.week_label.setAlignment(Qt.AlignCenter)
         self.pick_semester = QComboBox()
+        self.pick_semester.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
@@ -159,14 +166,18 @@ class UI(QMainWindow):
     def create_horizontal_line(self):
         h_line = QFrame()
         h_line.setFrameShape(QFrame.HLine)
-        h_line.setLineWidth(1)
+        h_line.setFrameShadow(QFrame.Plain)
+        h_line.setStyleSheet("color: #fefdea")
+        h_line.setLineWidth(3)
         return h_line
 
     # Quick function to make horizontal separators
     def create_vertical_line(self):
         v_line = QFrame()
         v_line.setFrameShape(QFrame.VLine)
-        v_line.setLineWidth(1)
+        v_line.setLineWidth(2)
+        v_line.setFrameShadow(QFrame.Plain)
+        v_line.setStyleSheet("color: #fefdea")
         return v_line
 
     # Creates the top hbox where most information will be displayed
@@ -175,6 +186,9 @@ class UI(QMainWindow):
         # Create tabs
         tabs = QTabWidget()
         tab1 = QWidget()
+        tab1.setStyleSheet(     "background-color: #9f4e0f; " +
+                                "color: #fefdea; " +
+                                "border-color: #fefdea; ")                                 
         tab2 = QWidget()
         tab3 = QWidget()
 
@@ -206,9 +220,21 @@ class UI(QMainWindow):
         arrowfont = QFont()
         arrowfont.setBold(True)
         arrowfont.setPointSize(20)
+
         left = QPushButton("←")
+        left.setStyleSheet( "background-color: #041f14; " +
+                            "color: #fefdea; " +
+                            "border-width: 3px; "+
+                            "border-radius: 5px; "+
+                            "border-color: #fefdea")
         left.setFont(arrowfont)
+
         right = QPushButton("→")
+        right.setStyleSheet( "background-color: #041f14; " +
+                            "color: #fefdea; " +
+                            "border-width: 3px; "+
+                            "border-radius: 5px; "+
+                            "border-color: #fefdea")        
         right.setFont(arrowfont)
 
         right.clicked.connect(self.forward_week)
@@ -304,7 +330,6 @@ class UI(QMainWindow):
         room_add_layout.addWidget(self.create_vertical_line())
         room_add_layout.addLayout(class_lab_bool)
         room_add_layout.addWidget(class_btn)
-        room_add_layout.addWidget(self.create_vertical_line())
         
         #Deleting a Room
 
@@ -513,24 +538,42 @@ class UI(QMainWindow):
         vbox = QVBoxLayout(self)
         vbox.setSizeConstraint(QLayout.SetFixedSize) # Prevents left side from resizing
 
+        #Big Scheduler label in top left corner
         title = QLabel("Scheduler")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
+        title.setStyleSheet("color: #fefdea")
         font = QFont()
         font.setBold(True)
-        font.setPointSize(20)
+        font.setPointSize(40)
         title.setFont(font)
 
-        create_sched = QPushButton("Create Schedule")
-        font.setPointSize(16)
-        create_sched.setFont(font)
-        create_sched.clicked.connect(self.create_schedule)
-
+        #Students Per Term Label
         input_title = QLabel("Students per Term")
         input_title.setMaximumWidth(LEFT_MAX_WIDTH)
+        input_title.setStyleSheet("color: #fefdea")
         font.setPointSize(12)
         input_title.setFont(font)
 
-        # Read Current items in teh Database
+        #Term & Classroom label
+        select_title = QLabel("Term & Classroom")
+        select_title.setMaximumWidth(LEFT_MAX_WIDTH)
+        select_title.setStyleSheet("color: #fefdea")
+        font.setPointSize(12)
+        select_title.setFont(font)
+
+        #Big green Create Schedule Button
+        create_sched = QPushButton("Create Schedule")
+        font.setPointSize(20)
+        create_sched.setFont(font)
+        create_sched.setStyleSheet( "background-color: #041f14; " +
+                                    "color: #fefdea; " +
+                                    "border-width: 3px; "+
+                                    "border-radius: 5px; "+
+                                    "border-color: #fefdea")
+        create_sched.setFixedSize(250,60)
+        create_sched.clicked.connect(self.create_schedule)
+
+        # Read Current items in the Database
         self.update_class_combos()
 
 
@@ -547,9 +590,15 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(select_title)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.pick_semester)
-        vbox.addWidget(create_sched)
         vbox.addWidget(self.select_room)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(self.create_horizontal_line())
+        vbox.addSpacerItem(QSpacerItem(15, 15, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(create_sched)
+        
 
         width_limit.setLayout(vbox)
 
@@ -561,8 +610,10 @@ class UI(QMainWindow):
         vbox = QVBoxLayout()
 
         #Title
-        title = QLabel("Enrollment Import by Program")
+        title = QLabel("Enrollment Import")
+        title.setStyleSheet("color: #fefdea")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
+        
         font = QFont()
         font.setBold(True)
         font.setPointSize(12)
@@ -570,19 +621,29 @@ class UI(QMainWindow):
 
         hbox_file_choose = QHBoxLayout(self)
         choose_input_button = QPushButton("Choose File", self)
+        choose_input_button.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         choose_input_button.setMaximumWidth(100)
         choose_input_button.clicked.connect(self.choose_file)
 
         self.file_label.setText("No File Chosen")
+        self.file_label.setStyleSheet("color: #fefdea")
         self.file_label.setMaximumWidth(LEFT_MAX_WIDTH)
 
         hbox_file_choose.addWidget(choose_input_button)
         hbox_file_choose.addWidget(self.file_label)
 
         load_data = QPushButton("Load Data")
+        load_data.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ")         
         load_data.clicked.connect(self.load_student_numbers)
 
         create_template_button = QPushButton("Create Template")
+        create_template_button.setStyleSheet("background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         create_template_button.clicked.connect(self.create_template)
 
         vbox.addWidget(title)
@@ -615,6 +676,10 @@ class UI(QMainWindow):
         input_box = QSpinBox()
         input_box.setMaximum(1000)
         input_box.setMinimumWidth(50)
+        input_box.setStyleSheet(    "background-color: #5e869c; " +
+                                    "color: #fefdea; " +
+                                    "border-color: #fefdea")        
+
         return input_box
 
     def program_labels(self):
@@ -626,7 +691,9 @@ class UI(QMainWindow):
         PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for label in PROG_LABELS:
-            vbox_labels.addWidget(QLabel(label))
+            program = QLabel(label)
+            program.setStyleSheet("color: #fefdea")
+            vbox_labels.addWidget(program)
 
         return vbox_labels
 
@@ -643,7 +710,10 @@ class UI(QMainWindow):
 
         self.term_1_inputs.setAlignment(Qt.AlignLeft)
 
-        vbox.addWidget(QLabel("Term 1"))
+        header = QLabel("Term 1")
+        header.setStyleSheet("color: #fefdea")
+
+        vbox.addWidget(header)
         vbox.addLayout(self.term_1_inputs)
 
         return vbox
@@ -661,7 +731,10 @@ class UI(QMainWindow):
 
         self.term_2_inputs.setAlignment(Qt.AlignLeft)
 
-        vbox.addWidget(QLabel("Term 2"))
+        header = QLabel("Term 2")
+        header.setStyleSheet("color: #fefdea")
+
+        vbox.addWidget(header)
         vbox.addLayout(self.term_2_inputs)
 
         return vbox
@@ -679,7 +752,10 @@ class UI(QMainWindow):
 
         self.term_3_inputs.setAlignment(Qt.AlignLeft)
 
-        vbox.addWidget(QLabel("Term 3"))
+        header = QLabel("Term 3")
+        header.setStyleSheet("color: #fefdea")
+
+        vbox.addWidget(header)
         vbox.addLayout(self.term_3_inputs)
 
         return vbox
@@ -721,8 +797,7 @@ class UI(QMainWindow):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
-                #placeholder.setBackground(QtGui.QColor("lightGray"))
-                placeholder.setBackground(QtGui.QColor('#c4ddde'))
+                placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
 
@@ -948,6 +1023,7 @@ class UI(QMainWindow):
             os.getcwd(),
             "Excel Workbook files (*.xlsx)"  # Filters to specified file types
         )
+
         if chosen_file[0] == "":
             self.file_label.setText("No File Chosen")
             self.file_path = ""
