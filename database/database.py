@@ -304,6 +304,21 @@ def readLectureItem(conn, CourseID, Cohort ):
     except Exception as e:
         print("Issues reading from table: ", e)
     return rows
+
+def readLectureItem_UI(conn, room, day, core):
+    #reads lecture item from DB
+    #parameters:Connection string,  room as string, week as int
+    rows =[]
+    try:
+        queryString = f"Select * from LECTURE where Room like '{room}' and StartDay like '{day}' and isCore={core}"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return rows
 def addStudentItem(conn, PID, Term, Count):
     #add item to table from passed connection and student row info
     try:
