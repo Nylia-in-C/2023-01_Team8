@@ -20,13 +20,13 @@
 
 
 # 1. Introduction
-Scheduler is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
+*Scheduler* is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
 
 # 2. Installation
-Download the Scheduler.exe file from the dist folder onto a Windows machine. The executable can run without further installation by double-clicking on the icon.  
+Download the *Scheduler.exe* file from the *dist* folder onto a Windows machine. The executable can run without further installation by double-clicking on the icon.  
 
 # 3. Basic UI Overview
-Scheduler is broken into two main parts: the left sidebar with various user functions, and the right side with three main tabs. The default tab 'Schedule' shows any created schedules based on user input (see Section Schedule Tab for more information). Furthermore, there is also an 'Options' tab as well as the 'Instructions' tab in which the user can easily reference this guide in-app. 
+*Scheduler* is broken into two main parts: the left sidebar with various user functions, and the right side with three main tabs. The default tab *'Schedule'* shows any created schedules based on user input (see Section Schedule Tab for more information). Furthermore, there is also an 'Options' tab as well as the 'Instructions' tab in which the user can easily reference this guide in-app. 
 
 ## 3.1. Sidebar
 On the left sidebar, the user can adjust the number of students either manually by program and term, or by uploading a pre-made template file to quickly populate predetermined enrollment numbers.
@@ -70,33 +70,33 @@ The Options tab provides the ability to add/delete rooms and courses.
 
 #### 3.2.2.1 Room Options  
 Rooms can be added or deleted here.  
-a) To add a room, the following needs to be entered:    
-    i)      Classroom Name:     The room code. (e.g. 5-261)    
-    ii)     Room Capacity:      The number of seats in the room  
-    iii)    Room Type:          Lecture hall or Laboratory room  
-    iv)     Once this data has been entered for the room, click the 'Add' button to add the room to the list of available classrooms. 
+- To add a room, the following needs to be entered:    
+    1.    Classroom Name:     The room code. (e.g. 5-261)    
+    2.    Room Capacity:      The number of seats in the room  
+    3.    Room Type:          Lecture hall or Laboratory room  
+    4.    Once this data has been entered for the room, click the 'Add' button to add the room to the list of available classrooms. 
 
-b) To delete a room, select the room to be deleted from the dropdown menu, and then click the 'Remove' button to complete the process.  
+- To delete a room, select the room to be deleted from the dropdown menu, and then click the 'Remove' button to complete the process.  
 
 #### 3.2.2.2 Course Options  
 Courses can be added or edited here. 
-a) To add a course:  
-    i)      Select "New Course".  
-    ii)     Enter the Course Name (e.g. PCOM101).  
-    iii)    Optional: Check off if the course to be added is a core course, online, and/or has a lab component.  
-    iv)     Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours. 
-    v)      Optional: To add prerequisite courses, select the relevant prerequisite from the dropdown menu and click the 'Add Pre-Req' button. 
-    vi)     Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
-    vii)    When finished, click the 'Save Course' button to add the course to the course list. 
+- To add a course:  
+    1.  Select "New Course".  
+    2.  Enter the Course Name (e.g. PCOM101).  
+    3.  Optional: Check off if the course to be added is a core course, online, and/or has a lab component.  
+    4.  Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours. 
+    5.  Optional: To add prerequisite courses, select the relevant prerequisite from the dropdown menu and click the 'Add Pre-Req' button. 
+    6.  Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
+    7.  When finished, click the 'Save Course' button to add the course to the course list. 
 
-b) To edit an existing course:  
-    i)      Select "Edit Course".    
-    ii)     Select the course name from the drop down menu (e.g. PCOM101).  
-    iii)    Optional: Check off if the course to be edited is a core course, online, and/or has a lab component.  
-    iv)     Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours.   
-    v)      Optional: To add prerequisite courses, select the relevant prerequisite from the dropdown menu and click the 'Add Pre-Req' button.   
-    vi)     Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
-    vii)    When finished, click the 'Save Course' button to finish editing the course.  
+- To edit an existing course:  
+    1.  Select "Edit Course".    
+    2.  Select the course name from the drop down menu (e.g. PCOM101).  
+    3.  Optional: Check off if the course to be edited is a core course, online, and/or has a lab component.  
+    4.  Enter the total number of course hours, the Term (1 for Fall, 2 for Winter, 3 for Spring/Summer) and the lecture duration in hours.   
+    5.  Optional: To add prerequisite courses, select the relevant prerequisite from the dropdown menu and click the 'Add Pre-Req' button.   
+    6.  Optional: To clear previously assigned prerequisite courses, click the 'Clear Pre-Reqs' button.  
+    7.  When finished, click the 'Save Course' button to finish editing the course.  
 
 
 ### 3.2.3. Instructions
