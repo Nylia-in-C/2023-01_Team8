@@ -530,7 +530,7 @@ class UI(QMainWindow):
         font.setPointSize(12)
         input_title.setFont(font)
 
-        # Read Current items in teh Database
+        # Read Current items in the Database
         self.update_class_combos()
 
 
@@ -721,8 +721,8 @@ class UI(QMainWindow):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
-                #placeholder.setBackground(QtGui.QColor("lightGray"))
-                placeholder.setBackground(QtGui.QColor('#c4ddde'))
+                placeholder.setBackground(QtGui.QColor("lightGray"))
+                #placeholder.setBackground(QtGui.QColor('#c4ddde'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
 
