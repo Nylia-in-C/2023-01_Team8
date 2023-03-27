@@ -51,7 +51,7 @@ The number of students per program per term can be manually adjusted here, eithe
 Note: Importing data via the *Load Data* function will overwrite previous input.   
 &nbsp;   
 ### 3.1.5. Create Schedule
-Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Afterwards, click the *Create Schedule* button to generate the schedule. 
+Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Then choose a classroom to generate the schedule for. Afterwards, click the *Create Schedule* button to generate the schedule. 
 &nbsp;   
 &nbsp; 
 ## 3.2. Tabs  
@@ -63,8 +63,6 @@ The schedule of the first room in the list is displayed from Monday to Thursday 
 Each lecture is represented by a coloured block; matching colours denote lectures of the same course. 
 &nbsp;   
 To view a different week, click on the left and right arrow navigation buttons above the schedule.
-&nbsp;   
-To view a different classroom, select it from the dropdown menu below the *Create Schedule button*. <!CHANGE IF NECESSARY>
 &nbsp;   
 Note: The Full-Stack Development program has its own <!INSERT TO FINISH THIS POINT ONCE FS IMPLEMENTED>  
 &nbsp;   

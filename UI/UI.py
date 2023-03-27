@@ -75,7 +75,7 @@ class UI(QMainWindow):
         remove_colours()
 
         self.setWindowTitle("Scheduler")
-        self.setFixedSize(1240, 850)
+        self.setFixedSize(1240, 900)
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -513,22 +513,37 @@ class UI(QMainWindow):
         vbox = QVBoxLayout(self)
         vbox.setSizeConstraint(QLayout.SetFixedSize) # Prevents left side from resizing
 
+        #Big Scheduler label in top left corner
         title = QLabel("Scheduler")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
         font = QFont()
         font.setBold(True)
-        font.setPointSize(20)
+        font.setPointSize(40)
         title.setFont(font)
 
-        create_sched = QPushButton("Create Schedule")
-        font.setPointSize(16)
-        create_sched.setFont(font)
-        create_sched.clicked.connect(self.create_schedule)
-
+        #Students Per Term Label
         input_title = QLabel("Students per Term")
         input_title.setMaximumWidth(LEFT_MAX_WIDTH)
         font.setPointSize(12)
         input_title.setFont(font)
+
+        #Term & Classroom label
+        select_title = QLabel("Term & Classroom")
+        select_title.setMaximumWidth(LEFT_MAX_WIDTH)
+        font.setPointSize(12)
+        select_title.setFont(font)
+
+        #Big green Create Schedule Button
+        create_sched = QPushButton("Create Schedule")
+        font.setPointSize(20)
+        create_sched.setFont(font)
+        create_sched.setStyleSheet( "background-color: #73bf50; " +
+                                    "color: white; " +
+                                    "border-width: 3px; "+
+                                    "border-radius: 5px; "+
+                                    "border-color: white")
+        create_sched.setFixedSize(250,60)
+        create_sched.clicked.connect(self.create_schedule)
 
         # Read Current items in the Database
         self.update_class_combos()
@@ -547,9 +562,15 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(select_title)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.pick_semester)
-        vbox.addWidget(create_sched)
         vbox.addWidget(self.select_room)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(self.create_horizontal_line())
+        vbox.addSpacerItem(QSpacerItem(15, 15, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(create_sched)
+        
 
         width_limit.setLayout(vbox)
 
@@ -561,7 +582,7 @@ class UI(QMainWindow):
         vbox = QVBoxLayout()
 
         #Title
-        title = QLabel("Enrollment Import by Program")
+        title = QLabel("Enrollment Import")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
         font = QFont()
         font.setBold(True)
@@ -721,8 +742,7 @@ class UI(QMainWindow):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
-                placeholder.setBackground(QtGui.QColor("lightGray"))
-                #placeholder.setBackground(QtGui.QColor('#c4ddde'))
+                placeholder.setBackground(QtGui.QColor('#ebe9e4'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
 
