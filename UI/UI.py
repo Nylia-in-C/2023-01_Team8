@@ -16,25 +16,39 @@ import imports.fillClassrooms
 
 import imports.schedulers.initialize_data
 import imports.schedulers.core_scheduler
+import imports.schedulers.program_scheduler
 import imports.classes.classrooms
 import datetime
+import copy
 
 
 BG_COLOURS = QtGui.QColor.colorNames()
 
 SEM = {"Fall":1, "Winter":2, "Spring / Summer":3}
+# Quickly match times to slots when displaying schedule.
+TIMES = {"08:00":0, "08:30":1,
+         "09:00":2, "09:30":3,
+         "10:00":4,"10:30":5,
+         "11:00":6,"11:30":7,
+         "12:00":8,"12:30":9,
+         "13:00":10,"13:30":11,
+         "14:00":12,"14:30":13,
+         "15:00":14,"15:30":15,
+         "16:00":16,"16:30":17,
+         "17:00":18}
 
 LEFT_MAX_WIDTH = 450
-global CORE_SCHEDULE
-global PROG_SCHEDULE
+
+# Dictionaries where key = week number, value =list of (2) lists for each day that week
+CORE_SCHEDULE = {}
+PROG_SCHEDULE = {}
+ROOM = ""
 global PROG_LABELS
 WEEK = 1
-CORE_PREV = ""
-CORE_POST = ""
-PROG_PREV = ""
-PROG_POST = ""
+CORE_DAY = 1
+PROG_DAY = 1
 COLOUR_INDEX = -1
-global COURSE_COLOUR
+COURSE_COLOUR = {}
 
 
 # Removes colours that make the text hard to read / separate from the background
@@ -61,7 +75,8 @@ class UI(QMainWindow):
         remove_colours()
 
         self.setWindowTitle("Scheduler")
-        self.setFixedSize(1240, 850)
+        self.setFixedSize(1280, 900)
+        self.setStyleSheet("background-color: #c9b698")
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -69,12 +84,18 @@ class UI(QMainWindow):
         self.file_label = QLabel()
         self.legion_size = QLabel()
         self.select_room = QComboBox()
+        self.select_room.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         self.week_label = QLabel()
         font = QFont()
         font.setPointSize(16)
         self.week_label.setFont(font)
         self.week_label.setAlignment(Qt.AlignCenter)
         self.pick_semester = QComboBox()
+        self.pick_semester.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
@@ -92,6 +113,7 @@ class UI(QMainWindow):
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
+        self.course_program = QComboBox()
 
         self.course_pre_req_selector = QComboBox()
         self.course_pre_reqs = []
@@ -144,14 +166,18 @@ class UI(QMainWindow):
     def create_horizontal_line(self):
         h_line = QFrame()
         h_line.setFrameShape(QFrame.HLine)
-        h_line.setLineWidth(1)
+        h_line.setFrameShadow(QFrame.Plain)
+        h_line.setStyleSheet("color: #fefdea")
+        h_line.setLineWidth(3)
         return h_line
 
     # Quick function to make horizontal separators
     def create_vertical_line(self):
         v_line = QFrame()
         v_line.setFrameShape(QFrame.VLine)
-        v_line.setLineWidth(1)
+        v_line.setLineWidth(2)
+        v_line.setFrameShadow(QFrame.Plain)
+        v_line.setStyleSheet("color: #fefdea")
         return v_line
 
     # Creates the top hbox where most information will be displayed
@@ -160,6 +186,9 @@ class UI(QMainWindow):
         # Create tabs
         tabs = QTabWidget()
         tab1 = QWidget()
+        tab1.setStyleSheet(     "background-color: #9f4e0f; " +
+                                "color: #fefdea; " +
+                                "border-color: #fefdea; ")                                 
         tab2 = QWidget()
         tab3 = QWidget()
 
@@ -191,9 +220,21 @@ class UI(QMainWindow):
         arrowfont = QFont()
         arrowfont.setBold(True)
         arrowfont.setPointSize(20)
+
         left = QPushButton("←")
+        left.setStyleSheet( "background-color: #041f14; " +
+                            "color: #fefdea; " +
+                            "border-width: 3px; "+
+                            "border-radius: 5px; "+
+                            "border-color: #fefdea")
         left.setFont(arrowfont)
+
         right = QPushButton("→")
+        right.setStyleSheet( "background-color: #041f14; " +
+                            "color: #fefdea; " +
+                            "border-width: 3px; "+
+                            "border-radius: 5px; "+
+                            "border-color: #fefdea")        
         right.setFont(arrowfont)
 
         right.clicked.connect(self.forward_week)
@@ -289,7 +330,6 @@ class UI(QMainWindow):
         room_add_layout.addWidget(self.create_vertical_line())
         room_add_layout.addLayout(class_lab_bool)
         room_add_layout.addWidget(class_btn)
-        room_add_layout.addWidget(self.create_vertical_line())
         
         #Deleting a Room
 
@@ -362,6 +402,13 @@ class UI(QMainWindow):
         new_or_edit.addWidget(b2)
         #-----------------------------
 
+        hbox_program = QHBoxLayout()
+        hbox_program.addWidget(QLabel("Program: "))
+        self.course_program.addItems(["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"])
+        hbox_program.addWidget(self.course_program)
+
+        # -----------------------------
+
         course_id_sec = QHBoxLayout()
         course_id_sec.addWidget(QLabel("Course Name"))
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
@@ -433,6 +480,7 @@ class UI(QMainWindow):
 
         #-----------------------------
         vbox_course_specs1 = QVBoxLayout()
+        vbox_course_specs1.addLayout(hbox_program)
         vbox_course_specs1.addLayout(course_id_sec)
         vbox_course_specs1.addLayout(hbox_online_lab)
         #-----------------------------
@@ -490,24 +538,42 @@ class UI(QMainWindow):
         vbox = QVBoxLayout(self)
         vbox.setSizeConstraint(QLayout.SetFixedSize) # Prevents left side from resizing
 
+        #Big Scheduler label in top left corner
         title = QLabel("Scheduler")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
+        title.setStyleSheet("color: #fefdea")
         font = QFont()
         font.setBold(True)
-        font.setPointSize(20)
+        font.setPointSize(40)
         title.setFont(font)
 
-        create_sched = QPushButton("Create Schedule")
-        font.setPointSize(16)
-        create_sched.setFont(font)
-        create_sched.clicked.connect(self.create_schedule)
-
+        #Students Per Term Label
         input_title = QLabel("Students per Term")
         input_title.setMaximumWidth(LEFT_MAX_WIDTH)
+        input_title.setStyleSheet("color: #fefdea")
         font.setPointSize(12)
         input_title.setFont(font)
 
-        # Read Current items in teh Database
+        #Term & Classroom label
+        select_title = QLabel("Term & Classroom")
+        select_title.setMaximumWidth(LEFT_MAX_WIDTH)
+        select_title.setStyleSheet("color: #fefdea")
+        font.setPointSize(12)
+        select_title.setFont(font)
+
+        #Big green Create Schedule Button
+        create_sched = QPushButton("Create Schedule")
+        font.setPointSize(20)
+        create_sched.setFont(font)
+        create_sched.setStyleSheet( "background-color: #041f14; " +
+                                    "color: #fefdea; " +
+                                    "border-width: 3px; "+
+                                    "border-radius: 5px; "+
+                                    "border-color: #fefdea")
+        create_sched.setFixedSize(250,60)
+        create_sched.clicked.connect(self.create_schedule)
+
+        # Read Current items in the Database
         self.update_class_combos()
 
 
@@ -524,9 +590,15 @@ class UI(QMainWindow):
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(select_title)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.pick_semester)
-        vbox.addWidget(create_sched)
         vbox.addWidget(self.select_room)
+        vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(self.create_horizontal_line())
+        vbox.addSpacerItem(QSpacerItem(15, 15, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        vbox.addWidget(create_sched)
+        
 
         width_limit.setLayout(vbox)
 
@@ -538,8 +610,10 @@ class UI(QMainWindow):
         vbox = QVBoxLayout()
 
         #Title
-        title = QLabel("Enrollment Import by Program")
+        title = QLabel("Enrollment Import")
+        title.setStyleSheet("color: #fefdea")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
+        
         font = QFont()
         font.setBold(True)
         font.setPointSize(12)
@@ -547,19 +621,29 @@ class UI(QMainWindow):
 
         hbox_file_choose = QHBoxLayout(self)
         choose_input_button = QPushButton("Choose File", self)
+        choose_input_button.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         choose_input_button.setMaximumWidth(100)
         choose_input_button.clicked.connect(self.choose_file)
 
         self.file_label.setText("No File Chosen")
+        self.file_label.setStyleSheet("color: #fefdea")
         self.file_label.setMaximumWidth(LEFT_MAX_WIDTH)
 
         hbox_file_choose.addWidget(choose_input_button)
         hbox_file_choose.addWidget(self.file_label)
 
         load_data = QPushButton("Load Data")
+        load_data.setStyleSheet(  "background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ")         
         load_data.clicked.connect(self.load_student_numbers)
 
         create_template_button = QPushButton("Create Template")
+        create_template_button.setStyleSheet("background-color: #5e869c; " +
+                                            "color: #fefdea; " +
+                                            "border-color: #fefdea; ") 
         create_template_button.clicked.connect(self.create_template)
 
         vbox.addWidget(title)
@@ -592,6 +676,10 @@ class UI(QMainWindow):
         input_box = QSpinBox()
         input_box.setMaximum(1000)
         input_box.setMinimumWidth(50)
+        input_box.setStyleSheet(    "background-color: #5e869c; " +
+                                    "color: #fefdea; " +
+                                    "border-color: #fefdea")        
+
         return input_box
 
     def program_labels(self):
@@ -603,7 +691,9 @@ class UI(QMainWindow):
         PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for label in PROG_LABELS:
-            vbox_labels.addWidget(QLabel(label))
+            program = QLabel(label)
+            program.setStyleSheet("color: #fefdea")
+            vbox_labels.addWidget(program)
 
         return vbox_labels
 
@@ -620,7 +710,10 @@ class UI(QMainWindow):
 
         self.term_1_inputs.setAlignment(Qt.AlignLeft)
 
-        vbox.addWidget(QLabel("Term 1"))
+        header = QLabel("Term 1")
+        header.setStyleSheet("color: #fefdea")
+
+        vbox.addWidget(header)
         vbox.addLayout(self.term_1_inputs)
 
         return vbox
@@ -638,7 +731,10 @@ class UI(QMainWindow):
 
         self.term_2_inputs.setAlignment(Qt.AlignLeft)
 
-        vbox.addWidget(QLabel("Term 2"))
+        header = QLabel("Term 2")
+        header.setStyleSheet("color: #fefdea")
+
+        vbox.addWidget(header)
         vbox.addLayout(self.term_2_inputs)
 
         return vbox
@@ -656,7 +752,10 @@ class UI(QMainWindow):
 
         self.term_3_inputs.setAlignment(Qt.AlignLeft)
 
-        vbox.addWidget(QLabel("Term 3"))
+        header = QLabel("Term 3")
+        header.setStyleSheet("color: #fefdea")
+
+        vbox.addWidget(header)
         vbox.addLayout(self.term_3_inputs)
 
         return vbox
@@ -698,8 +797,7 @@ class UI(QMainWindow):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
                 placeholder.setTextAlignment(Qt.AlignCenter)
-                #placeholder.setBackground(QtGui.QColor("lightGray"))
-                placeholder.setBackground(QtGui.QColor('#c4ddde'))
+                placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
 
@@ -726,76 +824,46 @@ class UI(QMainWindow):
 
         return list_val
 
-
-    # This function will store the input values
-    # into the database, after calling the create legions
-    # functions
-    #TODO: Not used atm, must be implemented
-    def store_legions(self):
-        db = r".\database\database.db"  # database.db file path
-        conn = create_connection(db)
-
-        programs = ["PCOM", "BCOM" , "PM",  "BA",  "GLM",  "FS" , "DXD",  "BK"]
-
-        #TODO Need to get the legions made to parse the numbers to add to db
-        # Anything with a '/' is what needs to be obtained
-
-        # for each_field in range(8):
-        #
-        #     self.term_1_inputs.itemAt(each_field).widget().value()
-        #     # Calculate legions here
-        #     for each_legion in range(/legions):
-        #         database.database.addLegionItem(conn, programs[each_field], 1, /legion_num )
-        #
-        #     self.term_2_inputs.itemAt(each_field).widget().value()
-        #     for each_legion in range( / legions):
-        #         database.database.addLegionItem(conn, programs[each_field], 2, /legion_num)
-        #
-        #     self.term_3_inputs.itemAt(each_field).widget().value()
-        #     for each_legion in range( / legions):
-        #         database.database.addLegionItem(conn, programs[each_field], 3, /legion_num)
-
-        close_connection(conn)
-
-
-
     # weekday is 0 or 2, depending on if its monday or wednesday respectively
     # eventually 1 and 3 for tuesday, thursday
-    def show_schedule(self, pd_dataframe, weekday):
+    def show_schedule(self, lecture_list, weekday):
 
         global COLOUR_INDEX
 
         course = ""
 
-        day_list = pd_dataframe.tolist()
         font = QFont()
         font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
-            if day_list[cell] == "":
+            if lecture_list[cell] == "":
                 continue
 
-            elif day_list[cell] != "" and course == day_list[cell]:
+            # If this cell is the same name as the course from the previous cell,
+            # Consider it part of the same block
+            elif lecture_list[cell] != "" and course == lecture_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
                 side_fill = QLabel()
                 side_fill.setStyleSheet("border: solid black;"
                                         "border-width : 0px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and day_list[cell + 1] == "":
+                if cell + 1 <= 18 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid black;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.main_table.setCellWidget(cell, weekday, side_fill)
+
+            # The course listed is a new one, and must be given a new colour + block
             else:
-                course = day_list[cell]
-                label_fill = QLabel(day_list[cell])
+                course = lecture_list[cell]
+                label_fill = QLabel(lecture_list[cell])
                 label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid black;"
                                          "border-width : 2px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and day_list[cell + 1] != course:
+                if cell + 1 <= 18 and lecture_list[cell + 1] != course:
                     label_fill.setStyleSheet("border: solid black;"
                                             "border-width : 0px 2px 2px 2px;")
 
@@ -809,8 +877,8 @@ class UI(QMainWindow):
 
 
     def add_ghost_rooms(self):
+
         imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
-        print(SEM[self.pick_semester.currentText()])
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
@@ -824,149 +892,31 @@ class UI(QMainWindow):
     '''
 
     def back_week(self):
-        global CORE_SCHEDULE
-        global WEEK
-        global CORE_PREV
-        global CORE_POST
-        global PROG_PREV
-        global PROG_POST
+        global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
 
-        # Only 13 weeks in a semester
+
+        # Can't go below week 1
         if WEEK == 1:
             return
         WEEK -= 1
 
-        room_requested = self.select_room.currentText().split(" ")[0]
-        if (len(self.select_room.currentText().split(" ")) > 1 and 
-            self.select_room.currentText().split(" ")[1] == "(LAB)"):
-            room_requested = room_requested + " (LAB)"
+        self.reset_table()
+        self.week_label.setText("Week " + str(WEEK))
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
 
-        try:
-            # Find the next day that the schedule changes.
-            # When accessing from dataframe, odd is monday, even, wednesday
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
 
-            day = (WEEK * 2)  # day will be the wednesday / thursday of the previous week
-
-            while not (isinstance(CORE_SCHEDULE["day " + str(day)], pd.DataFrame) or isinstance(PROG_SCHEDULE["day " + str(day)], pd.DataFrame)):
-
-                # If R != 0, then go to the previous week
-                if day % 2 != 0:
-                    WEEK -= 1
-                    day = (WEEK * 2)
-
-                day -= 1
-
-            self.week_label.setText("Week " + str(WEEK))
-            self.reset_table()
-            CORE_PREV = "day " + str(day)
-            PROG_PREV = "day " + str(day)
-
-            if day % 2 != 0 and isinstance(CORE_SCHEDULE[CORE_PREV], pd.DataFrame):
-                # If the change day is monday and core is changing
-                # wednesday stays the same, monday changes
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
-
-            elif day % 2 == 0 and isinstance(CORE_SCHEDULE[CORE_PREV], pd.DataFrame) and isinstance(CORE_SCHEDULE["day " + str(day - 1)], pd.DataFrame):
-                # Change on wednesday and monday core
-                CORE_POST = CORE_PREV
-                CORE_PREV = "day " + str(day - 1)
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
-            elif day % 2 == 0 and isinstance(CORE_SCHEDULE["day " + str(day)], pd.DataFrame):
-                # Change on wednesday, no change on monday
-                CORE_POST = CORE_PREV
-
-                # Find the next previous change
-                _day = day - 1
-                _week = WEEK
-                while not isinstance(CORE_SCHEDULE["day " + str(_day)], pd.DataFrame):
-                    if _day % 2 != 0:
-                        _week -= 1
-                        _day = (_week * 2)
-
-                    _day -= 1
-
-                CORE_PREV = "day " + str(_day)
-
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
-                CORE_PREV = CORE_POST
-
-            else:
-                # Change only in program (tue / thur)
-                # Must find previous change
-                _day = day - 1
-                _week = WEEK
-                while not isinstance(CORE_SCHEDULE["day " + str(_day)], pd.DataFrame):
-                    if _day % 2 != 0:
-                        _week -= 1
-                        _day = (_week * 2)
-
-                    _day -= 1
-                CORE_PREV = "day " + str(_day)
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
-
-            CORE_POST = CORE_PREV
-
-            if day % 2 != 0 and isinstance(PROG_SCHEDULE[PROG_PREV], pd.DataFrame):
-                # If the change day is tuesday and prog is changing
-                # thursday stays the same, tuesday changes
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 3)
-
-            elif day % 2 == 0 and isinstance(PROG_SCHEDULE[PROG_PREV], pd.DataFrame) and isinstance(PROG_SCHEDULE["day " + str(day - 1)], pd.DataFrame):
-                # Change on thursday and tuesday prog
-                PROG_POST = PROG_PREV
-                PROG_PREV = "day " + str(day - 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
-            elif day % 2 == 0 and isinstance(PROG_SCHEDULE[PROG_PREV], pd.DataFrame):
-                # Change on thursday, no change on tuesday
-                PROG_POST = PROG_PREV
-                # Find the next previous change
-                _day = day - 1
-                _week = WEEK
-                while not isinstance(PROG_SCHEDULE["day " + str(_day)], pd.DataFrame):
-                    if _day % 2 != 0:
-                        _week -= 1
-                        _day = (_week * 2)
-
-                    _day -= 1
-
-                PROG_PREV = "day " + str(_day)
-
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
-                PROG_PREV = PROG_POST
-
-            else:
-                # Change only in course (mon / wed)
-                # Must find previous change
-                _day = day - 1
-                _week = WEEK
-                while not isinstance(PROG_SCHEDULE["day " + str(_day)], pd.DataFrame):
-                    if _day % 2 != 0:
-                        _week -= 1
-                        _day = (_week * 2)
-
-                    _day -= 1
-                PROG_PREV = "day " + str(_day)
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 3)
-
-            PROG_POST = PROG_PREV
-
-        except:
-            print("error")
     def forward_week(self):
-        global CORE_SCHEDULE
-        global WEEK
-        global CORE_PREV
-        global CORE_POST
-        global PROG_PREV
-        global PROG_POST
+        global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
 
 
         # Only 13 weeks in a semester
@@ -974,86 +924,22 @@ class UI(QMainWindow):
             return
         WEEK += 1
 
-        room_requested = self.select_room.currentText().split(" ")[0]
-        if (len(self.select_room.currentText().split(" ")) > 1 and 
-            self.select_room.currentText().split(" ")[1] == "(LAB)"):
-            room_requested = room_requested + " (LAB)"
+        self.reset_table()
+        self.week_label.setText("Week " + str(WEEK))
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
 
-        try:
-            # Find the next day that the schedule changes.
-            # When accessing from dataframe, odd is monday / tuesday, even, wednesday / thursday
-
-            day = (WEEK*2) - 1    # day will be the monday / tuesday of the next week
-
-            while not (isinstance(CORE_SCHEDULE["day " + str(day)], pd.DataFrame) or isinstance(PROG_SCHEDULE["day " + str(day)], pd.DataFrame) ):
-
-                # If we get to the last day of the semester (day 26) and theres no dataframe,
-                # There is no more changes for the semester
-
-                # If R = 0, then go to the next week
-                if day % 2 == 0:
-                    WEEK += 1
-                    day = (WEEK*2) - 2
-
-                day += 1
-
-            self.reset_table()
-
-            self.week_label.setText("Week " + str(WEEK))
-
-            CORE_POST = "day " + str(day)
-            PROG_POST = "day " + str(day)
-
-            if day % 2 == 0 and isinstance(CORE_SCHEDULE[CORE_POST], pd.DataFrame):
-                # If the change day is wednesday and theres a change in core
-                # Monday stays the same, wednesday changes
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
-
-            elif day % 2 != 0 and isinstance(CORE_SCHEDULE["day " + str(day + 1)], pd.DataFrame):
-                # Change on monday and wednesday
-                CORE_PREV = CORE_POST
-                CORE_POST = "day " + str(day + 1)
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
-            elif day % 2 != 0 and isinstance(CORE_SCHEDULE[CORE_POST], pd.DataFrame):
-                # Change happens on a monday
-                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_POST][room_requested], 2)
-            else:
-                # Change only in program (tue / thur)
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-                self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
-                CORE_POST = CORE_PREV
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
 
 
-            CORE_PREV = CORE_POST
-
-            if day % 2 == 0 and isinstance(PROG_SCHEDULE[PROG_POST], pd.DataFrame):
-                # If the change day is thursday and theres a change in program
-                # Tue stays the same, thur changes
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
-
-            elif day % 2 != 0 and isinstance(PROG_SCHEDULE["day " + str(day + 1)], pd.DataFrame):
-                # Change on tuesday and thursday
-                PROG_PREV = PROG_POST
-                PROG_POST = "day " + str(day + 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
-            elif day % 2 != 0 and isinstance(PROG_SCHEDULE[PROG_POST], pd.DataFrame):
-                # Change happens on a tuesday
-                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_POST][room_requested], 3)
-            else:
-                # Change only in core (mon / wed)
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-                self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 3)
-                PROG_POST = PROG_PREV
-
-            PROG_PREV = PROG_POST
-        except:
-            print("error")
 
 
 
@@ -1061,8 +947,15 @@ class UI(QMainWindow):
         # Will eventually replace create_schedule, as it will pull form the db
         room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
-        global WEEK
+        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR
+        # Reset values
+        CORE_DAY = 1
+        PROG_DAY = 1
+        CORE_SCHEDULE.clear()
+        PROG_SCHEDULE.clear()
         WEEK = 1
+        ROOM = self.select_room.currentText()
+        ROOM = ROOM[:ROOM.find(" ")].strip()
 
         # Pass in student numbers to db
         # Then calculate ghost rooms
@@ -1071,84 +964,29 @@ class UI(QMainWindow):
         self.add_ghost_rooms()
         self.update_class_combos()
 
+        imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
+        imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         random.shuffle(BG_COLOURS)
+        COURSE_COLOUR.clear()
         self.reset_table()
 
-        # Retrieve lecture items for the week
 
-        # week1 = self.get_lecture_items()
+        # All lecture items should now be recorded in the dictionaries
+        self.get_lecture_items()
 
-        # Create a list for each day, (26 slots) for each list to correspond for each time
-        # for each_day in range(len(week1)):
-        #     schedule_list = [""] * 26
-        #
-        #     for each_lecture in range(len(week1[each_day])):
-        #         #TODO match start time of lecture to its spot in the schedule_list
-        #         # Separate the cohorts within it
-        #         # put them in list
-        #         # Pass to show schedule function
-        #         return
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
 
-
-
-    def create_schedule_old(self):
-        room_requested = self.select_room.currentText().split(" ")[0]
-        self.week_label.setText("Week 1")
-        global WEEK
-        WEEK = 1
-
-
-        # TODO Uncomment this if you want random colours every time you remake schedule
-        random.shuffle(BG_COLOURS)
-
-        if (len(self.select_room.currentText().split(" ")) > 1 and 
-            self.select_room.currentText().split(" ")[1] == "(LAB)"):
-            room_requested = room_requested + " (LAB)"
-
-        # Clear any values from the table
-        # Fresh Start
-
-        self.reset_table()
-
-        # Call upon the schedule creation functions, hopefully will
-        # be able to just read from the database eventually.
-
-        global CORE_SCHEDULE, PROG_SCHEDULE
-        CORE_SCHEDULE  = imports.schedulers.core_scheduler.get_sched(2)
-        # scheduling program-specific courses isnt implemented yet, so just use core schedules twice for UI testing -Andrew
-        PROG_SCHEDULE  = CORE_SCHEDULE
-
-
-        global CORE_PREV, PROG_PREV
-        CORE_PREV = "day 1"
-        PROG_PREV = "day 1"
-
-        # Note: Schedule is form of - schedule[day #][room]
-        # Be advised that if [day #] is an even number
-        # That is monday, odd numbers are wednesday
-
-        # 03/17/2022 Update: 
-        # all 26 core course schedules are included in `CORE_SCHEDULE`, so we can get rid of all the `isinstance` checks
-
-        # This dictionary will hold the course name (key)
-        # and the colour (value) for easier distinction between same courses, and different ones
-        global COURSE_COLOUR, COLOUR_INDEX
-        COURSE_COLOUR = {}
-        COLOUR_INDEX = -1
-
-        self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 0)
-        self.show_schedule(PROG_SCHEDULE[PROG_PREV][room_requested], 1)
-        if isinstance(CORE_SCHEDULE["day 2"], pd.DataFrame):
-            self.show_schedule(CORE_SCHEDULE["day 2"][room_requested], 2)
-        else:
-            self.show_schedule(CORE_SCHEDULE[CORE_PREV][room_requested], 2)
-
-        if isinstance(PROG_SCHEDULE["day 2"], pd.DataFrame):
-            self.show_schedule(PROG_SCHEDULE["day 2"][room_requested], 3)
-        else:
-            self.show_schedule(PROG_SCHEDULE[CORE_PREV][room_requested], 3)
-
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
 
 
 
@@ -1185,6 +1023,7 @@ class UI(QMainWindow):
             os.getcwd(),
             "Excel Workbook files (*.xlsx)"  # Filters to specified file types
         )
+
         if chosen_file[0] == "":
             self.file_label.setText("No File Chosen")
             self.file_path = ""
@@ -1204,7 +1043,7 @@ class UI(QMainWindow):
 
                 #----------------------------------------
                 # Template excel. Term, Program, Students
-                if sheet["A1"].value == "Term": 
+                if sheet["A1"].value == "Term":
                     term_1 = sheet["C2":"C9"]
                     term_2 = sheet["C10":"C17"]
                     term_3 = sheet["C18":"C25"]
@@ -1219,7 +1058,6 @@ class UI(QMainWindow):
                         self.term_3_inputs.itemAt(each_field).widget().setValue(term_3[each_field][0].value)
 
                     stu_numbers.close()
-
                 #----------------------------------------
                 # Client requested excel. Student ID, Student Name, Program, Term
                 elif sheet["A1"].value == "Student ID":
@@ -1294,6 +1132,11 @@ class UI(QMainWindow):
             db = r".\database\database.db"  # database.db file path
             connection = create_connection(db)
 
+            # Clear table
+            cur = connection.cursor()
+            cur.execute("DELETE FROM Student")
+            cur.execute("DELETE FROM Lecture")
+
             # Takes the currently input numbers, and adds them to the DB.
             for each_input in range(8):
 
@@ -1309,19 +1152,74 @@ class UI(QMainWindow):
 
         return
 
+
+    # Get the schedule for a specified semester, and fill the dictionary
+    # With the 4-tuple lists for each week
     def get_lecture_items(self):
-        #TODO see if easy to change to search by week / class
+
+        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM
+        
+        core_week_list = []
+        prog_week_list = []
+
+        core_last_known_sched = [""] *26
+        prog_last_known_sched = [""] *26
 
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
-        lectures_each_day = []
 
-        for each_day in range(4):
-            lectures_each_day.append(database.database.readLectureItem(connection))
+
+        # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
+        # 13 weeks in a semester
+        for weeks in range(1, 14):
+
+            # Create a list for each day (2), (26 slots) for each list to correspond for each time
+            # Recall that CORE_DAY and  PROG DAY are independant
+            # i.e. An odd COre Day / PRog day = Monday / Tuesday, even = Wednesday/ thursday
+            for each_day in range(1, 3):
+
+                core_lectures_in_week = readLectureItem_UI(connection, ROOM, CORE_DAY, 1)
+                prog_lectures_in_week = readLectureItem_UI(connection, ROOM, PROG_DAY, 0)
+
+                # Checking if there was any new differences in schedule
+                # if not, then simply add the last known schedule since it hasnt changed.
+                if len(core_lectures_in_week) != 0:
+                    core_last_known_sched = self.convert_to_list(core_lectures_in_week)
+
+                if len(prog_lectures_in_week) != 0:
+                    prog_last_known_sched = self.convert_to_list(prog_lectures_in_week)
+
+                core_week_list.append(core_last_known_sched)
+                prog_week_list.append(prog_last_known_sched)
+
+                CORE_DAY += 1
+                PROG_DAY += 1
+                
+            # All weeks should be account for in the dictionaries now
+            # Deepcopies must be made, since python does by reference
+            CORE_SCHEDULE[weeks] = copy.deepcopy(core_week_list)
+            PROG_SCHEDULE[weeks] = copy.deepcopy(prog_week_list)
+            # Clear the list of lists
+            core_week_list.clear()
+            prog_week_list.clear()
 
         close_connection(connection)
 
-        return lectures_each_day
+
+    # Creates a list using the data pulled from the DB
+    # The list matches what should be displayed in the UI.
+    def convert_to_list(self, db_pull):
+        global TIMES
+        day_sched = [""] * 26
+
+        for each_lecture in range(len(db_pull)):
+            start_in_list = TIMES[db_pull[each_lecture][9]]
+            slots_needed = int(db_pull[each_lecture][6] / .5)
+
+            for each_slot in range(start_in_list, start_in_list + slots_needed):
+                day_sched[each_slot] = db_pull[each_lecture][0] + "-" + db_pull[each_lecture][2]
+
+        return day_sched
 
     def add_edit_classroom(self):
         db = r".\database\database.db"  # database.db file path
@@ -1333,6 +1231,7 @@ class UI(QMainWindow):
             # If it does, treat is as an edit (i.e. remove it from db, then add it fresh)
 
             classroom_id = self.class_id.text().strip()
+            classroom_id = classroom_id.replace(" ","-")
             wanted_class = readClassroomItem(connection, classroom_id)
             lab = self.class_lab.checkedButton().text()
 
@@ -1345,9 +1244,9 @@ class UI(QMainWindow):
             if (lab == "Lab"):
                 val = 1
             if(len(wanted_class) == 1):
-                deleteClassroomItem(connection, self.class_id.text().strip())
+                deleteClassroomItem(connection, classroom_id)
 
-            new_room = Classroom(self.class_id.text().strip(), self.class_capacity.value(), val)
+            new_room = Classroom(classroom_id, self.class_capacity.value(), val)
             addClassroomItem(connection, new_room)
 
             # Must close connection to update db before updating comboboxes
@@ -1369,8 +1268,11 @@ class UI(QMainWindow):
 
             # Remove the classroom from the DB
             classroom = self.classroom_list.currentText()
+            # Remove all text past the room name
+            index = classroom.find(" ")
+            classroom = classroom[:index].strip()
 
-            deleteClassroomItem(connection, classroom.replace("(LAB)", "").strip())
+            deleteClassroomItem(connection, classroom)
 
             close_connection(connection)
 
@@ -1392,6 +1294,7 @@ class UI(QMainWindow):
                 course_id = self.course_id.text().strip()
             else:
                 course_id = self.courses.currentText().strip()
+                deleteProgramItem_UI(connection, course_id)
 
             if course_id.isspace() or course_id == "":
                 close_connection(connection)
@@ -1412,6 +1315,7 @@ class UI(QMainWindow):
 
             new_course = Course(course_id, 1, term_hours, term, duration, core, online,lab, pre_reqs)
             addCourseItem(connection, new_course)
+            addProgramItem_UI(connection, self.course_program.currentText(), course_id)
 
             close_connection(connection)
             # Update the combobox

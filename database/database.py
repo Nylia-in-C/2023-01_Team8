@@ -133,7 +133,29 @@ def addProgramItem(conn, program):
             i= i+1      
         except Exception as e:
             print("Issues inserting into table: ", e)
-    return 
+    return
+
+def addProgramItem_UI(conn, program, course):
+    #parameters: passed connection and program ID, and courseID
+    try:
+        rowString = "INSERT INTO PROGRAMS (ProgID, CourseID) VALUES ('"+ program +"', '"+ course + "')"
+        #print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+    except Exception as e:
+        print("Issues inserting into table: ", e)
+    return
+
+def deleteProgramItem_UI(conn, course):
+    #parameters: passed connection and program ID, and courseID
+    try:
+        rowString = "DELETE FROM PROGRAMS WHERE CourseID='"+ course +"'"
+        #print(rowString)
+        c = conn.cursor()
+        c.execute(rowString)
+    except Exception as e:
+        print("Issues deleting from table: ", e)
+    return
 def readProgramItem(conn, ProgID):
      #reads Program item from DB 
     #parameters:Connection string,  ProgID as a string
@@ -296,6 +318,21 @@ def readLectureItem(conn, CourseID, Cohort ):
     rows =[]
     try:
         queryString = f"Select * from LECTURE where CourseID like '{CourseID}' and CohortID like '{Cohort}'"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return rows
+
+def readLectureItem_UI(conn, room, day, core):
+    #reads lecture item from DB
+    #parameters:Connection string,  room as string, week as int
+    rows =[]
+    try:
+        queryString = f"Select * from LECTURE where Room like '{room}' and StartDay like '{day}' and isCore={core}"
         cur = conn.cursor()
         cur.execute(queryString)
         rows = cur.fetchall()

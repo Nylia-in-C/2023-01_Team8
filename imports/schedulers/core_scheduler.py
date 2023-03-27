@@ -39,10 +39,13 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
         start_day = getSpringStartDay(2024)
         holidays  = getHolidaysMonWed(2023)
         
-    pcomA_courses = get_courses('PCOM', termA)
-    pcomB_courses = get_courses('PCOM', termB)
-    bcomA_courses = get_courses('BCOM', termA)
-    bcomB_courses = get_courses('BCOM', termB)
+    rooms   = get_rooms()
+    cohorts = get_cohort_counts(term)
+        
+    pcomA_courses = get_courses('PCOM', termA) if cohorts[f'PCOM{termA}'] else []
+    pcomB_courses = get_courses('PCOM', termB) if cohorts[f'PCOM{termB}'] else []
+    bcomA_courses = get_courses('BCOM', termA) if cohorts[f'BCOM{termA}'] else []
+    bcomB_courses = get_courses('BCOM', termB) if cohorts[f'BCOM{termB}'] else []
 
     pcomA_lecs = [c for c in pcomA_courses if not c.hasLab and not c.isOnline]
     pcomB_lecs = [c for c in pcomB_courses if not c.hasLab and not c.isOnline]
@@ -58,9 +61,6 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     pcomB_onls = [c for c in pcomB_courses if c.isOnline]
     bcomA_onls = [c for c in bcomA_courses if c.isOnline]
     bcomB_onls = [c for c in bcomB_courses if c.isOnline]
-        
-    rooms   = get_rooms()
-    cohorts = get_cohort_counts(term)
     
     # list of uppercase letters, length vary
     pcomA_cohorts = string.ascii_uppercase[:cohorts[f'PCOM{termA}']]
