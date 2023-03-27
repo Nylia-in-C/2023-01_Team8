@@ -106,6 +106,7 @@ class UI(QMainWindow):
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
+        self.course_program = QComboBox()
 
         self.course_pre_req_selector = QComboBox()
         self.course_pre_reqs = []
@@ -376,6 +377,13 @@ class UI(QMainWindow):
         new_or_edit.addWidget(b2)
         #-----------------------------
 
+        hbox_program = QHBoxLayout()
+        hbox_program.addWidget(QLabel("Program: "))
+        self.course_program.addItems(["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"])
+        hbox_program.addWidget(self.course_program)
+
+        # -----------------------------
+
         course_id_sec = QHBoxLayout()
         course_id_sec.addWidget(QLabel("Course Name"))
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
@@ -447,6 +455,7 @@ class UI(QMainWindow):
 
         #-----------------------------
         vbox_course_specs1 = QVBoxLayout()
+        vbox_course_specs1.addLayout(hbox_program)
         vbox_course_specs1.addLayout(course_id_sec)
         vbox_course_specs1.addLayout(hbox_online_lab)
         #-----------------------------
@@ -1209,6 +1218,7 @@ class UI(QMainWindow):
                 course_id = self.course_id.text().strip()
             else:
                 course_id = self.courses.currentText().strip()
+                deleteProgramItem_UI(connection, course_id)
 
             if course_id.isspace() or course_id == "":
                 close_connection(connection)
@@ -1229,6 +1239,7 @@ class UI(QMainWindow):
 
             new_course = Course(course_id, 1, term_hours, term, duration, core, online,lab, pre_reqs)
             addCourseItem(connection, new_course)
+            addProgramItem_UI(connection, self.course_program.currentText(), course_id)
 
             close_connection(connection)
             # Update the combobox
