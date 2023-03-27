@@ -75,7 +75,7 @@ class UI(QMainWindow):
         remove_colours()
 
         self.setWindowTitle("Scheduler")
-        self.setFixedSize(1240, 900)
+        self.setFixedSize(1280, 900)
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
