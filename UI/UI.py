@@ -73,10 +73,9 @@ class UI(QMainWindow):
     def __init__(self):
         super().__init__()
         remove_colours()
-
         self.setWindowTitle("Scheduler")
         self.setFixedSize(1280, 900)
-        self.setStyleSheet("background-color: #c9b698")
+        self.setStyleSheet("background-color: #c9b698") 
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -187,10 +186,13 @@ class UI(QMainWindow):
         tabs = QTabWidget()
         tab1 = QWidget()
         tab1.setStyleSheet(     "background-color: #9f4e0f; " +
-                                "color: #fefdea; " +
-                                "border-color: #fefdea; ")                                 
+                               "color: #fefdea; " +
+                               "border-color: #fefdea; ")                                 
         tab2 = QWidget()
-        tab3 = QWidget()
+        tab3 = QWidget()        
+        tab3.setStyleSheet(     "background-color: #fefdea; " +
+                                "color: #041f14; " +
+                                "border-color: #fefdea; ")   
 
         tabs.addTab(tab1, "Schedule")
         tabs.addTab(tab2, "Options")
@@ -799,6 +801,7 @@ class UI(QMainWindow):
                 placeholder.setTextAlignment(Qt.AlignCenter)
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
+                self.main_table.setStyleSheet("background-color: None")
                 self.main_table.removeCellWidget(row, column)
 
     def retrieve_term_inputs(self, layout):
@@ -844,7 +847,6 @@ class UI(QMainWindow):
             # Consider it part of the same block
             elif lecture_list[cell] != "" and course == lecture_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
-
                 side_fill = QLabel()
                 side_fill.setStyleSheet("border: solid black;"
                                         "border-width : 0px 2px 0px 2px;")
