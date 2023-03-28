@@ -913,7 +913,8 @@ class UI(QMainWindow):
             # The course listed is a new one, and must be given a new colour + block
             else:
                 course = lecture_list[cell]
-                label_fill = QLabel(lecture_list[cell])
+                name = course.replace("-", "\n")
+                label_fill = QLabel(name)
                 label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid black;"
