@@ -2,6 +2,7 @@
 
 #Imports
 import os
+import time
 import pandas as pd
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
@@ -60,7 +61,8 @@ def remove_colours():
                     "lavenderblush", "blue", "mediumblue", "blanchedalmond", 
                     "indigo", "seashell", "navy", "black", "brown", "beige",
                     "azure", "deeppink", "fuchsia", "hotpink", "magenta",
-                    "red", "pink", "mediumvioletred"]
+                    "red", "pink", "mediumvioletred", "blueviolet", "darkviolet",
+                    "mediumpurple", "purple"]
 
     for colour in excludedcolours:
         BG_COLOURS.remove(colour)
@@ -131,7 +133,6 @@ class UI(QMainWindow):
         self.course_pre_reqs_label = QLabel()
         self.course_pre_reqs_label.setStyleSheet("color: #fefdea")
 
-
         '''
         Creating tables for each tab
         and giving proper settings (i.e. un-editable, resize to width etc)
@@ -159,6 +160,31 @@ class UI(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.show()
+
+    def splash_screen(self):
+        # Start up splash screen
+        # adapted from: https://stackoverflow.com/questions/58661539/create-splash-screen-in-pyqt5
+        splash_pic = QPixmap("macewan_logo.png")
+        splash_msg = QSplashScreen(splash_pic)
+        splash_msg.setFixedSize(965, 568)
+        splash_msg.setStyleSheet(style_glass)
+
+        #Fade in, fade out
+        opaque = 0.00
+        step = 0.02
+        splash_msg.setWindowOpacity(opaque)
+        splash_msg.show()
+        while opaque < 1:
+            splash_msg.setWindowOpacity(opaque)
+            time.sleep(step)
+            opaque+=step
+        time.sleep(2)
+        while opaque > 0:
+            splash_msg.setWindowOpacity(opaque)
+            time.sleep(2*step)
+            opaque-=2*step
+        splash_msg.close()
+
 
     # Creates all items for central widget
     def create_hlayout(self):
@@ -902,11 +928,11 @@ class UI(QMainWindow):
             elif lecture_list[cell] != "" and course == lecture_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
                 side_fill = QLabel()
-                side_fill.setStyleSheet("border: solid black;"
+                side_fill.setStyleSheet("border: solid white;"
                                         "border-width : 0px 2px 0px 2px;")
 
                 if cell + 1 <= 18 and lecture_list[cell + 1] == "":
-                    side_fill.setStyleSheet("border: solid black;"
+                    side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.main_table.setCellWidget(cell, weekday, side_fill)
 
@@ -917,11 +943,11 @@ class UI(QMainWindow):
                 label_fill = QLabel(name)
                 label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
-                label_fill.setStyleSheet("border: solid black;"
+                label_fill.setStyleSheet("border: solid white;"
                                          "border-width : 2px 2px 0px 2px;")
 
                 if cell + 1 <= 18 and lecture_list[cell + 1] != course:
-                    label_fill.setStyleSheet("border: solid black;"
+                    label_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
 
                 if course not in COURSE_COLOUR.keys():
@@ -997,9 +1023,6 @@ class UI(QMainWindow):
         self.show_schedule(thursday, 3)
 
 
-
-
-
     def create_schedule(self):
         # Will eventually replace create_schedule, as it will pull form the db
         room_requested = self.select_room.currentText().split(" ")[0]
@@ -1012,6 +1035,7 @@ class UI(QMainWindow):
         PROG_SCHEDULE.clear()
         WEEK = 1
         ROOM = self.select_room.currentText()
+
         if ROOM.find("(LAB)") != -1:
             ROOM = ROOM[:ROOM.find(" ")].strip() + " (LAB)"
             self.create_schedule_base(1)
@@ -1024,6 +1048,17 @@ class UI(QMainWindow):
         # Then parse the schedule.
         self.pass_stu_num_db()
         self.add_ghost_rooms()
+
+        # Loading message
+        load_font = QFont()
+        load_font.setPointSize(40)
+        load_msg = QSplashScreen()
+        load_msg.setFixedSize(400,200)
+        load_msg.setStyleSheet(style_glass)
+        load_msg.setFont(load_font)
+        load_msg.show()
+        load_msg.showMessage("Loading...", 0, QColor(255,255,255))
+
         self.update_class_combos()
 
         imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
@@ -1049,9 +1084,8 @@ class UI(QMainWindow):
         self.show_schedule(wednesday, 2)
         self.show_schedule(thursday, 3)
 
-
-
-
+        #close load message
+        load_msg.close()
 
     # Action event for creating template file
     def create_template(self):

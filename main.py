@@ -8,8 +8,6 @@ sys.path.append(parentdir)
 from UI import UI
 from PyQt5.QtWidgets import *
 from database.database import *
-#import database.database
-#import database.fill_data as fill
 import fill_data
 
 
@@ -26,7 +24,18 @@ def main():
     app = QApplication([])
     app.setStyle('Fusion')
     window = UI.UI()
+    window.hide()
+
+    #Set up window centered
+    w_rect = window.frameGeometry()
+    center = QDesktopWidget().availableGeometry().center()
+    w_rect.moveCenter(center)
+    window.move(w_rect.topLeft())
+
+    #Splash screen, then show main window
+    UI.UI.splash_screen(window)
     window.show()
+    
     app.exec_()
 
 if __name__ == "__main__":
