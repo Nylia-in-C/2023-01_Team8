@@ -847,6 +847,9 @@ class UI(QMainWindow):
         rows = self.main_table.rowCount()
         columns = self.main_table.columnCount()
 
+        # necessary to display colour codes correctly
+        self.main_table.setStyleSheet("background-color: None; color: #4f4f4f")
+
         for row in range(rows):
             for column in range(columns):
                 placeholder = QTableWidgetItem()
@@ -854,8 +857,6 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
-                #necessary to display colour codes correctly
-                self.main_table.setStyleSheet("background-color: None; color: #4f4f4f") 
 
     def retrieve_term_inputs(self, layout):
 
