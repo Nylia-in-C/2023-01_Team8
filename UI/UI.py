@@ -61,7 +61,8 @@ def remove_colours():
                     "lavenderblush", "blue", "mediumblue", "blanchedalmond", 
                     "indigo", "seashell", "navy", "black", "brown", "beige",
                     "azure", "deeppink", "fuchsia", "hotpink", "magenta",
-                    "red", "pink", "mediumvioletred"]
+                    "red", "pink", "mediumvioletred", "blueviolet", "darkviolet",
+                    "mediumpurple", "purple"]
 
     for colour in excludedcolours:
         BG_COLOURS.remove(colour)
