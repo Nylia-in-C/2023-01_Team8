@@ -44,7 +44,8 @@ class Program:
        
         #testing purposes
     def printPrograms(self):
-         print( self.createProgramItemInfo())
+        pass
+         #print( self.createProgramItemInfo())
 
 
 # Need to move this to the database

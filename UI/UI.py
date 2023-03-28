@@ -81,7 +81,7 @@ class UI(QMainWindow):
         super().__init__()
         remove_colours()
         self.setWindowTitle("Scheduler")
-        self.setStyleSheet("background-color: #c9b698") 
+        self.setStyleSheet("background-color: #6f2937") 
 
         #Stylesheet
         global style_glass
@@ -252,10 +252,10 @@ class UI(QMainWindow):
         tabs = QTabWidget()
         tabs.setStyleSheet(style_glass)
         tab1 = QWidget()
-        tab1.setStyleSheet(    "background-color: #8c2332; " +
+        tab1.setStyleSheet(    "background-color: #3b0918; " +
                                "color: #fefdea; ")                                 
         tab2 = QWidget()
-        tab2.setStyleSheet(    "background-color: #4f4f4f; " +
+        tab2.setStyleSheet(    "background-color: #3b0918; " +
                                "color: #4f4f4f; ")  
 
         tab3 = QWidget()        
@@ -1094,7 +1094,10 @@ class UI(QMainWindow):
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
         if (len(readClassroomItem(connection, "ghost%")) != 0):
-            QMessageBox.warning(self, "Insufficient Room Space", "Be advised that additional rooms are required.")
+            ghost_rooms = QMessageBox(QMessageBox.Warning, "Insufficient Room Space", 
+                                      "Be advised that additional rooms are required.")
+            ghost_rooms.setStyleSheet("color: black")
+            ghost_rooms.exec()
 
         close_connection(connection)
 
@@ -1393,13 +1396,14 @@ class UI(QMainWindow):
                     """
 
                 
-                else: print("Bad template!")
+                else: pass
+                    #print("Bad template!")
 
-            except:
-                print("Error reading values")  # add error message here eventually
+            except: pass
+                #print("Error reading values")  # add error message here eventually
 
-        except:
-            print("Error Opening File")# Maybe put an actual error message here eventually about opening files
+        except: pass
+           # print("Error Opening File")# Maybe put an actual error message here eventually about opening files
 
 
     def pass_stu_num_db(self):
@@ -1427,7 +1431,7 @@ class UI(QMainWindow):
             close_connection(connection)
 
         except:
-            print("Could not read database")
+            #print("Could not read database")
             close_connection(connection)
 
         return
@@ -1555,7 +1559,7 @@ class UI(QMainWindow):
 
 
         except:
-            print("error adding classroom")
+            #print("error adding classroom")
             close_connection(connection)
 
     def remove_classroom(self):
@@ -1579,7 +1583,7 @@ class UI(QMainWindow):
 
 
         except:
-            print("error adding classroom")
+            #print("error adding classroom")
             close_connection(connection)
 
     def save_course(self):
@@ -1620,7 +1624,8 @@ class UI(QMainWindow):
             self.update_course_combos()
 
         except:
-            print("error adding course")
+            pass
+            #print("error adding course")
 
     def update_course_combos(self):
         db = r".\database\database.db"  # database.db file path
