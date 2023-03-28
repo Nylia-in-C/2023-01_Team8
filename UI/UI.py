@@ -205,12 +205,12 @@ class UI(QMainWindow):
                                "border-color: #fefdea; ")                                 
         tab2 = QWidget()
         tab2.setStyleSheet(    "background-color: #c9b698; " +
-                               "color: #041f14; " +
+                               "color: #4f4f4f; " +
                                "border-color: #fefdea; ")  
 
         tab3 = QWidget()        
         tab3.setStyleSheet(     "background-color: #fefdea; " +
-                                "color: #041f14; " +
+                                "color: #4f4f4f; " +
                                 "border-color: #fefdea; ")   
 
         tabs.addTab(tab1, "Schedule")
@@ -243,7 +243,7 @@ class UI(QMainWindow):
         arrowfont.setPointSize(20)
 
         left = QPushButton("←")
-        left.setStyleSheet( "background-color: #041f14; " +
+        left.setStyleSheet( "background-color: #4f4f4f; " +
                             "color: #fefdea; " +
                             "border-width: 3px; "+
                             "border-radius: 5px; "+
@@ -251,7 +251,7 @@ class UI(QMainWindow):
         left.setFont(arrowfont)
 
         right = QPushButton("→")
-        right.setStyleSheet( "background-color: #041f14; " +
+        right.setStyleSheet( "background-color: #4f4f4f; " +
                             "color: #fefdea; " +
                             "border-width: 3px; "+
                             "border-radius: 5px; "+
@@ -629,7 +629,7 @@ class UI(QMainWindow):
         create_sched = QPushButton("Create Schedule")
         font.setPointSize(20)
         create_sched.setFont(font)
-        create_sched.setStyleSheet( "background-color: #041f14; " +
+        create_sched.setStyleSheet( "background-color: #4f4f4f; " +
                                     "color: #fefdea; " +
                                     "border-width: 3px; "+
                                     "border-radius: 5px; "+
@@ -856,7 +856,7 @@ class UI(QMainWindow):
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
                 #necessary to display colour codes correctly
-                self.main_table.setStyleSheet("background-color: None; color: #041f14") 
+                self.main_table.setStyleSheet("background-color: None; color: #4f4f4f") 
 
     def retrieve_term_inputs(self, layout):
 
