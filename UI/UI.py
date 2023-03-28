@@ -45,6 +45,8 @@ LEFT_MAX_WIDTH = 450
 # Dictionaries where key = week number, value =list of (2) lists for each day that week
 CORE_SCHEDULE = {}
 PROG_SCHEDULE = {}
+CORE_SCHEDULE_COHORTS = {}
+PROG_SCHEDULE_COHORTS = {}
 ROOM = ""
 global PROG_LABELS
 WEEK = 1
@@ -53,6 +55,7 @@ PROG_DAY = 1
 COLOUR_INDEX = -1
 COURSE_COLOUR = {}
 
+WEEK_COHORTS = 1
 
 # Removes colours that make the text hard to read / separate from the background
 def remove_colours():
@@ -153,11 +156,14 @@ class UI(QMainWindow):
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.main_table.setSelectionMode(QAbstractItemView.NoSelection)
         self.main_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.main_table.setShowGrid(False)
         
         '''
         Table for the Cohort filter schedule
+        + Combobox for picking cohort
         '''
         self.cohort_table = QTableWidget()
+        self.cohort_tab_combo = QComboBox()
 
         self.cohort_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.cohort_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -165,6 +171,7 @@ class UI(QMainWindow):
         self.cohort_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.cohort_table.setSelectionMode(QAbstractItemView.NoSelection)
         self.cohort_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.cohort_table.setShowGrid(False)
 
         '''
         Layouts containing the term inputs
@@ -229,7 +236,7 @@ class UI(QMainWindow):
         h_line.setLineWidth(3)
         return h_line
 
-    # Quick function to make horizontal separators
+    # Quick function to make vertical separators
     def create_vertical_line(self):
         v_line = QFrame()
         v_line.setFrameShape(QFrame.VLine)
@@ -267,6 +274,7 @@ class UI(QMainWindow):
         tabs.addTab(tab3, "Instructions")
 
         self.create_schedule_base(0)
+        self.create_cohorts_schedule_base(0)
 
         tab1.setLayout(self.make_main_tab())
         tab2.setLayout(self.make_options_tab())
@@ -361,13 +369,14 @@ class UI(QMainWindow):
                             "border-color: #fefdea")
         right.setFont(arrowfont)
 
-        right.clicked.connect(self.forward_week)
-        left.clicked.connect(self.back_week)
+        right.clicked.connect(self.forward_week_cohort)
+        left.clicked.connect(self.back_week_cohort)
 
         week_choose.addWidget(left)
         week_choose.addWidget(self.cohort_week_label)
         week_choose.addWidget(right)
 
+        cohort_table_box.addWidget(self.cohort_tab_combo)
         cohort_table_box.addLayout(week_choose)
         cohort_table_box.addWidget(self.cohort_table)
         
@@ -651,7 +660,12 @@ class UI(QMainWindow):
 
         return vbox_course
 
-    # Make the basic layout of the schedule table
+    '''
+    The following 2 functions
+    create the basic layout 
+    for the tables
+    cohorts and main
+    '''
     def create_schedule_base(self, isLab):
 
         days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
@@ -680,11 +694,38 @@ class UI(QMainWindow):
         self.main_table.setRowCount(len(times))
         self.main_table.setVerticalHeaderLabels(times)
 
-        self.main_table.setShowGrid(False)
-
         # Fill with empty items to change background colours later
         self.reset_table()
+    def create_cohorts_schedule_base(self, isLab):
 
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
+        times = []
+
+        # Creation of all times from 8:00 AM to 5:00 PM to use as row headers
+
+        first_time = datetime.datetime(year=2000, month=1, day=1, hour=8, minute=00)
+        time_dif = datetime.timedelta(minutes=30)
+
+        times.append(first_time.strftime("%I:%M %p"))
+        new_time = first_time + time_dif
+        if (isLab):
+            for half_hour in range(25):
+                times.append(new_time.strftime("%I:%M %p"))
+                new_time = new_time + time_dif
+
+        else:
+            for half_hour in range(18):
+                times.append(new_time.strftime("%I:%M %p"))
+                new_time = new_time + time_dif
+
+        self.cohort_table.setColumnCount(4)
+        self.cohort_table.setHorizontalHeaderLabels(days)
+
+        self.cohort_table.setRowCount(len(times))
+        self.cohort_table.setVerticalHeaderLabels(times)
+
+        # Fill with empty items to change background colours later
+        self.reset_table_cohort()
 
     # Creates the bottom layout where most user interaction takes place
     def create_leftlayout(self):
@@ -934,6 +975,10 @@ class UI(QMainWindow):
                 self.select_room.addItem(db_classes[each_class][0] + f" Capacity: [{db_classes[each_class][1]}]")
                 self.classroom_list.addItem(db_classes[each_class][0] + f" Capacity: [{db_classes[each_class][1]}]")
 
+
+    '''
+    Reset functions for both tables (Schedule + Cohorts)
+    '''
     def reset_table(self):
         # Use this to populate table with values to allow
         # Background colouring
@@ -951,6 +996,23 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
+    def reset_table_cohort(self):
+        # Use this to populate table with values to allow
+        # Background colouring
+
+        rows = self.cohort_table.rowCount()
+        columns = self.cohort_table.columnCount()
+
+        # necessary to display colour codes correctly
+        self.cohort_table.setStyleSheet("background-color: None; color: #4f4f4f")
+
+        for row in range(rows):
+            for column in range(columns):
+                placeholder = QTableWidgetItem()
+                placeholder.setTextAlignment(Qt.AlignCenter)
+                placeholder.setBackground(QtGui.QColor('#5e869c'))
+                self.cohort_table.setItem(row, column, placeholder)
+                self.cohort_table.removeCellWidget(row, column)
 
     def retrieve_term_inputs(self, layout):
 
@@ -1096,7 +1158,60 @@ class UI(QMainWindow):
         except:
             return
 
+    # The following 2 functions are the same as forward week, but for
+    # the cohort tab
+    def forward_week_cohort(self):
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, WEEK_COHORTS
 
+
+        # Only 13 weeks in a semester
+        if WEEK_COHORTS == 13:
+            return
+        WEEK_COHORTS += 1
+
+        self.reset_table_cohort()
+        # Get the lists for each day
+        try:
+            core = CORE_SCHEDULE_COHORTS[WEEK_COHORTS]
+            prog = PROG_SCHEDULE_COHORTS[WEEK_COHORTS]
+
+            monday = core[0]
+            wednesday = core[1]
+            tuesday = prog[0]
+            thursday = prog[1]
+            self.show_schedule(monday,0)
+            self.show_schedule(tuesday, 1)
+            self.show_schedule(wednesday, 2)
+            self.show_schedule(thursday, 3)
+            self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
+        except:
+            return
+    def back_week_cohort(self):
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, WEEK_COHORTS
+
+
+        # Cant go below week 1
+        if WEEK_COHORTS == 1:
+            return
+        WEEK_COHORTS -= 1
+
+        self.reset_table_cohort()
+        # Get the lists for each day
+        try:
+            core = CORE_SCHEDULE_COHORTS[WEEK_COHORTS]
+            prog = PROG_SCHEDULE_COHORTS[WEEK_COHORTS]
+
+            monday = core[0]
+            wednesday = core[1]
+            tuesday = prog[0]
+            thursday = prog[1]
+            self.show_schedule(monday,0)
+            self.show_schedule(tuesday, 1)
+            self.show_schedule(wednesday, 2)
+            self.show_schedule(thursday, 3)
+            self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
+        except:
+            return
     def create_schedule(self):
         # Will eventually replace create_schedule, as it will pull form the db
         room_requested = self.select_room.currentText().split(" ")[0]
