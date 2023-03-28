@@ -341,6 +341,17 @@ def readLectureItem_UI(conn, room, day, core):
     except Exception as e:
         print("Issues reading from table: ", e)
     return rows
+
+def deleteLectureItem_UI(conn):
+    # delete all lecture items
+    try:
+        queryString = f"DELETE FROM Lecture"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
 def addStudentItem(conn, PID, Term, Count):
     #add item to table from passed connection and student row info
     try:

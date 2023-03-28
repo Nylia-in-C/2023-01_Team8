@@ -1228,9 +1228,12 @@ class UI(QMainWindow):
             ROOM = ROOM[:ROOM.find(" ")].strip()
             self.create_schedule_base(0)
 
+
+        # Clear out the lectures table
         # Pass in student numbers to db
         # Then calculate ghost rooms
         # Then parse the schedule.
+        self.clear_lectures()
         self.pass_stu_num_db()
         self.add_ghost_rooms()
 
@@ -1248,7 +1251,6 @@ class UI(QMainWindow):
 
         imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
         imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
-
         random.shuffle(BG_COLOURS)
         COURSE_COLOUR.clear()
         self.reset_table()
@@ -1429,6 +1431,24 @@ class UI(QMainWindow):
             close_connection(connection)
 
         return
+
+    '''
+    clears out the lecture table
+    to prevent bloating
+    and incorrect schedules
+    '''
+    def clear_lectures(self):
+        try:
+            db = r".\database\database.db"  # database.db file path
+            connection = create_connection(db)
+            # Clear table
+            deleteLectureItem_UI(connection)
+
+        except:
+            print("Could not read database")
+
+        close_connection(connection)
+
 
 
     # Get the schedule for a specified semester, and fill the dictionary
