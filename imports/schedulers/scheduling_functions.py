@@ -317,9 +317,8 @@ def get_valid_cohorts(invalid_courses: List[str], start: int, end: int,
     # for each occupied time for the new course, add the unavailable cohorts to a set
     for room, times in matching_courses.items():
         for time in times:
-
-            invalid_cohorts.add(sched[room][time][-1])
-
+            invalid_cohorts.add(sched[room][time][-2:])
+            
     return set(cohorts).difference(invalid_cohorts)
 
 def add_lectures_to_db():
@@ -334,31 +333,58 @@ def add_lectures_to_db():
     return
 
 # testing only
-def is_valid_sched(lectures, sched):
+def is_valid_core_sched(lectures, sched):
 
-    pcom_lec_IDs = {
-        'pcom A': [c.ID for c in lectures['pcomA']],
-        'pcom B': [c.ID for c in lectures['pcomB']],
-    }
+    pcomA_strs = [c.ID for c in lectures['pcomA']]
+    pcomB_strs = [c.ID for c in lectures['pcomB']]
+    bcomA_strs = [c.ID for c in lectures['bcomA']]
+    bcomB_strs = [c.ID for c in lectures['bcomB']]
 
-    bcom_lec_IDs = {
-        'bcom A': [c.ID for c in lectures['bcomA']],
-        'bcom B': [c.ID for c in lectures['bcomB']],
-    }
+    tr_sched = sched.T
+    for time in tr_sched.columns.tolist():
+        pcomA = [c[-1] for c in tr_sched[time].tolist() if c[:-3] in pcomA_strs]
+        pcomB = [c[-1] for c in tr_sched[time].tolist() if c[:-3] in pcomB_strs]
+        bcomA = [c[-1] for c in tr_sched[time].tolist() if c[:-3] in bcomA_strs]
+        bcomB = [c[-1] for c in tr_sched[time].tolist() if c[:-3] in bcomB_strs]
 
+        if len(pcomA) != len(set(pcomA)) or len(pcomB) != len(set(pcomB)) or \
+           len(bcomA) != len(set(bcomA)) or len(bcomB) != len(set(bcomB)):
+            return True
+    return False
+
+def is_invalid_prgm_sched(lectures, sched):
+    pmA_strs = [c.ID for c in lectures['pmA']]
+    pmB_strs = [c.ID for c in lectures['pmB']]
+    baA_strs = [c.ID for c in lectures['baA']]
+    baB_strs = [c.ID for c in lectures['baB']]
+    glmA_strs = [c.ID for c in lectures['glmA']]
+    glmB_strs = [c.ID for c in lectures['glmB']]
+    dxdA_strs = [c.ID for c in lectures['dxdA']]
+    dxdB_strs = [c.ID for c in lectures['dxdB']]
+    bkA_strs = [c.ID for c in lectures['bkA']]
+    bkB_strs = [c.ID for c in lectures['bkB']]
+    fsA_strs = [c.ID for c in lectures['fsA']]
+    fsB_strs = [c.ID for c in lectures['fsB']]
+    
     transposed = sched.T
-    for time in transposed.columns.tolist():
-        pcom_A = [c[-1] for c in transposed[time].tolist() if
-                  c[:-3] in pcom_lec_IDs['pcom A']]
-        pcom_B = [c[-1] for c in transposed[time].tolist() if
-                  c[:-3] in pcom_lec_IDs['pcom B']]
-        bcom_A = [c[-1] for c in transposed[time].tolist() if
-                  c[:-3] in bcom_lec_IDs['bcom A']]
-        bcom_B = [c[-1] for c in transposed[time].tolist() if
-                  c[:-3] in bcom_lec_IDs['bcom B']]
-
-        if len(pcom_A) != len(set(pcom_A)) or len(pcom_B) != len(set(pcom_B)) or \
-           len(bcom_A) != len(set(bcom_A)) or len(bcom_B) != len(set(bcom_B)):
+    for time in transposed.columns:
+        pmA = [c[-1] for c in transposed[time].tolist() if c[:-3] in pmA_strs]
+        pmB = [c[-1] for c in transposed[time].tolist() if c[:-3] in pmB_strs]
+        baA = [c[-1] for c in transposed[time].tolist() if c[:-3] in baA_strs]
+        baB = [c[-1] for c in transposed[time].tolist() if c[:-3] in baB_strs]
+        glmA = [c[-1] for c in transposed[time].tolist() if c[:-3] in glmA_strs]
+        glmB = [c[-1] for c in transposed[time].tolist() if c[:-3] in glmB_strs]
+        dxdA = [c[-1] for c in transposed[time].tolist() if c[:-3] in dxdA_strs]
+        dxdB = [c[-1] for c in transposed[time].tolist() if c[:-3] in dxdB_strs]
+        bkA = [c[-1] for c in transposed[time].tolist() if c[:-3] in bkA_strs]
+        bkB = [c[-1] for c in transposed[time].tolist() if c[:-3] in bkB_strs]
+        fsA = [c[-1] for c in transposed[time].tolist() if c[:-3] in fsA_strs]
+        fsB = [c[-1] for c in transposed[time].tolist() if c[:-3] in fsB_strs]
+        
+        parsed_IDs = pmA + pmB + baA + baB + glmA + glmB + \
+                 dxdA + dxdB + bkA + bkB + fsA + fsB
+                 
+        if len(parsed_IDs) != len(set(parsed_IDs)):
             return True
     return False
 #===============================================================================
@@ -399,6 +425,10 @@ def make_core_lecture_sched(lectures: Dict[str, List[Course]],
     )
 
     for i in range(len(most_courses)):
+        
+        if len(pcomA) > i:
+            sched = add_lec(pcomA[i], pcomA_cohorts, c_hours,
+                            pcomA_strs, sched, "PCOM")
 
         if len(pcomB) > i:
             sched = add_lec(pcomB[i], pcomB_cohorts, c_hours, 
@@ -409,9 +439,7 @@ def make_core_lecture_sched(lectures: Dict[str, List[Course]],
         if len(bcomA) > i:
             sched = add_lec(bcomA[i], bcomA_cohorts, c_hours, 
                             bcomA_strs, sched, "BCOM")
-        if len(pcomA) > i:
-            sched = add_lec(pcomA[i], pcomA_cohorts, c_hours, 
-                            pcomA_strs, sched, "PCOM")
+        
 
     return sched
 
@@ -534,7 +562,7 @@ def add_lec(course: Course, cohorts: List[str], course_hours: Dict[str, int],
         for start in times:
             end = start + blocks
             valid = get_valid_cohorts(
-                invalid_courses, start, end, cohorts, room, sched
+                invalid_courses, start, end, cohorts, room, sched, 
             )
             # only add cohorts we havent seen yet
             for cohort_ID in valid.difference(set(cohort_times.keys())):
@@ -1024,7 +1052,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             lectures, cohorts, course_hours, prev_lecs
         )
         
-        if is_valid_sched(lectures, lecture_sched): 
+        if is_valid_core_sched(lectures, lecture_sched): 
             invalid += 1
             
         lab_sched = make_core_lab_sched(
