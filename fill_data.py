@@ -394,7 +394,8 @@ def createDefaultDatabase():
         # end of add programs**********************************************************************
 
     else: 
-         print("Could not connect to database")
+        pass
+         #print("Could not connect to database")
   
     database.close_connection(connection)
  
