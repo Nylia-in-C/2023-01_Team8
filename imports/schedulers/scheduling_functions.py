@@ -72,7 +72,7 @@ def get_rooms() -> List[Classroom]:
     db = r".\database\database.db"  # database.db file path
     connection = create_connection(db)
 
-    query = f"SELECT * FROM Classrooms C WHERE C.ClassID NOT LIKE 'ghost%';"
+    query = f"SELECT * FROM Classrooms C;" #WHERE C.ClassID NOT LIKE 'ghost%';"
 
     try:
         cur = connection.cursor()
