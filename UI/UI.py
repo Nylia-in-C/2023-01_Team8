@@ -94,12 +94,20 @@ class UI(QMainWindow):
         self.legion_size = QLabel()
         self.select_room = QComboBox()
         self.select_room.activated.connect(self.room_selector_show_schedule)
-        self.select_room.setStyleSheet(style_glass) 
+        self.select_room.setStyleSheet(style_glass)
+
         self.week_label = QLabel()
         font = QFont()
         font.setPointSize(16)
         self.week_label.setFont(font)
         self.week_label.setAlignment(Qt.AlignCenter)
+
+        self.cohort_week_label = QLabel()
+        font = QFont()
+        font.setPointSize(16)
+        self.cohort_week_label.setFont(font)
+        self.cohort_week_label.setAlignment(Qt.AlignCenter)
+
         self.pick_semester = QComboBox()
         self.pick_semester.setStyleSheet(style_glass) 
         self.pick_semester.addItems(list(SEM.keys()))
@@ -145,6 +153,18 @@ class UI(QMainWindow):
         self.main_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.main_table.setSelectionMode(QAbstractItemView.NoSelection)
         self.main_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        
+        '''
+        Table for the Cohort filter schedule
+        '''
+        self.cohort_table = QTableWidget()
+
+        self.cohort_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.cohort_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Make table un-editable / un-targettable
+        self.cohort_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.cohort_table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.cohort_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         '''
         Layouts containing the term inputs
@@ -236,9 +256,13 @@ class UI(QMainWindow):
         tab3 = QWidget()        
         tab3.setStyleSheet(     "background-color: #fefdea; " +
                                 "color: #4f4f4f; " +
-                                "border-color: #fefdea; ")   
-
+                                "border-color: #fefdea; ")
+        tab4 = QWidget()
+        tab4.setStyleSheet(     "background-color: #fefdea; " +
+                                "color: #4f4f4f; " +
+                                "border-color: #fefdea; ")
         tabs.addTab(tab1, "Schedule")
+        tabs.addTab(tab4, "Cohort Schedule")
         tabs.addTab(tab2, "Options")
         tabs.addTab(tab3, "Instructions")
 
@@ -246,6 +270,9 @@ class UI(QMainWindow):
 
         tab1.setLayout(self.make_main_tab())
         tab2.setLayout(self.make_options_tab())
+
+        # Cohorts schedule tab
+        tab4.setLayout(self.make_cohort_sched_tab())
 
         # Read me Doc
         read_me = QTextEdit()
@@ -304,6 +331,47 @@ class UI(QMainWindow):
         vbox_overall.addLayout(self.update_course_section())
 
         return vbox_overall
+
+
+    # Creating the basics of the cohort sched tab.
+    # This is identical to the main_tab
+    def make_cohort_sched_tab(self):
+        
+        cohort_table_box = QVBoxLayout(self)
+        week_choose = QHBoxLayout(self)
+
+        #Left/Right Navigation Arrows
+        arrowfont = QFont()
+        arrowfont.setBold(True)
+        arrowfont.setPointSize(20)
+
+        left = QPushButton("←")
+        left.setStyleSheet( "background-color: #4f4f4f; " +
+                            "color: #fefdea; " +
+                            "border-width: 3px; "+
+                            "border-radius: 5px; "+
+                            "border-color: #fefdea")
+        left.setFont(arrowfont)
+
+        right = QPushButton("→")
+        right.setStyleSheet( "background-color: #4f4f4f; " +
+                            "color: #fefdea; " +
+                            "border-width: 3px; "+
+                            "border-radius: 5px; "+
+                            "border-color: #fefdea")
+        right.setFont(arrowfont)
+
+        right.clicked.connect(self.forward_week)
+        left.clicked.connect(self.back_week)
+
+        week_choose.addWidget(left)
+        week_choose.addWidget(self.cohort_week_label)
+        week_choose.addWidget(right)
+
+        cohort_table_box.addLayout(week_choose)
+        cohort_table_box.addWidget(self.cohort_table)
+        
+        return cohort_table_box
 
     def update_classroom_section(self):
         room_add_layout = QHBoxLayout()
@@ -984,19 +1052,22 @@ class UI(QMainWindow):
         WEEK -= 1
 
         self.reset_table()
-        self.week_label.setText("Week " + str(WEEK))
         # Get the lists for each day
-        core = CORE_SCHEDULE[WEEK]
-        prog = PROG_SCHEDULE[WEEK]
+        try:
+            core = CORE_SCHEDULE[WEEK]
+            prog = PROG_SCHEDULE[WEEK]
 
-        monday = core[0]
-        wednesday = core[1]
-        tuesday = prog[0]
-        thursday = prog[1]
-        self.show_schedule(monday,0)
-        self.show_schedule(tuesday, 1)
-        self.show_schedule(wednesday, 2)
-        self.show_schedule(thursday, 3)
+            monday = core[0]
+            wednesday = core[1]
+            tuesday = prog[0]
+            thursday = prog[1]
+            self.show_schedule(monday,0)
+            self.show_schedule(tuesday, 1)
+            self.show_schedule(wednesday, 2)
+            self.show_schedule(thursday, 3)
+            self.week_label.setText("Week " + str(WEEK))
+        except:
+            return
 
     def forward_week(self):
         global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
@@ -1008,19 +1079,22 @@ class UI(QMainWindow):
         WEEK += 1
 
         self.reset_table()
-        self.week_label.setText("Week " + str(WEEK))
         # Get the lists for each day
-        core = CORE_SCHEDULE[WEEK]
-        prog = PROG_SCHEDULE[WEEK]
+        try:
+            core = CORE_SCHEDULE[WEEK]
+            prog = PROG_SCHEDULE[WEEK]
 
-        monday = core[0]
-        wednesday = core[1]
-        tuesday = prog[0]
-        thursday = prog[1]
-        self.show_schedule(monday,0)
-        self.show_schedule(tuesday, 1)
-        self.show_schedule(wednesday, 2)
-        self.show_schedule(thursday, 3)
+            monday = core[0]
+            wednesday = core[1]
+            tuesday = prog[0]
+            thursday = prog[1]
+            self.show_schedule(monday,0)
+            self.show_schedule(tuesday, 1)
+            self.show_schedule(wednesday, 2)
+            self.show_schedule(thursday, 3)
+            self.week_label.setText("Week " + str(WEEK))
+        except:
+            return
 
 
     def create_schedule(self):
