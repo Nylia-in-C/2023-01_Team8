@@ -225,18 +225,15 @@ class UI(QMainWindow):
         tabs = QTabWidget()
         tabs.setStyleSheet(style_glass)
         tab1 = QWidget()
-        tab1.setStyleSheet(    "background-color: #9f4e0f; " +
-                               "color: #fefdea; " +
-                               "border-color: #fefdea; ")                                 
+        tab1.setStyleSheet(    "background-color: #8c2332; " +
+                               "color: #fefdea; ")                                 
         tab2 = QWidget()
-        tab2.setStyleSheet(    "background-color: #c9b698; " +
-                               "color: #4f4f4f; " +
-                               "border-color: #fefdea; ")  
+        tab2.setStyleSheet(    "background-color: #4f4f4f; " +
+                               "color: #4f4f4f; ")  
 
         tab3 = QWidget()        
         tab3.setStyleSheet(     "background-color: #fefdea; " +
-                                "color: #4f4f4f; " +
-                                "border-color: #fefdea; ")   
+                                "color: #4f4f4f; ")   
 
         tabs.addTab(tab1, "Schedule")
         tabs.addTab(tab2, "Options")
@@ -340,6 +337,7 @@ class UI(QMainWindow):
 
         # Class ID section
         self.class_id.setPlaceholderText("Classroom Name")
+        self.class_id.setStyleSheet("color: #fefdea")
         class_id_box = QHBoxLayout()
         class_id_label = QLabel("Room ID")
         class_id_label.setStyleSheet("color: #fefdea")
@@ -478,6 +476,7 @@ class UI(QMainWindow):
         course_name_label.setStyleSheet("color: #fefdea")
         course_id_sec.addWidget(course_name_label)
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
+        self.course_id.setStyleSheet("color: #fefdea")
         self.course_id.setMinimumWidth(200)
         self.course_id.setMaximumWidth(200)
         course_id_sec.addWidget(self.courses)
@@ -964,7 +963,7 @@ class UI(QMainWindow):
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
         if (len(readClassroomItem(connection, "ghost%")) != 0):
-            QMessageBox.information(self, "Ghost Rooms", "Be advised Ghost Rooms are required.")
+            QMessageBox.warning(self, "Insufficient Room Space", "Be advised that additional rooms are required.")
 
         close_connection(connection)
 
