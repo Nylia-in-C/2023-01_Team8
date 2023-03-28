@@ -83,10 +83,10 @@ def create_legion_dict(students):
 def make_legions():
 #===testing purposes only=======================================================
     program_count = random_students()
-    print(f"program counts: {program_count}\n")
+    #print(f"program counts: {program_count}\n")
     
     res = create_legion_dict(program_count)
-    print(res)
+    #print(res)
     
     
     #TODO: make legion objects directly, instead of dictionaries first (maybe)

@@ -185,8 +185,8 @@ def get_sched(term: int, debug=False):
 
 if __name__ == '__main__':
 
-    print("Enter a number for the term you want to generate a core schedule for: \
-          \n1. Fall \n2. Winter \n3. Spring/Summer")
+    #print("Enter a number for the term you want to generate a core schedule for: \
+    #      \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
 
     get_sched(term)
