@@ -24,10 +24,6 @@ from pprint import pprint
 
 #TODO: handle edge cases (e.g. avdm 0260 after all other courses)
 
-# TODO: change cohort naming
-
-
-
 day = 1
 week = 1
 lecture_objs = []
@@ -330,6 +326,7 @@ def add_lectures_to_db():
     for lec in lecture_objs:
         addLectureItem(connection, lec)
     close_connection(connection)
+    lecture_objs.clear()
     return
 
 # testing only
