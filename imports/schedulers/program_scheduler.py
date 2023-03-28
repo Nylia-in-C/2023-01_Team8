@@ -1,21 +1,19 @@
-from typing import *
-import database.database as database
-from imports.schedulers.scheduling_functions import *
-from imports.schedulers.initialize_data import *
-from imports.classes.classrooms import *
-from imports.fillClassrooms import *
-from imports.classes.courses import *
 import os
 import sys
+
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
 sys.path.append(grandparentdir)
 
-#TODO: create separate file/scheduling stuff for full stack web dev
+from typing import *
+from imports.schedulers.scheduling_functions import *
+from imports.classes.classrooms import *
+from imports.fillClassrooms import *
+from imports.classes.courses import *
 
 
-def get_sched(term: int):
+def get_sched(term: int, debug=False):
     '''
     Main driver function for generating the term schedule for program-specific courses, 
     where the term passed indicates if the schedule is for fall, winter, or spring semester
@@ -95,20 +93,21 @@ def get_sched(term: int):
     fsA_onls  = [c for c in fsA_courses  if c.isOnline]
     fsB_onls  = [c for c in fsB_courses  if c.isOnline]
 
+    # assume an absolute max of 9 cohorts (this we never be reached in practice)
+    all_cohort_IDs = [f'0{i}' for i in range(1, 10)]
     
-    # list of uppercase letters, length vary
-    pmA_cohorts  = string.ascii_uppercase[:cohorts[f'PM{termA}']]
-    pmB_cohorts  = string.ascii_uppercase[:cohorts[f'PM{termB}']]
-    baA_cohorts  = string.ascii_uppercase[:cohorts[f'BA{termA}']]
-    baB_cohorts  = string.ascii_uppercase[:cohorts[f'BA{termB}']]
-    glmA_cohorts = string.ascii_uppercase[:cohorts[f'GLM{termA}']]
-    glmB_cohorts = string.ascii_uppercase[:cohorts[f'GLM{termB}']]
-    dxdA_cohorts = string.ascii_uppercase[:cohorts[f'DXD{termA}']]
-    dxdB_cohorts = string.ascii_uppercase[:cohorts[f'DXD{termB}']]
-    bkA_cohorts  = string.ascii_uppercase[:cohorts[f'BK{termA}']]
-    bkB_cohorts  = string.ascii_uppercase[:cohorts[f'BK{termB}']]
-    fsA_cohorts  = string.ascii_uppercase[:cohorts[f'FS{termA}']]
-    fsB_cohorts  = string.ascii_uppercase[:cohorts[f'FS{termB}']]
+    pmA_cohorts  = all_cohort_IDs[:cohorts[f'PM{termA}']]
+    pmB_cohorts  = all_cohort_IDs[:cohorts[f'PM{termB}']]
+    baA_cohorts  = all_cohort_IDs[:cohorts[f'BA{termA}']]
+    baB_cohorts  = all_cohort_IDs[:cohorts[f'BA{termB}']]
+    glmA_cohorts = all_cohort_IDs[:cohorts[f'GLM{termA}']]
+    glmB_cohorts = all_cohort_IDs[:cohorts[f'GLM{termB}']]
+    dxdA_cohorts = all_cohort_IDs[:cohorts[f'DXD{termA}']]
+    dxdB_cohorts = all_cohort_IDs[:cohorts[f'DXD{termB}']]
+    bkA_cohorts  = all_cohort_IDs[:cohorts[f'BK{termA}']]
+    bkB_cohorts  = all_cohort_IDs[:cohorts[f'BK{termB}']]
+    fsA_cohorts  = all_cohort_IDs[:cohorts[f'FS{termA}']]
+    fsB_cohorts  = all_cohort_IDs[:cohorts[f'FS{termB}']]
 
     lectures = {
         'pmA' : pmA_lecs,
@@ -170,15 +169,16 @@ def get_sched(term: int):
     # get all 26 day schedules as a dictionary of dataframes
     # (technically, we only need the lecture objects, but having this makes
     # scheduling & debugging 1000x easier)
-    full_schedule = create_program_term_schedule(
+    full_schedule, week_starts = create_prgm_term_schedule(
         lectures, labs, online, cohorts, rooms, start_day, holidays
     )
     
-    i = 0
-    for day, sched in full_schedule.items():
-        print(f"\n\t\t {day} :\n")
-        print(sched)
-        i += 1
+    if debug:
+        for day, sched in full_schedule.items():
+            print(f"\n\t\t {day} :\n")
+            print(sched)
+        print(f"week start dates {week_starts}")
+
 
     print(f"holidays: {holidays}")
 
