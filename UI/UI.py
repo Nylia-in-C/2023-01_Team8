@@ -273,7 +273,7 @@ class UI(QMainWindow):
         tabs.addTab(tab3, "Instructions")
 
         self.create_schedule_base(0)
-        self.create_cohorts_schedule_base(0)
+        self.create_cohorts_schedule_base()
 
         tab1.setLayout(self.make_main_tab())
         tab2.setLayout(self.make_options_tab())
@@ -697,7 +697,7 @@ class UI(QMainWindow):
 
         # Fill with empty items to change background colours later
         self.reset_table()
-    def create_cohorts_schedule_base(self, isLab):
+    def create_cohorts_schedule_base(self):
 
         days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
         times = []
@@ -709,15 +709,12 @@ class UI(QMainWindow):
 
         times.append(first_time.strftime("%I:%M %p"))
         new_time = first_time + time_dif
-        if (isLab):
-            for half_hour in range(25):
-                times.append(new_time.strftime("%I:%M %p"))
-                new_time = new_time + time_dif
 
-        else:
-            for half_hour in range(18):
-                times.append(new_time.strftime("%I:%M %p"))
-                new_time = new_time + time_dif
+        # Has to be up to 8:30pm since we can't know if a room extends that far.
+        for half_hour in range(25):
+            times.append(new_time.strftime("%I:%M %p"))
+            new_time = new_time + time_dif
+
 
         self.cohort_table.setColumnCount(4)
         self.cohort_table.setHorizontalHeaderLabels(days)
