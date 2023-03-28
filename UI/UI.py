@@ -14,7 +14,6 @@ import database.database
 from database.database import *
 import imports.fillClassrooms
 
-import imports.schedulers.initialize_data
 import imports.schedulers.core_scheduler
 import imports.schedulers.program_scheduler
 import imports.classes.classrooms
