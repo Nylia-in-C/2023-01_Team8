@@ -1,7 +1,7 @@
 # 2023-01_Team8 CMPT395 Project - Scheduler  
 &nbsp; 
 # Table of Contents  
-&nbsp; 
+&nbsp;  
 [1. Introduction](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#1-introduction)  
 [2. Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#2-installation)  
 [3. Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3-basic-ui-overview)  
@@ -17,8 +17,7 @@
             [3.2.2.1. Room Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3221-room-options)  
             [3.2.2.2. Course Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3222-course-options)  
         [3.2.3. Instructions](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#323-instructions)  
-&nbsp;   
-  
+&nbsp;  
 # 1. Introduction
 *Scheduler* is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
 &nbsp;   

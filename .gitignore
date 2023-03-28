@@ -7,3 +7,5 @@ UI/UI.py
 *.xlsx
 database/database.db
 **/build/
+./database/database.db
+../database/database.db
