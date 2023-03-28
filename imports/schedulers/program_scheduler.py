@@ -178,11 +178,9 @@ def get_sched(term: int, debug=False):
             print(f"\n\t\t {day} :\n")
             print(sched)
         print(f"week start dates {week_starts}")
+        print(f"holidays: {holidays}")
 
-
-    print(f"holidays: {holidays}")
-
-    return
+    return week_starts
 
 
 if __name__ == '__main__':
