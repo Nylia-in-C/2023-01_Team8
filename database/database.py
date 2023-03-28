@@ -368,7 +368,7 @@ def readStudentItem(conn, PID, Term):
     return rows
 def deleteStudentItem(conn,  PID, Term):
         try:
-            queryString = f"delete from Student where PID like '{PID}' and Term like {Term}"
+            queryString = f"delete from Student where PID like '{PID}' and Term like '{Term}'"
             cur = conn.cursor()
             cur.execute(queryString)
             # rows = cur.fetchall()

@@ -1211,8 +1211,6 @@ class UI(QMainWindow):
         except:
             return
     def create_schedule(self):
-        # Will eventually replace create_schedule, as it will pull form the db
-        room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
         global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR
         # Reset values
@@ -1415,9 +1413,7 @@ class UI(QMainWindow):
             connection = create_connection(db)
 
             # Clear table
-            cur = connection.cursor()
-            cur.execute("DELETE FROM Student")
-            cur.execute("DELETE FROM Lecture")
+            deleteStudentItem(connection, "%", "%")
 
             # Takes the currently input numbers, and adds them to the DB.
             for each_input in range(8):
