@@ -35,7 +35,10 @@ TIMES = {"08:00":0, "08:30":1,
          "14:00":12,"14:30":13,
          "15:00":14,"15:30":15,
          "16:00":16,"16:30":17,
-         "17:00":18}
+         "17:00":18, "17:30":19,
+         "18:00":20, "18:30":21,
+         "19:00":22, "19:30":23,
+         "20:00":24, "20:30":25}
 
 LEFT_MAX_WIDTH = 450
 
@@ -90,6 +93,7 @@ class UI(QMainWindow):
         self.file_label = QLabel()
         self.legion_size = QLabel()
         self.select_room = QComboBox()
+        self.select_room.activated.connect(self.room_selector_show_schedule)
         self.select_room.setStyleSheet(style_glass) 
         self.week_label = QLabel()
         font = QFont()
@@ -214,7 +218,7 @@ class UI(QMainWindow):
         tabs.addTab(tab2, "Options")
         tabs.addTab(tab3, "Instructions")
 
-        self.create_schedule_base()
+        self.create_schedule_base(0)
 
         tab1.setLayout(self.make_main_tab())
         tab2.setLayout(self.make_options_tab())
@@ -556,7 +560,7 @@ class UI(QMainWindow):
         return vbox_course
 
     # Make the basic layout of the schedule table
-    def create_schedule_base(self):
+    def create_schedule_base(self, isLab):
 
         days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
         times = []
@@ -568,9 +572,15 @@ class UI(QMainWindow):
 
         times.append(first_time.strftime("%I:%M %p"))
         new_time = first_time + time_dif
-        for half_hour in range(18):
-            times.append(new_time.strftime("%I:%M %p"))
-            new_time = new_time + time_dif
+        if (isLab):
+            for half_hour in range(25):
+                times.append(new_time.strftime("%I:%M %p"))
+                new_time = new_time + time_dif
+
+        else:
+            for half_hour in range(18):
+                times.append(new_time.strftime("%I:%M %p"))
+                new_time = new_time + time_dif
 
         self.main_table.setColumnCount(4)
         self.main_table.setHorizontalHeaderLabels(days)
@@ -1002,7 +1012,12 @@ class UI(QMainWindow):
         PROG_SCHEDULE.clear()
         WEEK = 1
         ROOM = self.select_room.currentText()
-        ROOM = ROOM[:ROOM.find(" ")].strip()
+        if ROOM.find("(LAB)") != -1:
+            ROOM = ROOM[:ROOM.find(" ")].strip() + " (LAB)"
+            self.create_schedule_base(1)
+        else:
+            ROOM = ROOM[:ROOM.find(" ")].strip()
+            self.create_schedule_base(0)
 
         # Pass in student numbers to db
         # Then calculate ghost rooms
@@ -1017,7 +1032,6 @@ class UI(QMainWindow):
         random.shuffle(BG_COLOURS)
         COURSE_COLOUR.clear()
         self.reset_table()
-
 
         # All lecture items should now be recorded in the dictionaries
         self.get_lecture_items()
@@ -1404,3 +1418,39 @@ class UI(QMainWindow):
     def clear_pre_reqs(self):
         self.course_pre_reqs.clear()
         self.course_pre_reqs_label.clear()
+
+    def room_selector_show_schedule(self):
+
+        global WEEK, ROOM, CORE_DAY, PROG_DAY
+        self.week_label.setText("Week 1")
+        WEEK = 1
+        CORE_DAY = 1
+        PROG_DAY = 1
+        ROOM = self.select_room.currentText()
+        if ROOM.find("(LAB)") != -1:
+            ROOM = ROOM[:ROOM.find(" ")].strip() + " (LAB)"
+            self.create_schedule_base(1)
+        else:
+            ROOM = ROOM[:ROOM.find(" ")].strip()
+            self.create_schedule_base(0)
+
+        random.shuffle(BG_COLOURS)
+        COURSE_COLOUR.clear()
+        self.reset_table()
+
+
+        # All lecture items should now be recorded in the dictionaries
+        self.get_lecture_items()
+
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
+
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
