@@ -35,7 +35,10 @@ TIMES = {"08:00":0, "08:30":1,
          "14:00":12,"14:30":13,
          "15:00":14,"15:30":15,
          "16:00":16,"16:30":17,
-         "17:00":18}
+         "17:00":18, "17:30":19,
+         "18:00":20, "18:30":21,
+         "19:00":22, "19:30":23,
+         "20:00":24, "20:30":25}
 
 LEFT_MAX_WIDTH = 450
 
@@ -73,10 +76,16 @@ class UI(QMainWindow):
     def __init__(self):
         super().__init__()
         remove_colours()
-
         self.setWindowTitle("Scheduler")
         self.setFixedSize(1280, 900)
-        self.setStyleSheet("background-color: #c9b698")
+        self.setStyleSheet("background-color: #c9b698") 
+
+        #Stylesheet
+        global style_glass
+        style_glass =        (  "background-color: #5e869c; " +
+                                "color: #fefdea; " +
+                                "border-color: #fefdea; ")
+
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
@@ -84,40 +93,45 @@ class UI(QMainWindow):
         self.file_label = QLabel()
         self.legion_size = QLabel()
         self.select_room = QComboBox()
-        self.select_room.setStyleSheet(  "background-color: #5e869c; " +
-                                            "color: #fefdea; " +
-                                            "border-color: #fefdea; ") 
+        self.select_room.activated.connect(self.room_selector_show_schedule)
+        self.select_room.setStyleSheet(style_glass) 
         self.week_label = QLabel()
         font = QFont()
         font.setPointSize(16)
         self.week_label.setFont(font)
         self.week_label.setAlignment(Qt.AlignCenter)
         self.pick_semester = QComboBox()
-        self.pick_semester.setStyleSheet(  "background-color: #5e869c; " +
-                                            "color: #fefdea; " +
-                                            "border-color: #fefdea; ") 
+        self.pick_semester.setStyleSheet(style_glass) 
         self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
         self.class_id = QLineEdit()
         self.class_lab = QButtonGroup()
         self.class_capacity = QSpinBox()
+        self.class_capacity.setStyleSheet(style_glass)
         self.classroom_list = QComboBox()
+        self.classroom_list.setStyleSheet(style_glass)
 
         self.courses = QComboBox()
         self.courses_edit_new = QButtonGroup()
         self.course_id = QLineEdit()
         self.course_term_hours = QSpinBox()
+        self.course_term_hours.setStyleSheet(style_glass)
         self.course_term = QSpinBox()
+        self.course_term.setStyleSheet(style_glass)
         self.course_duration = QSpinBox()
+        self.course_duration.setStyleSheet(style_glass) 
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
         self.course_program = QComboBox()
+        self.course_program.setStyleSheet(style_glass)
 
         self.course_pre_req_selector = QComboBox()
+        self.course_pre_req_selector.setStyleSheet(style_glass)
         self.course_pre_reqs = []
         self.course_pre_reqs_label = QLabel()
+        self.course_pre_reqs_label.setStyleSheet("color: #fefdea")
 
 
         '''
@@ -185,18 +199,26 @@ class UI(QMainWindow):
 
         # Create tabs
         tabs = QTabWidget()
+        tabs.setStyleSheet(style_glass)
         tab1 = QWidget()
-        tab1.setStyleSheet(     "background-color: #9f4e0f; " +
-                                "color: #fefdea; " +
-                                "border-color: #fefdea; ")                                 
+        tab1.setStyleSheet(    "background-color: #9f4e0f; " +
+                               "color: #fefdea; " +
+                               "border-color: #fefdea; ")                                 
         tab2 = QWidget()
-        tab3 = QWidget()
+        tab2.setStyleSheet(    "background-color: #c9b698; " +
+                               "color: #041f14; " +
+                               "border-color: #fefdea; ")  
+
+        tab3 = QWidget()        
+        tab3.setStyleSheet(     "background-color: #fefdea; " +
+                                "color: #041f14; " +
+                                "border-color: #fefdea; ")   
 
         tabs.addTab(tab1, "Schedule")
         tabs.addTab(tab2, "Options")
         tabs.addTab(tab3, "Instructions")
 
-        self.create_schedule_base()
+        self.create_schedule_base(0)
 
         tab1.setLayout(self.make_main_tab())
         tab2.setLayout(self.make_options_tab())
@@ -279,6 +301,7 @@ class UI(QMainWindow):
         vbox_class = QVBoxLayout()
         vbox_class.setContentsMargins(20,0,0,0)
         class_section_text = QLabel("Room Options")
+        class_section_text.setStyleSheet("color: #fefdea")
         class_section_text.setFont(font)
 
         #Header
@@ -287,19 +310,24 @@ class UI(QMainWindow):
 
         #Adding a Room Subheader
         class_add_text = QLabel("Add New Room")
+        class_add_text.setStyleSheet("color: #fefdea")
         class_add_text.setFont(subfont)
         vbox_class.addWidget(class_add_text)
 
         # Class ID section
         self.class_id.setPlaceholderText("Classroom Name")
         class_id_box = QHBoxLayout()
-        class_id_box.addWidget(QLabel("Room ID"))
+        class_id_label = QLabel("Room ID")
+        class_id_label.setStyleSheet("color: #fefdea")
+        class_id_box.addWidget(class_id_label)
         #self.class_id.setMaximumWidth(100)
         class_id_box.addWidget(self.class_id)
 
         # Class Capacity Section
         class_capacity_box = QHBoxLayout()
-        class_capacity_box.addWidget(QLabel("Room Capacity"))
+        room_cap_label = QLabel("Room Capacity")
+        room_cap_label.setStyleSheet("color: #fefdea")
+        class_capacity_box.addWidget(room_cap_label)
         self.class_capacity.setValue(10)
         self.class_capacity.setMinimum(10)
         self.class_capacity.setMaximum(50)
@@ -309,17 +337,22 @@ class UI(QMainWindow):
         # Class Lab/Lecture section
         class_lab_bool = QHBoxLayout()
         b1 = QRadioButton("Lab")
+        b1.setStyleSheet("color: #fefdea")
         b1.setChecked(True)
         b2 = QRadioButton("Lecture")
+        b2.setStyleSheet("color: #fefdea")
         self.class_lab.addButton(b1)
         self.class_lab.addButton(b2)
 
-        class_lab_bool.addWidget(QLabel("Room Type"))
+        lab_bool_label = QLabel("Room Type")
+        lab_bool_label.setStyleSheet("color: #fefdea")
+        class_lab_bool.addWidget(lab_bool_label)
         class_lab_bool.addWidget(b1)
         class_lab_bool.addWidget(b2)
 
         # Create add button
         class_btn = QPushButton("Add")
+        class_btn.setStyleSheet(style_glass) 
         class_btn.setMaximumWidth(100)
         class_btn.clicked.connect(self.add_edit_classroom)
 
@@ -335,10 +368,12 @@ class UI(QMainWindow):
 
         #Delete Room Header
         class_delete_text = QLabel("Delete Room")
+        class_delete_text.setStyleSheet("color: #fefdea")
         class_delete_text.setFont(subfont)
 
         # Create remove button
         remove_btn = QPushButton("Remove")
+        remove_btn.setStyleSheet(style_glass) 
         remove_btn.setMaximumWidth(150)
         remove_btn.clicked.connect(self.remove_classroom)
 
@@ -367,6 +402,7 @@ class UI(QMainWindow):
         font.setPointSize(16)
 
         course_section_text = QLabel("Course Options")
+        course_section_text.setStyleSheet("color: #fefdea")
         course_section_text.setFont(font)
         
         vbox_course.addWidget(course_section_text)
@@ -393,8 +429,10 @@ class UI(QMainWindow):
 
         new_or_edit = QVBoxLayout()
         b1 = QRadioButton("New Course")
+        b1.setStyleSheet("color: #fefdea")
         b1.setChecked(True)
         b2 = QRadioButton("Edit Course")
+        b2.setStyleSheet("color: #fefdea")
         self.courses_edit_new.addButton(b1)
         self.courses_edit_new.addButton(b2)
 
@@ -403,14 +441,18 @@ class UI(QMainWindow):
         #-----------------------------
 
         hbox_program = QHBoxLayout()
-        hbox_program.addWidget(QLabel("Program: "))
+        prog_label = QLabel("Program: ")
+        prog_label.setStyleSheet("color: #fefdea")
+        hbox_program.addWidget(prog_label)
         self.course_program.addItems(["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"])
         hbox_program.addWidget(self.course_program)
 
         # -----------------------------
 
         course_id_sec = QHBoxLayout()
-        course_id_sec.addWidget(QLabel("Course Name"))
+        course_name_label = QLabel("Course Name")
+        course_name_label.setStyleSheet("color: #fefdea")
+        course_id_sec.addWidget(course_name_label)
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
         self.course_id.setMinimumWidth(200)
         self.course_id.setMaximumWidth(200)
@@ -422,15 +464,21 @@ class UI(QMainWindow):
 
         vbox_spin_boxes = QVBoxLayout()
         hbox_hours = QHBoxLayout()
-        hbox_hours.addWidget(QLabel("Course Hours: "))
+        hours_label = QLabel("Course Hours: ")
+        hours_label.setStyleSheet("color: #fefdea")
+        hbox_hours.addWidget(hours_label)
         hbox_hours.addWidget(self.course_term_hours)
 
         hbox_term = QHBoxLayout()
-        hbox_term.addWidget(QLabel("Term: "))
+        term_label = QLabel("Term: ")
+        term_label.setStyleSheet("color: #fefdea")
+        hbox_term.addWidget(term_label)
         hbox_term.addWidget(self.course_term)
 
         hbox_duration = QHBoxLayout()
-        hbox_duration.addWidget(QLabel("Duration: "))
+        duration_label = QLabel("Duration: ")
+        duration_label.setStyleSheet("color: #fefdea")
+        hbox_duration.addWidget(duration_label)
         hbox_duration.addWidget(self.course_duration)
 
         vbox_spin_boxes.addLayout(hbox_hours)
@@ -442,15 +490,21 @@ class UI(QMainWindow):
         hbox_online_lab = QHBoxLayout()
 
         core_hbox = QHBoxLayout()
-        core_hbox.addWidget(QLabel("Core Course: "))
+        core_label = QLabel("Core Course: ")
+        core_label.setStyleSheet("color: #fefdea")
+        core_hbox.addWidget(core_label)
         core_hbox.addWidget(self.course_core)
 
         online_hbox = QHBoxLayout()
-        online_hbox.addWidget(QLabel("Online: "))
+        online_label = QLabel("Online: ")
+        online_label.setStyleSheet("color: #fefdea")
+        online_hbox.addWidget(online_label)
         online_hbox.addWidget(self.course_online)
 
         hbox_lab = QHBoxLayout()
-        hbox_lab.addWidget(QLabel("Lab Component: "))
+        lab_comp_label = QLabel("Lab Component: ")
+        lab_comp_label.setStyleSheet("color: #fefdea")
+        hbox_lab.addWidget(lab_comp_label)
         hbox_lab.addWidget(self.course_lab)
 
         hbox_online_lab.addLayout(core_hbox)
@@ -459,6 +513,7 @@ class UI(QMainWindow):
         #--------------------------
 
         course_btn = QPushButton("Save Course")
+        course_btn.setStyleSheet(style_glass)
         course_btn.clicked.connect(self.save_course)
 
         # --------------------------
@@ -466,10 +521,14 @@ class UI(QMainWindow):
         hbox_pre_reqs = QHBoxLayout()
         vbox_pre_reqs = QVBoxLayout()
 
-        hbox_pre_reqs.addWidget(QLabel("Chosen Pre-Reqs"))
+        pre_req_label = QLabel("Chosen Pre-Reqs")
+        pre_req_label.setStyleSheet("color: #fefdea")
+        hbox_pre_reqs.addWidget(pre_req_label)
         add_pre_req = QPushButton("Add Pre-Req")
+        add_pre_req.setStyleSheet(style_glass)
         add_pre_req.clicked.connect(self.add_pre_req)
         rem_pre_req = QPushButton("Clear Pre-Reqs")
+        rem_pre_req.setStyleSheet(style_glass)
         rem_pre_req.clicked.connect(self.clear_pre_reqs)
 
         hbox_pre_reqs.addWidget(self.course_pre_reqs_label)
@@ -501,7 +560,7 @@ class UI(QMainWindow):
         return vbox_course
 
     # Make the basic layout of the schedule table
-    def create_schedule_base(self):
+    def create_schedule_base(self, isLab):
 
         days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
         times = []
@@ -513,9 +572,15 @@ class UI(QMainWindow):
 
         times.append(first_time.strftime("%I:%M %p"))
         new_time = first_time + time_dif
-        for half_hour in range(18):
-            times.append(new_time.strftime("%I:%M %p"))
-            new_time = new_time + time_dif
+        if (isLab):
+            for half_hour in range(25):
+                times.append(new_time.strftime("%I:%M %p"))
+                new_time = new_time + time_dif
+
+        else:
+            for half_hour in range(18):
+                times.append(new_time.strftime("%I:%M %p"))
+                new_time = new_time + time_dif
 
         self.main_table.setColumnCount(4)
         self.main_table.setHorizontalHeaderLabels(days)
@@ -621,9 +686,7 @@ class UI(QMainWindow):
 
         hbox_file_choose = QHBoxLayout(self)
         choose_input_button = QPushButton("Choose File", self)
-        choose_input_button.setStyleSheet(  "background-color: #5e869c; " +
-                                            "color: #fefdea; " +
-                                            "border-color: #fefdea; ") 
+        choose_input_button.setStyleSheet(style_glass)
         choose_input_button.setMaximumWidth(100)
         choose_input_button.clicked.connect(self.choose_file)
 
@@ -635,15 +698,11 @@ class UI(QMainWindow):
         hbox_file_choose.addWidget(self.file_label)
 
         load_data = QPushButton("Load Data")
-        load_data.setStyleSheet(  "background-color: #5e869c; " +
-                                            "color: #fefdea; " +
-                                            "border-color: #fefdea; ")         
+        load_data.setStyleSheet(style_glass)     
         load_data.clicked.connect(self.load_student_numbers)
 
         create_template_button = QPushButton("Create Template")
-        create_template_button.setStyleSheet("background-color: #5e869c; " +
-                                            "color: #fefdea; " +
-                                            "border-color: #fefdea; ") 
+        create_template_button.setStyleSheet(style_glass)
         create_template_button.clicked.connect(self.create_template)
 
         vbox.addWidget(title)
@@ -676,10 +735,7 @@ class UI(QMainWindow):
         input_box = QSpinBox()
         input_box.setMaximum(1000)
         input_box.setMinimumWidth(50)
-        input_box.setStyleSheet(    "background-color: #5e869c; " +
-                                    "color: #fefdea; " +
-                                    "border-color: #fefdea")        
-
+        input_box.setStyleSheet(style_glass)
         return input_box
 
     def program_labels(self):
@@ -800,6 +856,8 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
+                #necessary to display colour codes correctly
+                self.main_table.setStyleSheet("background-color: None; color: #041f14") 
 
     def retrieve_term_inputs(self, layout):
 
@@ -844,7 +902,6 @@ class UI(QMainWindow):
             # Consider it part of the same block
             elif lecture_list[cell] != "" and course == lecture_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
-
                 side_fill = QLabel()
                 side_fill.setStyleSheet("border: solid black;"
                                         "border-width : 0px 2px 0px 2px;")
@@ -955,7 +1012,12 @@ class UI(QMainWindow):
         PROG_SCHEDULE.clear()
         WEEK = 1
         ROOM = self.select_room.currentText()
-        ROOM = ROOM[:ROOM.find(" ")].strip()
+        if ROOM.find("(LAB)") != -1:
+            ROOM = ROOM[:ROOM.find(" ")].strip() + " (LAB)"
+            self.create_schedule_base(1)
+        else:
+            ROOM = ROOM[:ROOM.find(" ")].strip()
+            self.create_schedule_base(0)
 
         # Pass in student numbers to db
         # Then calculate ghost rooms
@@ -970,7 +1032,6 @@ class UI(QMainWindow):
         random.shuffle(BG_COLOURS)
         COURSE_COLOUR.clear()
         self.reset_table()
-
 
         # All lecture items should now be recorded in the dictionaries
         self.get_lecture_items()
@@ -1357,3 +1418,39 @@ class UI(QMainWindow):
     def clear_pre_reqs(self):
         self.course_pre_reqs.clear()
         self.course_pre_reqs_label.clear()
+
+    def room_selector_show_schedule(self):
+
+        global WEEK, ROOM, CORE_DAY, PROG_DAY
+        self.week_label.setText("Week 1")
+        WEEK = 1
+        CORE_DAY = 1
+        PROG_DAY = 1
+        ROOM = self.select_room.currentText()
+        if ROOM.find("(LAB)") != -1:
+            ROOM = ROOM[:ROOM.find(" ")].strip() + " (LAB)"
+            self.create_schedule_base(1)
+        else:
+            ROOM = ROOM[:ROOM.find(" ")].strip()
+            self.create_schedule_base(0)
+
+        random.shuffle(BG_COLOURS)
+        COURSE_COLOUR.clear()
+        self.reset_table()
+
+
+        # All lecture items should now be recorded in the dictionaries
+        self.get_lecture_items()
+
+        # Get the lists for each day
+        core = CORE_SCHEDULE[WEEK]
+        prog = PROG_SCHEDULE[WEEK]
+
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule(monday,0)
+        self.show_schedule(tuesday, 1)
+        self.show_schedule(wednesday, 2)
+        self.show_schedule(thursday, 3)
