@@ -798,6 +798,14 @@ class UI(QMainWindow):
 
         vbox_all.addLayout(hbox_inputs)
 
+        #Load saved student numbers button
+        load_saved_students = QPushButton("Load Saved Student Numbers")
+        load_saved_students.setStyleSheet(style_glass)
+        load_saved_students.clicked.connect(self.load_db_stu_num)
+
+        vbox_all.addWidget(load_saved_students)
+
+
         return vbox_all
 
 
@@ -1362,6 +1370,33 @@ class UI(QMainWindow):
                 addStudentItem(connection, programs[each_input], 1, term_1[each_input])
                 addStudentItem(connection, programs[each_input], 2, term_2[each_input])
                 addStudentItem(connection, programs[each_input], 3, term_3[each_input])
+
+            close_connection(connection)
+
+        except:
+            #print("Could not read database")
+            close_connection(connection)
+
+        return
+
+
+    # Retrieve student items saved in db
+    def load_db_stu_num(self):
+
+        try:
+            db = r".\database\database.db"  # database.db file path
+            connection = create_connection(db)
+
+            term_1 = readStudentItem(connection, '%', 1)
+            term_2 = readStudentItem(connection, '%', 2)
+            term_3 = readStudentItem(connection, '%', 3)
+
+            # Takes the currently input numbers, and adds them to the DB.
+            for field in range(8):
+
+                self.term_1_inputs.itemAt(field).widget().setValue(term_1[field][2])
+                self.term_2_inputs.itemAt(field).widget().setValue(term_2[field][2])
+                self.term_3_inputs.itemAt(field).widget().setValue(term_3[field][2])
 
             close_connection(connection)
 
