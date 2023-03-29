@@ -101,7 +101,7 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
     # get all 26 day schedules as a dictionary of dataframes
     # (technically, we only need the lecture objects, but having this makes 
     # scheduling & debugging 1000x easier)
-    full_schedule, week_starts = create_core_term_schedule(
+    full_schedule, week_starts, last_days = create_core_term_schedule(
         lectures, labs, online, cohorts, rooms, start_day, holidays
     )
     
@@ -114,7 +114,8 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
 
     return {
         "cohorts": all_cohorts,
-        "week starts": week_starts 
+        "week starts": week_starts,
+        "last days": last_days 
     }
 
 
