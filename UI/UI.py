@@ -2,6 +2,7 @@
 
 #Imports
 import os
+import sys
 import time
 import pandas as pd
 from PyQt5 import QtGui
@@ -13,6 +14,7 @@ from openpyxl.workbook import Workbook
 import random
 import database.database
 import fill_data
+import helpers
 from database.database import *
 import imports.fillClassrooms
 
@@ -48,6 +50,10 @@ CORE_SCHEDULE = {}
 PROG_SCHEDULE = {}
 CORE_SCHEDULE_COHORTS = {}
 PROG_SCHEDULE_COHORTS = {}
+
+CORE_END_DATES = {}
+PROG_END_DATES = {}
+
 WEEK_DISPLAY_DATE = {}
 ROOM = ""
 global PROG_LABELS
@@ -200,8 +206,14 @@ class UI(QMainWindow):
     def splash_screen(self):
         # Start up splash screen
         # adapted from: https://stackoverflow.com/questions/58661539/create-splash-screen-in-pyqt5
-        splash_pic = QPixmap("macewan_logo.png")
-        splash_msg = QSplashScreen(splash_pic)
+        
+        if getattr(sys, 'frozen', True):
+            logo = 'macewan_logo.png'
+        else:
+            logo = '..\\macewan_logo.png'
+
+        splash_pic = QPixmap(logo)
+        splash_msg = QSplashScreen(splash_pic, Qt.WindowStaysOnTopHint)
         splash_msg.setFixedSize(965, 568)
         splash_msg.setStyleSheet(style_glass)
 
@@ -292,7 +304,12 @@ class UI(QMainWindow):
 
         # Read me Doc
         read_me = QTextEdit()
-        file_content = open("README.md").read()
+        rdme_path = helpers.check_path('README.md')
+        try:
+            file_content = open(rdme_path).read()
+        except:
+            rdme_path = helpers.check_path('..\\README.md')
+            file_content = open(rdme_path).read()
         read_me.setMarkdown(file_content)
         layout = QHBoxLayout()
         layout.addWidget(read_me)
@@ -504,7 +521,7 @@ class UI(QMainWindow):
         vbox_course.addWidget(self.create_horizontal_line())
         vbox_course.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         db_courses = readCourseItem(connection, "%")
         close_connection(connection)
@@ -934,7 +951,7 @@ class UI(QMainWindow):
         self.classroom_list.clear()
         self.select_room.clear()
 
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         db_classes = readClassroomItem(connection, "%")
         close_connection(connection)
@@ -1051,7 +1068,7 @@ class UI(QMainWindow):
 
         imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
 
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         if (len(readClassroomItem(connection, "ghost%")) != 0):
             ghost_rooms = QMessageBox(QMessageBox.Warning, "Insufficient Room Space", 
@@ -1175,7 +1192,7 @@ class UI(QMainWindow):
             return
     def create_schedule(self):
         global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
-            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE
+            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE, CORE_END_DATES, PROG_END_DATES
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
@@ -1217,6 +1234,10 @@ class UI(QMainWindow):
         prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         week_starts = schedule_info["week starts"]
+
+        CORE_END_DATES = schedule_info["last days"]
+        PROG_END_DATES = prog_schedule_info["last days"]
+
         self.cohort_tab_combo.addItems(schedule_info["cohorts"])
         self.cohort_tab_combo.addItems(prog_schedule_info["cohorts"])
 
@@ -1409,7 +1430,7 @@ class UI(QMainWindow):
         programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         try:
-            db = r".\database\database.db"  # database.db file path
+            db = helpers.check_path("database\database.db")  # database.db file path
             connection = create_connection(db)
 
             # Clear table
@@ -1435,7 +1456,7 @@ class UI(QMainWindow):
     def load_db_stu_num(self):
 
         try:
-            db = r".\database\database.db"  # database.db file path
+            db = helpers.check_path("database\database.db")  # database.db file path
             connection = create_connection(db)
 
             term_1 = readStudentItem(connection, '%', 1)
@@ -1464,7 +1485,7 @@ class UI(QMainWindow):
     '''
     def clear_lectures(self):
         try:
-            db = r".\database\database.db"  # database.db file path
+            db = helpers.check_path("database\database.db")  # database.db file path
             connection = create_connection(db)
             # Clear table
             deleteLectureItem_UI(connection)
@@ -1480,15 +1501,18 @@ class UI(QMainWindow):
     # With the 4-tuple lists for each week
     def get_lecture_items(self):
 
-        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM
+        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, CORE_END_DATES, PROG_END_DATES
         
         core_week_list = []
         prog_week_list = []
 
+        core_cross_check = []
+        prog_cross_check = []
+
         core_last_known_sched = [""] *26
         prog_last_known_sched = [""] *26
 
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
 
@@ -1501,16 +1525,27 @@ class UI(QMainWindow):
             # i.e. An odd COre Day / PRog day = Monday / Tuesday, even = Wednesday/ thursday
             for each_day in range(1, 3):
 
+                core_pass = []
+                prog_pass = []
+
                 core_lectures_in_week = readLectureItem_UI(connection, ROOM, CORE_DAY, 1)
                 prog_lectures_in_week = readLectureItem_UI(connection, ROOM, PROG_DAY, 0)
 
-                # Checking if there was any new differences in schedule
-                # if not, then simply add the last known schedule since it hasnt changed.
-                if len(core_lectures_in_week) != 0:
-                    core_last_known_sched = self.convert_to_list(core_lectures_in_week)
+                # Append to overall list of lectures. Compare against dictionary for end dates
+                # Remove entry if it is past the end date.
+                core_cross_check += core_lectures_in_week
+                for course in core_cross_check:
+                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                        core_pass.append(course)
 
-                if len(prog_lectures_in_week) != 0:
-                    prog_last_known_sched = self.convert_to_list(prog_lectures_in_week)
+                prog_cross_check += prog_lectures_in_week
+                for course in prog_cross_check:
+                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                        prog_pass.append(course)
+
+                core_last_known_sched = self.convert_to_list(core_pass)
+
+                prog_last_known_sched = self.convert_to_list(prog_pass)
 
                 core_week_list.append(core_last_known_sched)
                 prog_week_list.append(prog_last_known_sched)
@@ -1530,15 +1565,18 @@ class UI(QMainWindow):
 
     def get_cohort_lecture_items(self):
 
-        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN, CORE_END_DATES, PROG_END_DATES
 
         core_week_list = []
         prog_week_list = []
 
+        core_cross_check = []
+        prog_cross_check = []
+
         core_last_known_sched = [""] * 26
         prog_last_known_sched = [""] * 26
 
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
@@ -1550,16 +1588,32 @@ class UI(QMainWindow):
             # i.e. An odd COre Day / PRog day = Monday / Tuesday, even = Wednesday/ thursday
             for each_day in range(1, 3):
 
+                core_pass = []
+                prog_pass = []
+
                 core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1)
+                core_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], CORE_DAY, 1))
+
                 prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0)
+                prog_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], PROG_DAY, 0))
+
+                # Append to overall list of lectures. Compare against dictionary for end dates
+                # Remove entry if it is past the end date.
+                core_cross_check += core_lectures_in_week
+                for course in core_cross_check:
+                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                        core_pass.append(course)
+
+                prog_cross_check += prog_lectures_in_week
+                for course in prog_cross_check:
+                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                        prog_pass.append(course)
 
                 # Checking if there was any new differences in schedule
                 # if not, then simply add the last known schedule since it hasnt changed.
-                if len(core_lectures_in_week) != 0:
-                    core_last_known_sched = self.cohort_convert_to_list(core_lectures_in_week)
+                core_last_known_sched = self.cohort_convert_to_list(core_pass)
 
-                if len(prog_lectures_in_week) != 0:
-                    prog_last_known_sched = self.cohort_convert_to_list(prog_lectures_in_week)
+                prog_last_known_sched = self.cohort_convert_to_list(prog_pass)
 
                 core_week_list.append(core_last_known_sched)
                 prog_week_list.append(prog_last_known_sched)
@@ -1593,7 +1647,7 @@ class UI(QMainWindow):
         return day_sched
 
     def add_edit_classroom(self):
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         try:
@@ -1640,7 +1694,7 @@ class UI(QMainWindow):
 
 
     def remove_classroom(self):
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         try:
@@ -1671,7 +1725,7 @@ class UI(QMainWindow):
             failure.exec()
 
     def save_course(self):
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         try:
@@ -1720,7 +1774,7 @@ class UI(QMainWindow):
             #print("error adding course")
 
     def update_course_combos(self):
-        db = r".\database\database.db"  # database.db file path
+        db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         db_courses = readCourseItem(connection, "%")
         close_connection(connection)
