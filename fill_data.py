@@ -19,8 +19,8 @@ import database.database as database
 pcom_0101 = Course("PCOM 0101", "Business Writing I", 35, 1, 1.5, 1, 0, 0, [])
 pcom_0105 = Course("PCOM 0105", "Intercultural Communication Skills", 35, 1, 1.5, 1, 0, 0, [])
 pcom_0107 = Course("PCOM 0107", "Technical Development I: Microsoft Word, Excel and Power Point", 18,1, 2, 1, 0, 1,[])
-cmsk_0233 = Course("CMSK 0233", "MS Project Essentials ", 7,1, 2, 1, 0, 1,[])
-cmsk_0235 = Course("CMSK 0235", "MS Visio Essentials",6,1, 2, 1, 0, 1,[])
+cmsk_0233 = Course("CMSK 0233", "MS Project Essentials ", 7,1, 1.5, 1, 0, 1,[])
+cmsk_0235 = Course("CMSK 0235", "MS Visio Essentials",6,1, 1.5, 1, 0, 1,[])
 # term 2 Professional Communication (PCOM) courses
 pcom_0102 = Course("PCOM 0102", "Business Writing II", 35, 2, 1.5, 1, 0, 0, [])
 pcom_0201 = Course("PCOM 0201", "Fundamentals of Public Speaking", 35, 2, 1.5, 1, 0, 0, [])
@@ -52,7 +52,7 @@ pcom_tbd = Course("PCOM tbd", "Story Telling (Public Speaking)",21,3, 2, 1, 0, 0
 pcom_0207 = Course("PCOM 0207", "Developing Your Emotional Intelligence",6,3, 2, 1, 0, 0,[])
 supr_0863 = Course("SUPR 0863", "Design Thinking",7,3, 2, 1, 0, 0,[])
 pcom_0206 = Course("PCOM 0206", "Fundamentals of Agile Methdology",6,3, 3, 1, 0, 0,[])
-avdm_0260 = Course("AVDM 0260", "WordPress for Web Page Publishing",6,3, 2, 1, 1, 0,[])
+avdm_0260 = Course("AVDM 0260", "WordPress for Web Page Publishing",6,3, 3, 1, 1, 0,[])
 
 
 # Program Courses------------------------------------------------------------------
@@ -78,7 +78,7 @@ prdv_0642 = Course("PRDV 0642", "Elicitation and Collaboration", 14,1, 2, 0, 0, 
 # term 2 Business Analysis (BA) program courses
 prdv_0644 = Course("PRDV 0644", "Requirements Analysis & Design Definition", 21,2, 2, 0, 0, 0,[])
 prdv_0648 = Course("PRDV 0648", "Requirements Life Cycle Management", 14,2, 2, 0, 0, 0,[])
-pcom_0140 = Course("PCOM 0140", "BA Capstone I", 35,2, 2, 0, 0, 0,[])  #Class should be schedule twice a week half way the term
+pcom_0140 = Course("PCOM 0140", "BA Capstone I", 35,2, 3, 0, 0, 0,[])  #Class should be schedule twice a week half way the term
 # term 3 Business Analysis (BA) program courses
 prdv_0646 = Course("PRDV 0646", "Solution Evaluation", 14,3, 2, 0, 0, 0,[])
 pcom_0141 = Course("PCOM 0141", "BA Capstone Project", 39,3, 3, 0, 0, 0,[]) #13 sessions, 3 hours each
@@ -123,7 +123,7 @@ dxdi_0104 = Course("DXDI 0104", "User Interface Design II",24,2,2,0,0,1,['DXDI 0
 #term 3 Digital Experience Design Foundation (DXD) program courses
 avdm_0238 = Course("AVDM 0238", "Adobe InDesign Level II",18,3,2,0,0,1,[])
 avdm_0270 = Course("AVDM 0270", "Adobe Illustrator Level II",18,3,2,0,0,1,[])
-dxdi_9901 = Course("DXDI 9901", "DXD Capstone",45,3,1.5,0,0,1,[])
+dxdi_9901 = Course("DXDI 9901", "DXD Capstone",45,3,3,0,0,1,[])
 
 #term 1 Full Stack Web Development (FS) program courses
 cmsk_0150 = Course("CMSK 0150", "Introduction to Web Development",16,1,2,0,0,1,[])
