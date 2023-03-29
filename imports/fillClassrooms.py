@@ -161,7 +161,7 @@ def fillPrograms(program_counts):
             else: 
                 scheduled = True
                 cohortDict[program] = cohorts
-                print(program + ':', cohorts)
+                #print(program + ':', cohorts) #debug print
         
     return cohortDict
 
