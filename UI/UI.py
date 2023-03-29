@@ -202,8 +202,11 @@ class UI(QMainWindow):
     def splash_screen(self):
         # Start up splash screen
         # adapted from: https://stackoverflow.com/questions/58661539/create-splash-screen-in-pyqt5
-
-        logo = helpers.check_path('macewan_logo.png')
+        
+        if getattr(sys, 'frozen', True):
+            logo = 'macewan_logo.png'
+        else:
+            logo = '..\\macewan_logo.png'
 
         splash_pic = QPixmap(logo)
         splash_msg = QSplashScreen(splash_pic)
@@ -298,8 +301,11 @@ class UI(QMainWindow):
         # Read me Doc
         read_me = QTextEdit()
         rdme_path = helpers.check_path('README.md')
-
-        file_content = open(rdme_path).read()
+        try:
+            file_content = open(rdme_path).read()
+        except:
+            rdme_path = helpers.check_path('..\\README.md')
+            file_content = open(rdme_path).read()
         read_me.setMarkdown(file_content)
         layout = QHBoxLayout()
         layout.addWidget(read_me)
