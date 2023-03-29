@@ -337,6 +337,7 @@ class UI(QMainWindow):
 
         # Class ID section
         self.class_id.setPlaceholderText("Classroom Name")
+        self.class_id.setStyleSheet("color: #fefdea")
         class_id_box = QHBoxLayout()
         class_id_label = QLabel("Room ID")
         class_id_label.setStyleSheet("color: #fefdea")
@@ -475,6 +476,7 @@ class UI(QMainWindow):
         course_name_label.setStyleSheet("color: #fefdea")
         course_id_sec.addWidget(course_name_label)
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
+        self.course_id.setStyleSheet("color: #fefdea")
         self.course_id.setMinimumWidth(200)
         self.course_id.setMaximumWidth(200)
         course_id_sec.addWidget(self.courses)
