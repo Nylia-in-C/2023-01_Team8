@@ -20,16 +20,6 @@ from typing import *
 from pprint import pprint
 
 
-
-#===================== TODOs (in no particular order) ==========================       
-
-
-day = 1
-week = 1
-lecture_objs = []
-# ==============================================================================
-
-
 #=========================== INITIAL DATA RETREIVAL ============================
 def get_courses(prog: str, term: int) -> List[Course]:
     ''' fetch all courses for a given program & term from the database '''
@@ -339,10 +329,10 @@ def add_lectures_to_db():
     '''
     db = helpers.check_path("database\database.db")  # database.db file path
     connection = create_connection(db)
-    for lec in lecture_objs:
+    for lec in lec_objs:
         addLectureItem(connection, lec)
     close_connection(connection)
-    lecture_objs.clear()
+    lec_objs.clear()
     return
 
 # testing only
@@ -580,7 +570,7 @@ def add_lec(course: Course, cohorts: List[str], course_hours: Dict[str, int],
         full_cohort = f"{prgm_str}0{course.term}{ID}"
 
         # store the scheduled course's info in a lecture object
-        lecture_objs.append(
+        lec_objs.append(
             Lecture(
                 course.ID, course.title, course.termHours, course.term,
                 course.duration, course.isCore, course.isOnline, course.hasLab,
@@ -693,6 +683,13 @@ def make_prgm_lab_sched(lectures: Dict[str, List[Course]],
     bkB  = filter_courses(labs['bkB'],  lab_sched, c_hours)
     fsA  = filter_courses(labs['fsA'],  lab_sched, c_hours)
     fsB  = filter_courses(labs['fsB'],  lab_sched, c_hours)
+    
+    if len(fsB) > 0:
+        lab_sched = add_lab(fsB[0], fsB_cohorts, c_hours,
+                            fsB_strs, lec_sched, lab_sched, "FS", True)
+    if len(fsA) > 0:
+        lab_sched = add_lab(fsA[0], fsA_cohorts, c_hours,
+                            fsA_strs, lec_sched, lab_sched, "FS", True)
 
     if len(dxdB) > 0:
             lab_sched = add_lab(dxdB[0], dxdB_cohorts, c_hours,
@@ -724,12 +721,7 @@ def make_prgm_lab_sched(lectures: Dict[str, List[Course]],
     if len(bkA) > 0:
             lab_sched = add_lab(bkA[0], bkA_cohorts, c_hours, 
                                 bkA_strs, lec_sched, lab_sched, "BK")
-    if len(fsB) > 0:
-            lab_sched = add_lab(fsB[0], fsB_cohorts, c_hours, 
-                                fsB_strs, lec_sched, lab_sched, "FS", True)
-    if len(fsA) > 0:
-            lab_sched = add_lab(fsA[0], fsA_cohorts, c_hours, 
-                                fsA_strs, lec_sched, lab_sched, "FS", True)
+    
         
     return lab_sched
          
@@ -776,7 +768,7 @@ def add_lab(lab: Course, cohorts: List[str], course_hours: Dict[str, int],
         full_cohort = f"{prgm_str}0{lab.term}{ID}"
 
         # store the scheduled course's info in a lecture object
-        lecture_objs.append(
+        lec_objs.append(
             Lecture(
                 lab.ID, lab.title, lab.termHours, lab.term,
                 lab.duration, lab.isCore, lab.isOnline, lab.hasLab,
@@ -945,7 +937,7 @@ def add_onl(online: Course, course_hours: Dict[str, int],
                     online.isOnline, online.hasLab, online.preReqs, cohort, 
                     room, week, day_count, s_time
                 )
-                lecture_objs.append(new_lec)
+                lec_objs.append(new_lec)
                 
                 onl_sched.iloc[start:end, 0] = ([online.ID] * blocks)
                 break
@@ -977,11 +969,13 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
     each as a pandas DataFrame, and returns them in a dictionary
     '''
 
-    global day, day_count, week, lecture_objs, last_days
-    
+    global day, week, day_count, lec_objs, last_days
+
+    day  = start_day
+    week = 1
+
     day_count = 0
-    day = start_day
-    end_day = start_day + dt.timedelta(weeks=13)
+    lec_objs  = []
     last_days = {}
     
     # starting monday dates for each week (all terms start on a wednesday)
@@ -1003,7 +997,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
     full_schedule = {}
     invalid = 0
 
-    while day < end_day:
+    while day < (start_day + dt.timedelta(weeks=13)):
         
         day_count += 1
         
@@ -1064,14 +1058,16 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
     each as a pandas DataFrame, and returns them in a dictionary
     '''
 
-    global day, day_count, week, lecture_objs, last_days
+    global day, week, day_count, lec_objs, last_days
 
-    day = start_day
+    day  = start_day
+    week = 1
+    
     day_count = 0
-    end_day = start_day + dt.timedelta(weeks=13)
+    lec_objs  = []
     last_days = {}
     
-    # starting monday dates for each week (all terms start on a wednesday)
+    # starting tuesday dates for each week 
     week_starts = [day - dt.timedelta(days=2)]
 
     all_courses = list(
@@ -1090,7 +1086,7 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
     full_schedule = {}
     invalid = 0
     
-    while day < end_day:
+    while day < (start_day + dt.timedelta(weeks=13)):
         
         day_count += 1
 
