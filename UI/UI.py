@@ -303,7 +303,16 @@ class UI(QMainWindow):
 
         # Read me Doc
         read_me = QTextEdit()
-        file_content = open("README.md").read()
+        rdme = '..\\README.md'
+        
+        #Check if running in .exe
+        if getattr(sys, 'frozen', False):
+            app_path = os.path.dirname(sys.executable)
+        elif __file__:
+            app_path = os.path.dirname(__file__)
+        rdme_path = os.path.join(app_path, rdme)
+
+        file_content = open(rdme_path).read()
         read_me.setMarkdown(file_content)
         layout = QHBoxLayout()
         layout.addWidget(read_me)
