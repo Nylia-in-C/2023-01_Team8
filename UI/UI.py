@@ -908,11 +908,11 @@ class UI(QMainWindow):
             elif lecture_list[cell] != "" and course == lecture_list[cell]:
                 self.main_table.item(cell,weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
                 side_fill = QLabel()
-                side_fill.setStyleSheet("border: solid black;"
+                side_fill.setStyleSheet("border: solid white;"
                                         "border-width : 0px 2px 0px 2px;")
 
                 if cell + 1 <= 18 and lecture_list[cell + 1] == "":
-                    side_fill.setStyleSheet("border: solid black;"
+                    side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.main_table.setCellWidget(cell, weekday, side_fill)
 
@@ -922,11 +922,11 @@ class UI(QMainWindow):
                 label_fill = QLabel(lecture_list[cell])
                 label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
-                label_fill.setStyleSheet("border: solid black;"
+                label_fill.setStyleSheet("border: solid white;"
                                          "border-width : 2px 2px 0px 2px;")
 
                 if cell + 1 <= 18 and lecture_list[cell + 1] != course:
-                    label_fill.setStyleSheet("border: solid black;"
+                    label_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
 
                 if course not in COURSE_COLOUR.keys():
