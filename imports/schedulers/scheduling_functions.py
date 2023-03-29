@@ -424,27 +424,19 @@ def make_core_lecture_sched(lectures: Dict[str, List[Course]],
     bcomA = filter_courses(lectures['bcomA'], sched, c_hours)
     bcomB = filter_courses(lectures['bcomB'], sched, c_hours)
     
-    # schedule as many courses as possible
-    most_courses = max(
-        pcomA, pcomB, bcomA, bcomB, key=lambda x: len(x)
-    )
-
-    for i in range(1):
-        
-        if len(pcomA) > i:
-            sched = add_lec(pcomA[i], pcomA_cohorts, c_hours,
-                            pcomA_strs, sched, "PCOM")
-
-        if len(pcomB) > i:
-            sched = add_lec(pcomB[i], pcomB_cohorts, c_hours, 
-                            pcomB_strs, sched, "PCOM")
-        if len(bcomB) > i:
-            sched = add_lec(bcomB[i], bcomB_cohorts, c_hours, 
+    
+    if len(bcomB) > 0:
+            sched = add_lec(bcomB[0], bcomB_cohorts, c_hours,
                             bcomB_strs, sched, "BCOM")
-        if len(bcomA) > i:
-            sched = add_lec(bcomA[i], bcomA_cohorts, c_hours, 
+    if len(pcomB) > 0:
+            sched = add_lec(pcomB[0], pcomB_cohorts, c_hours,
+                            pcomB_strs, sched, "PCOM")
+    if len(pcomA) > 0:
+            sched = add_lec(pcomA[0], pcomA_cohorts, c_hours,
+                            pcomA_strs, sched, "PCOM")
+    if len(bcomA) > 0:
+            sched = add_lec(bcomA[0], bcomA_cohorts, c_hours, 
                             bcomA_strs, sched, "BCOM")
-        
 
     return sched
 
@@ -500,50 +492,43 @@ def make_prgm_lecture_sched(lectures: Dict[str, List[Course]],
     fsA  = filter_courses(lectures['fsA'],  sched, c_hours)
     fsB  = filter_courses(lectures['fsB'],  sched, c_hours)
     
-    # schedule as many courses as possible
-    most_courses = max(
-        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB, fsA, fsB,
-        key=lambda x: len(x)
-    )
-    for i in range(len(most_courses)):
-
-        if len(pmA) > i:
-            sched = add_lec(pmA[i], pmA_cohorts, c_hours, 
-                            pmA_strs, sched, "PM")
-        if len(pmB) > i:
-            sched = add_lec(pmB[i], pmB_cohorts, c_hours, 
+    if len(pmB) > 0:
+            sched = add_lec(pmB[0], pmB_cohorts, c_hours,
                             pmB_strs, sched, "PM")
-        if len(baA) > i:
-            sched = add_lec(baA[i], baA_cohorts, c_hours,
-                            baA_strs, sched, "BA")
-        if len(baB) > i:
-            sched = add_lec(baB[i], baB_cohorts, c_hours,
-                            baB_strs, sched, "BA")
-        if len(glmA) > i:
-            sched = add_lec(glmA[i], glmA_cohorts, c_hours, 
-                            glmA_strs, sched, "GLM")
-        if len(glmB) > i:
-            sched = add_lec(glmB[i], glmB_cohorts, c_hours, 
+    if len(glmB) > 0:
+            sched = add_lec(glmB[0], glmB_cohorts, c_hours,
                             glmB_strs, sched, "GLM")
-        if len(dxdA) > i:
-            sched = add_lec(dxdA[i], dxdA_cohorts, c_hours, 
-                            dxdA_strs, sched, "DXD")
-        if len(dxdB) > i:
-            sched = add_lec(dxdB[i], dxdB_cohorts, c_hours, 
-                            dxdB_strs, sched, "DXD")
-        if len(bkA) > i:
-            sched = add_lec(bkA[i], bkA_cohorts, c_hours,
-                            bkA_strs, sched, "BK")
-        if len(bkB) > i:
-            sched = add_lec(bkB[i], bkB_cohorts, c_hours,
+    if len(bkB) > 0:
+            sched = add_lec(bkB[0], bkB_cohorts, c_hours,
                             bkB_strs, sched, "BK")
-        if len(fsA) > i:
-            sched = add_lec(fsA[i], fsA_cohorts, c_hours, 
+    if len(baB) > 0:
+            sched = add_lec(baB[0], baB_cohorts, c_hours,
+                            baB_strs, sched, "BA")
+    if len(pmA) > 0:
+            sched = add_lec(pmA[0], pmA_cohorts, c_hours, 
+                            pmA_strs, sched, "PM")
+    if len(baA) > 0:
+            sched = add_lec(baA[0], baA_cohorts, c_hours,
+                            baA_strs, sched, "BA")
+    if len(glmA) > 0:
+            sched = add_lec(glmA[0], glmA_cohorts, c_hours, 
+                            glmA_strs, sched, "GLM")
+    if len(dxdA) > 0:
+            sched = add_lec(dxdA[0], dxdA_cohorts, c_hours, 
+                            dxdA_strs, sched, "DXD")
+    if len(dxdB) > 0:
+            sched = add_lec(dxdB[0], dxdB_cohorts, c_hours, 
+                            dxdB_strs, sched, "DXD")
+    if len(bkA) > 0:
+            sched = add_lec(bkA[0], bkA_cohorts, c_hours,
+                            bkA_strs, sched, "BK")
+    if len(fsA) > 0:
+            sched = add_lec(fsA[0], fsA_cohorts, c_hours, 
                             fsA_strs, sched, "FS", True)
-        if len(fsB) > i:
-            sched = add_lec(fsB[i], fsB_cohorts, c_hours, 
+    if len(fsB) > 0:
+            sched = add_lec(fsB[0], fsB_cohorts, c_hours, 
                             fsB_strs, sched, "FS", True)
-
+        
     return sched
 
 def add_lec(course: Course, cohorts: List[str], course_hours: Dict[str, int], 
@@ -632,23 +617,18 @@ def make_core_lab_sched(lectures: Dict[str, List[Course]],
     bcomA = filter_courses(labs['bcomA'], lab_sched, c_hours)
     bcomB = filter_courses(labs['bcomB'], lab_sched, c_hours)
     
-    # schedule as many labs as possible
-    most_courses = max(
-        pcomA, pcomB, bcomA, bcomB, key=lambda x: len(x)
-    )
-    for i in range(len(most_courses)):
-        
-        if len(pcomA) > i:
-            lab_sched = add_lab(pcomA[i], pcomA_cohorts, c_hours, 
-                                pcomA_strs, lec_sched, lab_sched, "PCOM")  
-        if len(pcomB) > i:
-            lab_sched = add_lab(pcomB[i], pcomB_cohorts, c_hours, 
+    
+    if len(pcomA) > 0:
+        lab_sched = add_lab(pcomA[0], pcomA_cohorts, c_hours,
+                            pcomA_strs, lec_sched, lab_sched, "PCOM")
+    if len(pcomB) > 0:
+            lab_sched = add_lab(pcomB[0], pcomB_cohorts, c_hours, 
                                 pcomB_strs, lec_sched, lab_sched, "PCOM")
-        if len(bcomA) > i:
-            lab_sched = add_lab(bcomA[i], bcomA_cohorts, c_hours, 
+    if len(bcomA) > 0:
+            lab_sched = add_lab(bcomA[0], bcomA_cohorts, c_hours,
                                 bcomA_strs, lec_sched, lab_sched, "BCOM")
-        if len(bcomB) > i:
-            lab_sched = add_lab(bcomB[i], bcomB_cohorts, c_hours, 
+    if len(bcomB) > 0:
+            lab_sched = add_lab(bcomB[0], bcomB_cohorts, c_hours, 
                                 bcomB_strs, lec_sched, lab_sched, "BCOM")
                 
     return lab_sched
@@ -706,50 +686,43 @@ def make_prgm_lab_sched(lectures: Dict[str, List[Course]],
     fsA  = filter_courses(labs['fsA'],  lab_sched, c_hours)
     fsB  = filter_courses(labs['fsB'],  lab_sched, c_hours)
 
-    # schedule as many courses as possible
-    most_courses = max(
-        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB, fsA, fsB,
-        key=lambda x: len(x)
-    )
-    for i in range(len(most_courses)):
-
-        if len(pmA) > i:
-            lab_sched = add_lab(pmA[i], pmA_cohorts, c_hours, 
-                                pmA_strs, lec_sched, lab_sched, "PM")
-        if len(pmB) > i:
-            lab_sched = add_lab(pmB[i], pmB_cohorts, c_hours, 
-                                pmB_strs, lec_sched, lab_sched, "PM")
-        if len(baA) > i:
-            lab_sched = add_lab(baA[i], baA_cohorts, c_hours, 
-                                baA_strs, lec_sched, lab_sched, "BA")
-        if len(baB) > i:
-            lab_sched = add_lab(baB[i], baB_cohorts, c_hours, 
-                                baB_strs, lec_sched, lab_sched, "BA")
-        if len(glmA) > i:
-            lab_sched = add_lab(glmA[i], glmA_cohorts, c_hours,
-                                 glmA_strs, lec_sched, lab_sched, "GLM")
-        if len(glmB) > i:
-            lab_sched = add_lab(glmB[i], glmB_cohorts, c_hours,
-                                 glmB_strs, lec_sched, lab_sched, "GLM")
-        if len(dxdB) > i:
-            lab_sched = add_lab(dxdB[i], dxdB_cohorts, c_hours,
-                                 dxdB_strs, lec_sched, lab_sched, "DXD")
-        if len(dxdA) > i:
-            lab_sched = add_lab(dxdA[i], dxdA_cohorts, c_hours,
-                                 dxdA_strs, lec_sched, lab_sched, "DXD")
-        if len(bkA) > i:
-            lab_sched = add_lab(bkA[i], bkA_cohorts, c_hours, 
-                                bkA_strs, lec_sched, lab_sched, "BK")
-        if len(bkB) > i:
-            lab_sched = add_lab(bkB[i], bkB_cohorts, c_hours, 
+    if len(dxdB) > 0:
+            lab_sched = add_lab(dxdB[0], dxdB_cohorts, c_hours,
+                                dxdB_strs, lec_sched, lab_sched, "DXD")
+    if len(bkB) > 0:
+            lab_sched = add_lab(bkB[0], bkB_cohorts, c_hours,
                                 bkB_strs, lec_sched, lab_sched, "BK")
-        if len(fsB) > i:
-            lab_sched = add_lab(fsB[i], fsB_cohorts, c_hours, 
+    if len(pmA) > 0:
+            lab_sched = add_lab(pmA[0], pmA_cohorts, c_hours, 
+                                pmA_strs, lec_sched, lab_sched, "PM")
+    if len(pmB) > 0:
+            lab_sched = add_lab(pmB[0], pmB_cohorts, c_hours, 
+                                pmB_strs, lec_sched, lab_sched, "PM")
+    if len(baA) > 0:
+            lab_sched = add_lab(baA[0], baA_cohorts, c_hours, 
+                                baA_strs, lec_sched, lab_sched, "BA")
+    if len(baB) > 0:
+            lab_sched = add_lab(baB[0], baB_cohorts, c_hours, 
+                                baB_strs, lec_sched, lab_sched, "BA")
+    if len(glmA) > 0:
+            lab_sched = add_lab(glmA[0], glmA_cohorts, c_hours,
+                                glmA_strs, lec_sched, lab_sched, "GLM")
+    if len(glmB) > 0:
+            lab_sched = add_lab(glmB[0], glmB_cohorts, c_hours,
+                                glmB_strs, lec_sched, lab_sched, "GLM")
+    if len(dxdA) > 0:
+            lab_sched = add_lab(dxdA[0], dxdA_cohorts, c_hours,
+                                dxdA_strs, lec_sched, lab_sched, "DXD")
+    if len(bkA) > 0:
+            lab_sched = add_lab(bkA[0], bkA_cohorts, c_hours, 
+                                bkA_strs, lec_sched, lab_sched, "BK")
+    if len(fsB) > 0:
+            lab_sched = add_lab(fsB[0], fsB_cohorts, c_hours, 
                                 fsB_strs, lec_sched, lab_sched, "FS", True)
-        if len(fsA) > i:
-            lab_sched = add_lab(fsA[i], fsA_cohorts, c_hours, 
+    if len(fsA) > 0:
+            lab_sched = add_lab(fsA[0], fsA_cohorts, c_hours, 
                                 fsA_strs, lec_sched, lab_sched, "FS", True)
-
+        
     return lab_sched
          
 
@@ -834,25 +807,19 @@ def make_core_online_sched(lectures: Dict[str, List[Course]],
     bcomA = filter_courses(online['bcomA'], onl_sched, c_hours)
     bcomB = filter_courses(online['bcomB'], onl_sched, c_hours)
     
-    # schedule as many courses as possible
-    most_courses = max(
-        pcomA, pcomB, bcomA, bcomB, key=lambda x: len(x)
-    )
-    for i in range(len(most_courses)):
+    if len(pcomA) > 0:
+            onl_sched = add_onl(pcomA[0], c_hours, pcomA_strs,
+                                curr_sched, onl_sched, "PCOM")
+    if len(pcomB) > 0:
+            onl_sched = add_onl(pcomB[0], c_hours, pcomB_strs, 
+                                curr_sched, onl_sched, "PCOM")
+    if len(bcomA) > 0:
+            onl_sched = add_onl(bcomA[0], c_hours, bcomA_strs, 
+                                curr_sched, onl_sched, "BCOM")
+    if len(bcomB) > 0:
+            onl_sched = add_onl(bcomB[0], c_hours, bcomB_strs, 
+                                curr_sched, onl_sched, "BCOM")
 
-        if len(pcomA) > i:
-            onl_sched = add_onl(pcomA[i], c_hours, pcomA_strs, 
-                                curr_sched, onl_sched, "PCOM")
-        if len(pcomB) > i:
-            onl_sched = add_onl(pcomB[i], c_hours, pcomB_strs, 
-                                curr_sched, onl_sched, "PCOM")
-        if len(bcomA) > i:
-            onl_sched = add_onl(bcomA[i], c_hours, bcomA_strs, 
-                                curr_sched, onl_sched, "BCOM")
-        if len(bcomB) > i:
-            onl_sched = add_onl(bcomB[i], c_hours, bcomB_strs, 
-                                curr_sched, onl_sched, "BCOM")
-            
     return onl_sched
 
 
@@ -896,51 +863,42 @@ def make_prgm_online_sched(lectures: Dict[str, List[Course]],
     fsA  = filter_courses(online['fsA'],  onl_sched, c_hours)
     fsB  = filter_courses(online['fsB'],  onl_sched, c_hours)
     
-
-    # schedule as many courses as possible
-    most_courses = max(
-        pmA, pmB, baA, baB, glmA, glmB, dxdA, dxdB, bkA, bkB, fsA, fsB,
-        key=lambda x: len(x)
-    )
-    for i in range(len(most_courses)):
-
-        if len(pmA) > i:
-            onl_sched = add_onl(pmA[i], c_hours, pmA_strs, 
+    if len(pmA) > 0:
+            onl_sched = add_onl(pmA[0], c_hours, pmA_strs,
                                 curr_sched, onl_sched, "PM")
-        if len(pmB) > i:
-            onl_sched = add_onl(pmB[i], c_hours, pmB_strs, 
+    if len(pmB) > 0:
+            onl_sched = add_onl(pmB[0], c_hours, pmB_strs, 
                                 curr_sched, onl_sched, "PM")
-        if len(baA) > i:
-            onl_sched = add_onl(baA[i], c_hours, baA_strs, 
+    if len(baA) > 0:
+            onl_sched = add_onl(baA[0], c_hours, baA_strs, 
                                 curr_sched, onl_sched, "BA")
-        if len(baB) > i:
-            onl_sched = add_onl(baB[i], c_hours, baB_strs, 
+    if len(baB) > 0:
+            onl_sched = add_onl(baB[0], c_hours, baB_strs, 
                                 curr_sched, onl_sched, "BA")
-        if len(glmA) > i:
-            onl_sched = add_onl(glmA[i], c_hours, glmA_strs, 
+    if len(glmA) > 0:
+            onl_sched = add_onl(glmA[0], c_hours, glmA_strs, 
                                 curr_sched, onl_sched, "GLM")
-        if len(glmB) > i:
-            onl_sched = add_onl(glmB[i], c_hours, glmB_strs, 
+    if len(glmB) > 0:
+            onl_sched = add_onl(glmB[0], c_hours, glmB_strs, 
                                 curr_sched, onl_sched, "GLM")
-        if len(dxdA) > i:
-            onl_sched = add_onl(dxdA[i], c_hours, dxdA_strs, 
+    if len(dxdA) > 0:
+            onl_sched = add_onl(dxdA[0], c_hours, dxdA_strs, 
                                 curr_sched, onl_sched, "DXD")
-        if len(dxdB) > i:
-            onl_sched = add_onl(dxdB[i], c_hours, dxdB_strs, 
+    if len(dxdB) > 0:
+            onl_sched = add_onl(dxdB[0], c_hours, dxdB_strs, 
                                 curr_sched, onl_sched, "DXD")
-        if len(bkA) > i:
-            onl_sched = add_onl(bkA[i], c_hours, bkA_strs, 
+    if len(bkA) > 0:
+            onl_sched = add_onl(bkA[0], c_hours, bkA_strs, 
                                 curr_sched, onl_sched, "BK")
-        if len(bkB) > i:
-            onl_sched = add_onl(bkB[i], c_hours, bkB_strs, 
+    if len(bkB) > 0:
+            onl_sched = add_onl(bkB[0], c_hours, bkB_strs, 
                                 curr_sched, onl_sched, "BK")
-        if len(fsA) > i:
-            onl_sched = add_onl(fsA[i], c_hours, fsA_strs, 
+    if len(fsA) > 0:
+            onl_sched = add_onl(fsA[0], c_hours, fsA_strs, 
                                 curr_sched, onl_sched, "FS", True)
-        if len(fsB) > i:
-            onl_sched = add_onl(fsB[i], c_hours, fsB_strs, 
+    if len(fsB) > 0:
+            onl_sched = add_onl(fsB[0], c_hours, fsB_strs, 
                                 curr_sched, onl_sched, "FS", True)
-
     return onl_sched
 
 
@@ -1082,10 +1040,6 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             day += dt.timedelta(days=5)
             week += 1
             week_starts.append(day)
-
-        
-    print(f"\n\nINVALID COUNT: {invalid}\n\n")
-    pprint(course_hours)
         
     add_lectures_to_db()
     return full_schedule, week_starts
@@ -1171,9 +1125,6 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
             day += dt.timedelta(days=5)
             week += 1
             week_starts.append(day)
-
-    print(f"\n\nINVALID COUNT: {invalid}\n\n")
-    pprint(course_hours)
 
     add_lectures_to_db()
     return full_schedule, week_starts
