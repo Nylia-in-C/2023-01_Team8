@@ -108,6 +108,10 @@ def get_sched(term: int, debug=False):
     bkB_cohorts  = all_cohort_IDs[:cohorts[f'BK{termB}']]
     fsA_cohorts  = all_cohort_IDs[:cohorts[f'FS{termA}']]
     fsB_cohorts  = all_cohort_IDs[:cohorts[f'FS{termB}']]
+    
+    all_cohorts = pmA_cohorts + pmB_cohorts + baA_cohorts + baB_cohorts + \
+                  glmA_cohorts + glmB_cohorts + dxdA_cohorts + dxdB_cohorts + \
+                  bkA_cohorts + bkB_cohorts + fsA_cohorts + fsB_cohorts
 
     lectures = {
         'pmA' : pmA_lecs,
@@ -180,7 +184,10 @@ def get_sched(term: int, debug=False):
         print(f"week start dates {week_starts}")
         print(f"holidays: {holidays}")
 
-    return week_starts
+    return {
+        "cohorts": all_cohorts,
+        "week starts": week_starts
+    }
 
 
 if __name__ == '__main__':

@@ -22,7 +22,6 @@ from pprint import pprint
 
 #===================== TODOs (in no particular order) ==========================       
 
-#TODO: handle edge cases (e.g. avdm 0260 after all other courses)
 
 day = 1
 week = 1
@@ -182,7 +181,8 @@ def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFram
 def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes the previous day's schedule and the course hours dict. If any courses
-    have met their term hour requirements, they are removed and replaced with empty strings
+    have met their term hour requirements, they are removed and replaced 
+    with empty strings
     '''
 
     # courses that have met their required hours should be removed
@@ -215,7 +215,7 @@ def filter_courses(courses: List[Course], sched: pd.DataFrame,
         courses = list(filter(lambda c: c.ID not in ["PCOM 0130", "PCOM 0140"], courses))
     
     # AVDM 0260 runs on the last 2 days of the term, for 3 hour sessions
-    if day_count < 24:
+    if day_count < 25:
         courses = list(filter(lambda c: c.ID != "AVDM 0260", courses))
 
         
@@ -429,7 +429,7 @@ def make_core_lecture_sched(lectures: Dict[str, List[Course]],
         pcomA, pcomB, bcomA, bcomB, key=lambda x: len(x)
     )
 
-    for i in range(len(most_courses)):
+    for i in range(1):
         
         if len(pcomA) > i:
             sched = add_lec(pcomA[i], pcomA_cohorts, c_hours,
