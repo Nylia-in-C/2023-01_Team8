@@ -705,7 +705,7 @@ class UI(QMainWindow):
                                     "border-width: 3px; "+
                                     "border-radius: 5px; "+
                                     "border-color: #fefdea")
-        create_sched.setFixedSize(350,60)
+        create_sched.setFixedSize(280,60)
         create_sched.clicked.connect(self.create_schedule)
 
         # Read Current items in the Database
