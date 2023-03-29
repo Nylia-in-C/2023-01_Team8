@@ -25,7 +25,7 @@ cmsk_0235 = Course("CMSK 0235", "MS Visio Essentials",6,1, 1.5, 1, 0, 1,[])
 # term 2 Professional Communication (PCOM) courses
 pcom_0102 = Course("PCOM 0102", "Business Writing II", 35, 2, 2, 1, 0, 0, [])
 pcom_0201 = Course("PCOM 0201", "Fundamentals of Public Speaking", 35, 2, 2, 1, 0, 0, [])
-pcom_0108 = Course("PCOM 0108", "Technical Development II; Microsoft Word, Excel and Power Point",18,2,3, 1, 0, 1,[])
+pcom_0108 = Course("PCOM 0108", "Technical Development II; Microsoft Word, Excel and Power Point",18,2,2, 1, 0, 1,[])
 # term 3 Professional Communication (PCOM) courses
 pcom_0202 = Course("PCOM 0202", "Advanced Business Presentation",33,3, 1.5, 1, 0, 0,[])
 pcom_0103 = Course("PCOM 0103", "Canadian Workplace Culture",35, 3, 1.5, 1, 0, 0, [])
@@ -37,7 +37,7 @@ pcom_0109_module_2 = Course('PCOM 0109 M2', 'Interview Practice', 6, 3, 2, 1,0,1
 pcom_0203 = Course("PCOM 0203", "Effective Professional Writing; Reports, Proposals, Plans and More.",15,1, 2, 1, 0, 0,[])
 supr_0751 = Course("SUPR 0751", "Fundamentals of Management and Supervision",7,1, 2, 1, 0, 0,[])
 pcom_0204 = Course("PCOM 0204", "Business Persuasion and Research",35,1, 2, 1, 0, 0,[])
-cmsk_0237 = Course("CMSK 0237", "Google Suite Essentials",12,1, 2, 1, 1, 0,[])
+cmsk_0237 = Course("CMSK 0237", "Google Suite Essentials",12,1, 1.5, 1, 1, 0,[])
 supr_0837 = Course("SUPR 0837", "Building an Engaged Workforce",7,1, 2, 1, 0, 0,[])
 supr_0841 = Course("SUPR 0841", "Change Management Fundamentals",7,1, 2, 1, 0, 0,[])
 # term 2 Business Communication (BCOM) courses
@@ -92,7 +92,7 @@ acct_0203 = Course("ACCT 0203", "Understanding Financial Statements", 12,1, 2, 0
 # term 2 Book Keeping (BK) program courses
 acct_0206 = Course("ACCT 0206", "Controllership for SMEs", 12,2, 2, 0, 0, 0,[])
 acct_0210 = Course("ACCT 0210", "Quickbooks", 28,2, 2, 0, 0, 1,[] )
-acct_0211 = Course("ACCT 0211", "SAGE 50 & Data Analytics", 28,2, 1.5, 0, 0, 1,[])
+acct_0211 = Course("ACCT 0211", "SAGE 50 & Data Analytics", 28,2, 2, 0, 0, 1,[])
 # term 3 Book Keeping (BK) program courses
 acct_0208 = Course("ACCT 0208", "Accounting for Entrepreneurs", 21,3, 2, 0, 0, 1,[])
 acct_9901 = Course("ACCT 9901", "Integrated Case Studies in Accounting", 33,3, 1.5, 0, 0, 1,[])
