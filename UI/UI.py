@@ -1245,7 +1245,8 @@ class UI(QMainWindow):
 
         week_starts = schedule_info["week starts"]
 
-        #TODO set the holidays here
+        CORE_HOLIDAYS = schedule_info["holidays"]
+        PROG_HOLIDAYS = prog_schedule_info["holidays"]
 
         CORE_END_DATES = schedule_info["last days"]
         PROG_END_DATES = prog_schedule_info["last days"]
@@ -1541,9 +1542,15 @@ class UI(QMainWindow):
                     if not PROG_DAY > PROG_END_DATES[course[0]]:
                         prog_pass.append(course)
 
-                core_last_known_sched = self.convert_to_list(core_pass)
+                if CORE_DAY in CORE_HOLIDAYS:
+                    core_last_known_sched = [""] * 26
+                else:
+                    core_last_known_sched = self.convert_to_list(core_pass)
 
-                prog_last_known_sched = self.convert_to_list(prog_pass)
+                if PROG_DAY in PROG_HOLIDAYS:
+                    prog_last_known_sched = [""] * 26
+                else:
+                    prog_last_known_sched = self.convert_to_list(prog_pass)
 
                 core_week_list.append(core_last_known_sched)
                 prog_week_list.append(prog_last_known_sched)
@@ -1610,9 +1617,15 @@ class UI(QMainWindow):
 
                 # Checking if there was any new differences in schedule
                 # if not, then simply add the last known schedule since it hasnt changed.
-                core_last_known_sched = self.cohort_convert_to_list(core_pass)
+                if CORE_DAY in CORE_HOLIDAYS:
+                    core_last_known_sched = [""] * 26
+                else:
+                    core_last_known_sched = self.cohort_convert_to_list(core_pass)
 
-                prog_last_known_sched = self.cohort_convert_to_list(prog_pass)
+                if PROG_DAY in PROG_HOLIDAYS:
+                    prog_last_known_sched = [""] * 26
+                else:
+                    prog_last_known_sched = self.cohort_convert_to_list(prog_pass)
 
                 core_week_list.append(core_last_known_sched)
                 prog_week_list.append(prog_last_known_sched)
@@ -1834,21 +1847,24 @@ class UI(QMainWindow):
         self.reset_table()
 
 
-        # All lecture items should now be recorded in the dictionaries
-        self.get_lecture_items()
+        try:
+            # All lecture items should now be recorded in the dictionaries
+            self.get_lecture_items()
 
-        # Get the lists for each day
-        core = CORE_SCHEDULE[WEEK]
-        prog = PROG_SCHEDULE[WEEK]
+            # Get the lists for each day
+            core = CORE_SCHEDULE[WEEK]
+            prog = PROG_SCHEDULE[WEEK]
 
-        monday = core[0]
-        wednesday = core[1]
-        tuesday = prog[0]
-        thursday = prog[1]
-        self.show_schedule(monday,0)
-        self.show_schedule(tuesday, 1)
-        self.show_schedule(wednesday, 2)
-        self.show_schedule(thursday, 3)
+            monday = core[0]
+            wednesday = core[1]
+            tuesday = prog[0]
+            thursday = prog[1]
+            self.show_schedule(monday,0)
+            self.show_schedule(tuesday, 1)
+            self.show_schedule(wednesday, 2)
+            self.show_schedule(thursday, 3)
+        except:
+            return
 
     def reset_db(self):
 
