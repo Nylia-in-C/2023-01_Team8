@@ -178,7 +178,8 @@ def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFram
 
     return course_hours
 
-def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> pd.DataFrame:
+def update_schedule(course_hours: Dict[str, int], 
+                    prev_sched: pd.DataFrame, last_days: Dict[str, int]) -> pd.DataFrame:
     '''
     Takes the previous day's schedule and the course hours dict. If any courses
     have met their term hour requirements, they are removed and replaced 
@@ -192,13 +193,19 @@ def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> p
     for time in prev_sched.index:
         for room in prev_sched.columns:
             
+            # online courses have no cohort ID attached
             course_no_ID = prev_sched.loc[time, room][:-3]
             course_w_ID  = prev_sched.loc[time, room]
-
-            if course_no_ID in finished or course_w_ID in finished:
-                
+            
+            if course_no_ID in finished:
                 # empty strings indicate an open time slot in the schedule
-                prev_sched.loc[time, room] = "" 
+                prev_sched.loc[time, room] = ""
+                last_days[course_no_ID] = day_count
+
+            elif course_w_ID in finished:
+                prev_sched.loc[time, room] = ""
+                last_days[course_w_ID] = day_count
+                
 
     return prev_sched
 
@@ -969,11 +976,12 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
     each as a pandas DataFrame, and returns them in a dictionary
     '''
 
-    global day, day_count, week, lecture_objs
+    global day, day_count, week, lecture_objs, last_days
     
     day_count = 0
     day = start_day
     end_day = start_day + dt.timedelta(weeks=13)
+    last_days = {}
     
     # starting monday dates for each week (all terms start on a wednesday)
     week_starts = [day - dt.timedelta(days=2)]
@@ -1029,9 +1037,9 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
         full_schedule[day] = (full_day_sched)
         course_hours = update_course_hours(course_hours, full_day_sched)
         
-        prev_lecs = update_schedule(course_hours, lecture_sched)
-        prev_labs = update_schedule(course_hours, lab_sched)
-        prev_onls = update_schedule(course_hours, online_sched)
+        prev_lecs = update_schedule(course_hours, lecture_sched, last_days)
+        prev_labs = update_schedule(course_hours, lab_sched, last_days)
+        prev_onls = update_schedule(course_hours, online_sched, last_days)
         
         
         if (day.weekday() == 0):
@@ -1042,7 +1050,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             week_starts.append(day)
         
     add_lectures_to_db()
-    return full_schedule, week_starts
+    return full_schedule, week_starts, last_days
 
 def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
                               labs: Dict[str, List[Course]],
@@ -1055,11 +1063,12 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
     each as a pandas DataFrame, and returns them in a dictionary
     '''
 
-    global day, day_count, week, lecture_objs
+    global day, day_count, week, lecture_objs, last_days
 
     day = start_day
     day_count = 0
     end_day = start_day + dt.timedelta(weeks=13)
+    last_days = {}
     
     # starting monday dates for each week (all terms start on a wednesday)
     week_starts = [day - dt.timedelta(days=2)]
@@ -1115,9 +1124,9 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
         full_schedule[day] = (full_day_sched)
         course_hours = update_course_hours(course_hours, full_day_sched)
 
-        prev_lecs = update_schedule(course_hours, lecture_sched)
-        prev_labs = update_schedule(course_hours, lab_sched)
-        prev_onls = update_schedule(course_hours, online_sched)
+        prev_lecs = update_schedule(course_hours, lecture_sched, last_days)
+        prev_labs = update_schedule(course_hours, lab_sched, last_days)
+        prev_onls = update_schedule(course_hours, online_sched, last_days)
 
         if (day.weekday() == 0):
             day += dt.timedelta(days=2)
@@ -1127,7 +1136,7 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
             week_starts.append(day)
 
     add_lectures_to_db()
-    return full_schedule, week_starts
+    return full_schedule, week_starts, last_days
 
 def getHolidaysMonWed(fallYear):
     '''
