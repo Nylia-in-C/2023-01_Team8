@@ -9,6 +9,6 @@ def check_path(file):
     elif __file__:
         app_path = os.path.dirname(__file__)
     file_path = os.path.join(app_path, file)
-    print(file_path)
+    #print(file_path)
 
     return file_path
