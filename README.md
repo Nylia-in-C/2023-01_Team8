@@ -64,14 +64,15 @@ The schedule of the first room in the list is displayed from Monday to Thursday 
 Each lecture is represented by a coloured block; matching colours denote lectures of the same course. 
 &nbsp;   
 To view a different week, click on the left and right arrow navigation buttons above the schedule.
-&nbsp;   
-Note: The Full-Stack Development program has its own <!INSERT TO FINISH THIS POINT ONCE FS IMPLEMENTED>  
+
 &nbsp;   
 ### 3.2.1. Cohort Schedule
 After at least one classroom schedule has been created, the user can filter by cohorts to receive a cohort-specific schedule. This schedule can be navigated left and right the same way as the classroom schedule.
+
 &nbsp; 
 ### 3.2.3. Options  
 The *Options* tab provides the ability to add/delete rooms and courses.  
+
 &nbsp;   
 #### 3.2.3.1 Room Options  
 Rooms can be added or deleted here.  
@@ -110,6 +111,7 @@ Courses can be added or edited here.
 In order to reset the database to default values, click the *Reset to Default Settings* button. Confirm in the pop-up window.
 
 Note: **This will delete everything previously put into the database and reset to defaults. DO NOT use unless absolutely sure.**  
+
 &nbsp; 
 ### 3.2.4. Instructions
 These instructions can be found in the *Instructions* tab for easy access without an internet connection. 
