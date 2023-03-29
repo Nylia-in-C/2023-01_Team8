@@ -78,7 +78,7 @@ class UI(QMainWindow):
         super().__init__()
         remove_colours()
         self.setWindowTitle("Scheduler")
-        self.setStyleSheet("background-color: #c9b698") 
+        self.setStyleSheet("background-color: #6f2937") 
 
         #Stylesheet
         global style_glass
@@ -225,10 +225,10 @@ class UI(QMainWindow):
         tabs = QTabWidget()
         tabs.setStyleSheet(style_glass)
         tab1 = QWidget()
-        tab1.setStyleSheet(    "background-color: #8c2332; " +
+        tab1.setStyleSheet(    "background-color: #3b0918; " +
                                "color: #fefdea; ")                                 
         tab2 = QWidget()
-        tab2.setStyleSheet(    "background-color: #4f4f4f; " +
+        tab2.setStyleSheet(    "background-color: #3b0918; " +
                                "color: #4f4f4f; ")  
 
         tab3 = QWidget()        
