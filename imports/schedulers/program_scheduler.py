@@ -13,7 +13,7 @@ from imports.fillClassrooms import *
 from imports.classes.courses import *
 
 
-def get_sched(term: int, debug=True):
+def get_sched(term: int, debug=False):
     '''
     Main driver function for generating the term schedule for program-specific courses, 
     where the term passed indicates if the schedule is for fall, winter, or spring semester
@@ -183,7 +183,7 @@ def get_sched(term: int, debug=True):
     # get all 26 day schedules as a dictionary of dataframes
     # (technically, we only need the lecture objects, but having this makes
     # scheduling & debugging 1000x easier)
-    full_schedule, week_starts = create_prgm_term_schedule(
+    full_schedule, week_starts, last_days = create_prgm_term_schedule(
         lectures, labs, online, cohorts, rooms, start_day, holidays
     )
     
@@ -196,7 +196,8 @@ def get_sched(term: int, debug=True):
 
     return {
         "cohorts": all_cohorts,
-        "week starts": week_starts
+        "week starts": week_starts,
+        "last days": last_days
     }
 
 

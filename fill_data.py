@@ -16,14 +16,14 @@ from imports.classes.courses import Lecture
 import database.database as database
 #CORE COURSES----------------------------------------------------------------------
 # term 1 Professional Communication (PCOM) courses
-pcom_0101 = Course("PCOM 0101", "Business Writing I", 35, 1, 1.5, 1, 0, 0, [])
-pcom_0105 = Course("PCOM 0105", "Intercultural Communication Skills", 35, 1, 1.5, 1, 0, 0, [])
+pcom_0101 = Course("PCOM 0101", "Business Writing I", 35, 1, 2, 1, 0, 0, [])
+pcom_0105 = Course("PCOM 0105", "Intercultural Communication Skills", 35, 1, 2, 1, 0, 0, [])
 pcom_0107 = Course("PCOM 0107", "Technical Development I: Microsoft Word, Excel and Power Point", 18,1, 2, 1, 0, 1,[])
 cmsk_0233 = Course("CMSK 0233", "MS Project Essentials ", 7,1, 1.5, 1, 0, 1,[])
 cmsk_0235 = Course("CMSK 0235", "MS Visio Essentials",6,1, 1.5, 1, 0, 1,[])
 # term 2 Professional Communication (PCOM) courses
-pcom_0102 = Course("PCOM 0102", "Business Writing II", 35, 2, 1.5, 1, 0, 0, [])
-pcom_0201 = Course("PCOM 0201", "Fundamentals of Public Speaking", 35, 2, 1.5, 1, 0, 0, [])
+pcom_0102 = Course("PCOM 0102", "Business Writing II", 35, 2, 2, 1, 0, 0, [])
+pcom_0201 = Course("PCOM 0201", "Fundamentals of Public Speaking", 35, 2, 2, 1, 0, 0, [])
 pcom_0108 = Course("PCOM 0108", "Technical Development II; Microsoft Word, Excel and Power Point",18,2,3, 1, 0, 1,[])
 # term 3 Professional Communication (PCOM) courses
 pcom_0202 = Course("PCOM 0202", "Advanced Business Presentation",33,3, 1.5, 1, 0, 0,[])

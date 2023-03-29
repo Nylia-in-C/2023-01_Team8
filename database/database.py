@@ -20,7 +20,7 @@ def create_connection(db_file):
     conn = None
     try: 
         conn = sqlite3.connect(db_file)
-        print("opened database successfully")
+        #print("opened database successfully")
     except Exception as e:
         print("Error during connection", str(e))
 
@@ -30,7 +30,7 @@ def create_table(conn, tableInfo):
     try:
         c = conn.cursor()
         c.execute(tableInfo)     
-        print("Table created successfully")
+        #print("Table created successfully")
     except Exception as e:
         print(e)
 
@@ -50,7 +50,7 @@ def close_connection(conn):
     try:
         conn.commit()
         conn.close()
-        print("Connection closed")
+        #print("Connection closed")
     except Exception as e:
         print("Error closing database file:", str(e))
 

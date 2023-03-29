@@ -62,6 +62,8 @@ WEEK_COHORTS = 1
 COHORT_CHOSEN = ""
 COHORT_COURSE_TO_ROOM = {}
 
+CREATE_SCHEDULE_CLICKED = 0
+
 # Removes colours that make the text hard to read / separate from the background
 def remove_colours():
     global BG_COLOURS
@@ -169,6 +171,7 @@ class UI(QMainWindow):
         '''
         self.cohort_table = QTableWidget()
         self.cohort_tab_combo = QComboBox()
+        self.cohort_tab_combo.setStyleSheet(style_glass)
         self.cohort_tab_combo.activated.connect(self.cohort_selector_show_schedule)
 
         self.cohort_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -269,8 +272,8 @@ class UI(QMainWindow):
                                 "color: #4f4f4f; " +
                                 "border-color: #fefdea; ")
         tab4 = QWidget()
-        tab4.setStyleSheet(     "background-color: #fefdea; " +
-                                "color: #4f4f4f; " +
+        tab4.setStyleSheet(     "background-color: #3b0918; " +
+                                "color: #fefdea; " +
                                 "border-color: #fefdea; ")
                                 
         tabs.addTab(tab1, "Classroom Schedule")
@@ -343,25 +346,30 @@ class UI(QMainWindow):
         vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addLayout(self.update_course_section())
         vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addWidget(self.create_horizontal_line())
 
         font = QFont()
         font.setBold(True)
         font.setPointSize(16)
 
-        reset_label = QLabel("Reset all:")
+        #Reset database button
+        reset_label = QLabel("Reset Database")
         reset_label.setFont(font)
         reset_label.setStyleSheet("color: #fefdea")
-        reset_button = QPushButton("Reset to default settings")
-        reset_button.setMinimumWidth(300)
+        reset_button = QPushButton("Reset to Default Settings")
+        reset_button.setFixedWidth(200)
         reset_button.setStyleSheet(style_glass)
         reset_button.clicked.connect(self.reset_db)
 
-        hbox = QHBoxLayout()
+        hbox = QVBoxLayout()
+        hbox.setContentsMargins(20,40,0,50)
         hbox.addWidget(reset_label)
         hbox.addWidget(reset_button)
-        hbox.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
+        vbox_overall.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
         vbox_overall.addLayout(hbox)
+        vbox_overall.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+
         return vbox_overall
 
 
@@ -482,7 +490,7 @@ class UI(QMainWindow):
 
     def update_course_section(self):
         vbox_course = QVBoxLayout()
-        vbox_course.setContentsMargins(20,0,0,100)
+        vbox_course.setContentsMargins(20,0,0,0)
 
         font = QFont()
         font.setBold(True)
@@ -1012,7 +1020,7 @@ class UI(QMainWindow):
                 side_fill.setStyleSheet("border: solid white;"
                                         "border-width : 0px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] == "":
+                if cell + 1 <= 26 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.main_table.setCellWidget(cell, weekday, side_fill)
@@ -1027,7 +1035,7 @@ class UI(QMainWindow):
                 label_fill.setStyleSheet("border: solid white;"
                                          "border-width : 2px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] != course:
+                if cell + 1 <= 26 and lecture_list[cell + 1] != course:
                     label_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
 
@@ -1166,12 +1174,14 @@ class UI(QMainWindow):
         except:
             return
     def create_schedule(self):
-        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR, WEEK_DISPLAY_DATE
+        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
+            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
         CORE_SCHEDULE.clear()
         PROG_SCHEDULE.clear()
+        self.cohort_tab_combo.clear()
         WEEK = 1
         ROOM = self.select_room.currentText()
 
@@ -1204,10 +1214,11 @@ class UI(QMainWindow):
         self.update_class_combos()
 
         schedule_info = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
-        imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
+        prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         week_starts = schedule_info["week starts"]
         self.cohort_tab_combo.addItems(schedule_info["cohorts"])
+        self.cohort_tab_combo.addItems(prog_schedule_info["cohorts"])
 
         index = 0
         for week_start in range(1, len(week_starts)):
@@ -1239,6 +1250,14 @@ class UI(QMainWindow):
 
         #close load message
         load_msg.close()
+
+        #Success pop-up
+        success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Schedule has been created.")
+        success.setStyleSheet("color: black")
+        success.exec()
+
+        CREATE_SCHEDULE_CLICKED = 1
 
     # Action event for creating template file
     def create_template(self):
@@ -1606,11 +1625,19 @@ class UI(QMainWindow):
 
             # Update the combobox
             self.update_class_combos()
+            success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Room has been added or modified.")
+            success.setStyleSheet("color: black")
+            success.exec()
 
 
         except:
-            #print("error adding classroom")
             close_connection(connection)
+            failure = QMessageBox(QMessageBox.Error, "Failure", 
+                                      "Room has been not added or modified.")
+            failure.setStyleSheet("color: black")
+            failure.exec()
+
 
     def remove_classroom(self):
         db = r".\database\database.db"  # database.db file path
@@ -1630,11 +1657,18 @@ class UI(QMainWindow):
 
             # Update the combobox
             self.update_class_combos()
+            success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Room has been deleted.")
+            success.setStyleSheet("color: black")
+            success.exec()
 
 
         except:
-            #print("error adding classroom")
             close_connection(connection)
+            failure = QMessageBox(QMessageBox.Error, "Failure", 
+                                      "Room has been not deleted.")
+            failure.setStyleSheet("color: black")
+            failure.exec()
 
     def save_course(self):
         db = r".\database\database.db"  # database.db file path
@@ -1672,6 +1706,10 @@ class UI(QMainWindow):
             close_connection(connection)
             # Update the combobox
             self.update_course_combos()
+            success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Task completed successfully.")
+            success.setStyleSheet("color: black")
+            success.exec()
 
         except:
             #pass
@@ -1722,6 +1760,9 @@ class UI(QMainWindow):
     '''
     def room_selector_show_schedule(self):
 
+        if not CREATE_SCHEDULE_CLICKED:
+            return
+
         global WEEK, ROOM, CORE_DAY, PROG_DAY, WEEK_DISPLAY_DATE
         WEEK = 1
         self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[1] + "\nWeek " + str(WEEK))
@@ -1758,9 +1799,13 @@ class UI(QMainWindow):
 
     def reset_db(self):
 
-        answer = QMessageBox.warning(self, "Reset Database",
-                                     "Are you sure you want to reset the database?\n\nAll data will be lost",
-                                     buttons=QMessageBox.Yes | QMessageBox.No, defaultButton=QMessageBox.No)
+        global CREATE_SCHEDULE_CLICKED, CORE_SCHEDULE, CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, PROG_SCHEDULE
+        answer = QMessageBox(QMessageBox.Warning, "Reset Database",
+                                     "Are you sure you want to reset the database?\n\nAll data will be lost!",
+                                     buttons=QMessageBox.Yes | QMessageBox.No)
+        answer.setDefaultButton(QMessageBox.No)
+        answer.setStyleSheet("color: black")
+        answer.exec()
 
         if answer == QMessageBox.Yes:
             try:
@@ -1769,6 +1814,13 @@ class UI(QMainWindow):
                 self.update_class_combos()
                 self.update_course_combos()
                 self.cohort_tab_combo.clear()
+                self.reset_table()
+                self.reset_table_cohort()
+                CORE_SCHEDULE_COHORTS.clear()
+                PROG_SCHEDULE_COHORTS.clear()
+                CORE_SCHEDULE.clear()
+                PROG_SCHEDULE.clear()
+                CREATE_SCHEDULE_CLICKED = 0
 
             except:
                 return
@@ -1925,7 +1977,7 @@ class UI(QMainWindow):
         course = ""
 
         font = QFont()
-        font.setPointSize(9)
+        font.setPointSize(8)
 
         for cell in range(self.cohort_table.rowCount()):
 
@@ -1940,7 +1992,7 @@ class UI(QMainWindow):
                 side_fill.setStyleSheet("border: solid white;"
                                         "border-width : 0px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] == "":
+                if cell + 1 <= 26 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.cohort_table.setCellWidget(cell, weekday, side_fill)
@@ -1955,7 +2007,7 @@ class UI(QMainWindow):
                 label_fill.setStyleSheet("border: solid white;"
                                          "border-width : 2px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] != course:
+                if cell + 1 <= 26 and lecture_list[cell + 1] != course:
                     label_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
 
