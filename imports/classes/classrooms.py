@@ -1,4 +1,6 @@
-# attributes: ID (string), capacity (int), isLab (bool)
+"""
+Classroom contains data for a single classroom.
+"""
 
 from dataclasses import dataclass
 
