@@ -105,6 +105,11 @@ Courses can be added or edited here.
     7.  When finished, click the 'Save Course' button to finish editing the course.  
  
 &nbsp;   
+#### 3.2.3.3 Reset Database  
+In order to reset the database to default values, click the *Reset to Default Settings* button. Confirm in the pop-up window.
+
+Note: **This will delete everything previously put into the database and reset to defaults. DO NOT use unless absolutely sure.**  
+&nbsp; 
 ### 3.2.4. Instructions
 These instructions can be found in the *Instructions* tab for easy access without an internet connection. 
 &nbsp;   
