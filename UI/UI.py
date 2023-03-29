@@ -1251,6 +1251,12 @@ class UI(QMainWindow):
         #close load message
         load_msg.close()
 
+        #Success pop-up
+        success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Schedule has been created.")
+        success.setStyleSheet("color: black")
+        success.exec()
+
         CREATE_SCHEDULE_CLICKED = 1
 
     # Action event for creating template file
@@ -1619,11 +1625,19 @@ class UI(QMainWindow):
 
             # Update the combobox
             self.update_class_combos()
+            success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Room has been added or modified.")
+            success.setStyleSheet("color: black")
+            success.exec()
 
 
         except:
-            #print("error adding classroom")
             close_connection(connection)
+            failure = QMessageBox(QMessageBox.Error, "Failure", 
+                                      "Room has been not added or modified.")
+            failure.setStyleSheet("color: black")
+            failure.exec()
+
 
     def remove_classroom(self):
         db = r".\database\database.db"  # database.db file path
@@ -1643,11 +1657,18 @@ class UI(QMainWindow):
 
             # Update the combobox
             self.update_class_combos()
+            success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Room has been deleted.")
+            success.setStyleSheet("color: black")
+            success.exec()
 
 
         except:
-            #print("error adding classroom")
             close_connection(connection)
+            failure = QMessageBox(QMessageBox.Error, "Failure", 
+                                      "Room has been not deleted.")
+            failure.setStyleSheet("color: black")
+            failure.exec()
 
     def save_course(self):
         db = r".\database\database.db"  # database.db file path
@@ -1685,6 +1706,10 @@ class UI(QMainWindow):
             close_connection(connection)
             # Update the combobox
             self.update_course_combos()
+            success = QMessageBox(QMessageBox.Information, "Success", 
+                                      "Task completed successfully.")
+            success.setStyleSheet("color: black")
+            success.exec()
 
         except:
             #pass
