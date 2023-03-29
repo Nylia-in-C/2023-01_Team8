@@ -1017,12 +1017,10 @@ class UI(QMainWindow):
         global COLOUR_INDEX
 
         course = ""
+        cohort_displayed = 0
 
         font = QFont()
-        if ROOM.find("(LAB)") != -1:
-            font.setPointSize(9)
-        else:
-            font.setPointSize(11)
+        font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
@@ -1040,13 +1038,22 @@ class UI(QMainWindow):
                 if cell + 1 <= 26 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
+
+                if not cohort_displayed:
+                    side_fill.setText(name[1])
+                    side_fill.setAlignment(Qt.AlignCenter)
+                    side_fill.setFont(font)
+                    cohort_displayed = 1
+
+
                 self.main_table.setCellWidget(cell, weekday, side_fill)
 
             # The course listed is a new one, and must be given a new colour + block
             else:
                 course = lecture_list[cell]
-                name = course.replace("-", "\n")
-                label_fill = QLabel(name)
+                name = course.split("-")
+                cohort_displayed = 0
+                label_fill = QLabel(name[0])
                 label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid white;"
@@ -1859,9 +1866,9 @@ class UI(QMainWindow):
                                      buttons=QMessageBox.Yes | QMessageBox.No)
         answer.setDefaultButton(QMessageBox.No)
         answer.setStyleSheet("color: black")
-        answer.exec()
+        clicked = answer.exec()
 
-        if answer == QMessageBox.Yes:
+        if clicked == QMessageBox.Yes:
             try:
                 os.remove("./database/database.db")
                 fill_data.createDefaultDatabase()
@@ -2029,9 +2036,10 @@ class UI(QMainWindow):
         global COLOUR_INDEX
 
         course = ""
+        room_displayed = 0
 
         font = QFont()
-        font.setPointSize(8)
+        font.setPointSize(11)
 
         for cell in range(self.cohort_table.rowCount()):
 
@@ -2049,13 +2057,22 @@ class UI(QMainWindow):
                 if cell + 1 <= 26 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
+
+                if not room_displayed:
+                    side_fill.setText(name[1])
+                    side_fill.setAlignment(Qt.AlignCenter)
+                    side_fill.setFont(font)
+                    room_displayed = 1
+
+
                 self.cohort_table.setCellWidget(cell, weekday, side_fill)
 
             # The course listed is a new one, and must be given a new colour + block
             else:
                 course = lecture_list[cell]
-                name = course.replace("~", "\n")
-                label_fill = QLabel(name)
+                room_displayed = 0
+                name = course.split("~")
+                label_fill = QLabel(name[0])
                 label_fill.setFont(font)
                 label_fill.setAlignment(Qt.AlignCenter)
                 label_fill.setStyleSheet("border: solid white;"
