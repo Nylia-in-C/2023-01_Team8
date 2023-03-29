@@ -1,7 +1,8 @@
-# represents a specific course 
+"""
+Course contains data for a single course.
 
-# attributes: ID (string), title (string), pre-reqs (dict ),  
-#             term hours (int), isCore (bool), timeSlot (int), isOnline (bool)
+Lecture contains data for a specific lecture offering of a course.
+"""
 
 from dataclasses import field, dataclass
 from imports.classes.programs import *
@@ -101,12 +102,4 @@ class Lecture(Course):
                 preReqsString = preReqsString + self.preReqs[i] + '. '
                 i = i-1
         return ( self.ID, self.title, self.cohort, self.room, self.termHours, self.term, self.duration, self.startWeek, self.startDay, self.startTime, self.isCore, self.isOnline, self.hasLab, preReqsString )
-
-
-#testing purposes
-
-# Dummy = Course('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])
-# Dummy.printCourse()
-# subDummy = Section('CMSK 1053', 'theTitle', 40, 45, 0,1,0, ["CMSK 1052", "CMSK 0157"])
-# print(subDummy)
 
