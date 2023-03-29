@@ -13,7 +13,7 @@ from imports.fillClassrooms import *
 from imports.classes.courses import *
 
 
-def get_sched(term: int, debug=False):
+def get_sched(term: int, debug=True):
     '''
     Main driver function for generating the term schedule for program-specific courses, 
     where the term passed indicates if the schedule is for fall, winter, or spring semester
@@ -109,9 +109,19 @@ def get_sched(term: int, debug=False):
     fsA_cohorts  = all_cohort_IDs[:cohorts[f'FS{termA}']]
     fsB_cohorts  = all_cohort_IDs[:cohorts[f'FS{termB}']]
     
-    all_cohorts = pmA_cohorts + pmB_cohorts + baA_cohorts + baB_cohorts + \
-                  glmA_cohorts + glmB_cohorts + dxdA_cohorts + dxdB_cohorts + \
-                  bkA_cohorts + bkB_cohorts + fsA_cohorts + fsB_cohorts
+    
+    all_cohorts = [f"PM0{termA}{c}" for c in pmA_cohorts] + \
+                  [f"PM0{termB}{c}" for c in pmB_cohorts] + \
+                  [f"BA0{termA}{c}" for c in baA_cohorts] + \
+                  [f"BA0{termB}{c}" for c in baB_cohorts] + \
+                  [f"GLM0{termA}{c}" for c in glmA_cohorts] + \
+                  [f"GLM0{termB}{c}" for c in glmB_cohorts] + \
+                  [f"DXD0{termA}{c}" for c in dxdA_cohorts] + \
+                  [f"DXD0{termB}{c}" for c in dxdB_cohorts] + \
+                  [f"BK0{termA}{c}" for c in bkA_cohorts] + \
+                  [f"BK0{termB}{c}" for c in bkB_cohorts] + \
+                  [f"FS0{termA}{c}" for c in fsA_cohorts] + \
+                  [f"FS0{termB}{c}" for c in fsB_cohorts] 
 
     lectures = {
         'pmA' : pmA_lecs,
