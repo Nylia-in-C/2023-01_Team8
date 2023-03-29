@@ -1849,21 +1849,24 @@ class UI(QMainWindow):
         self.reset_table()
 
 
-        # All lecture items should now be recorded in the dictionaries
-        self.get_lecture_items()
+        try:
+            # All lecture items should now be recorded in the dictionaries
+            self.get_lecture_items()
 
-        # Get the lists for each day
-        core = CORE_SCHEDULE[WEEK]
-        prog = PROG_SCHEDULE[WEEK]
+            # Get the lists for each day
+            core = CORE_SCHEDULE[WEEK]
+            prog = PROG_SCHEDULE[WEEK]
 
-        monday = core[0]
-        wednesday = core[1]
-        tuesday = prog[0]
-        thursday = prog[1]
-        self.show_schedule(monday,0)
-        self.show_schedule(tuesday, 1)
-        self.show_schedule(wednesday, 2)
-        self.show_schedule(thursday, 3)
+            monday = core[0]
+            wednesday = core[1]
+            tuesday = prog[0]
+            thursday = prog[1]
+            self.show_schedule(monday,0)
+            self.show_schedule(tuesday, 1)
+            self.show_schedule(wednesday, 2)
+            self.show_schedule(thursday, 3)
+        except:
+            return
 
     def reset_db(self):
 
