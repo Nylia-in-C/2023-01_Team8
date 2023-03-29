@@ -24,7 +24,7 @@
 *Scheduler* is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
 &nbsp;   
 # 2. Installation
-Download the repository onto a Windows machine. The *Scheduler.exe* application can be found in the *dist* folder. The executable can run without further installation by double-clicking on the *Scheduler.exe* icon.  Optionally, create a shortcut of *Scheduler.exe* on the desktop for easy access. 
+Download the repository onto a Windows machine. The *Scheduler.exe* application can be found in the *dist* folder. The executable can run without further installation by double-clicking on the *Scheduler.exe* icon.  Optionally, create a shortcut of *Scheduler.exe* on the desktop for easy access.  
 &nbsp;   
 # 3. Basic UI Overview
 *Scheduler* is broken into two main parts: the left sidebar with various user functions, and the right side with four main tabs. The default tab *Classroom Schedule* shows any created classroom schedules based on user input (see Section Classroom Schedule Tab for more information). Furthermore, there is also an *Options* tab as well as the *Instructions* tab in which the user can easily reference this guide in-app.  
