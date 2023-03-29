@@ -68,7 +68,10 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
     bcomA_cohorts = all_cohort_IDs[:cohorts[f'BCOM{termA}']]
     bcomB_cohorts = all_cohort_IDs[:cohorts[f'BCOM{termB}']]
     
-    all_cohorts = pcomA_cohorts + pcomB_cohorts + bcomA_cohorts + bcomB_cohorts
+    all_cohorts = [f"PCOM0{termA}{c}" for c in pcomA_cohorts] + \
+                  [f"PCOM0{termB}{c}" for c in pcomB_cohorts] + \
+                  [f"BCOM0{termA}{c}" for c in bcomA_cohorts] + \
+                  [f"BCOM0{termB}{c}" for c in bcomB_cohorts]
     
     lectures = {
         'pcomA': pcomA_lecs,
