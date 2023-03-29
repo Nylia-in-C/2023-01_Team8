@@ -272,7 +272,7 @@ class UI(QMainWindow):
                                 "color: #4f4f4f; " +
                                 "border-color: #fefdea; ")
                                 
-        tabs.addTab(tab1, "Schedule")
+        tabs.addTab(tab1, "Classroom Schedule")
         tabs.addTab(tab4, "Cohort Schedule")
         tabs.addTab(tab2, "Options")
         tabs.addTab(tab3, "Instructions")
@@ -705,7 +705,7 @@ class UI(QMainWindow):
                                     "border-width: 3px; "+
                                     "border-radius: 5px; "+
                                     "border-color: #fefdea")
-        create_sched.setFixedSize(350,60)
+        create_sched.setFixedSize(280,60)
         create_sched.clicked.connect(self.create_schedule)
 
         # Read Current items in the Database
