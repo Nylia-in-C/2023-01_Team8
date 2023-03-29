@@ -137,6 +137,7 @@ class UI(QMainWindow):
         self.classroom_list.setStyleSheet(style_glass)
 
         self.courses = QComboBox()
+        self.courses.setStyleSheet(style_glass)
         self.courses_edit_new = QButtonGroup()
         self.course_id = QLineEdit()
         self.course_term_hours = QSpinBox()
