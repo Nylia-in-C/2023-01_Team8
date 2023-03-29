@@ -272,7 +272,7 @@ class UI(QMainWindow):
                                 "color: #4f4f4f; " +
                                 "border-color: #fefdea; ")
                                 
-        tabs.addTab(tab1, "Classroom Schedule")
+        tabs.addTab(tab1, "Schedule")
         tabs.addTab(tab4, "Cohort Schedule")
         tabs.addTab(tab2, "Options")
         tabs.addTab(tab3, "Instructions")
