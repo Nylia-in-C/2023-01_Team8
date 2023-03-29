@@ -68,6 +68,8 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
     bcomA_cohorts = all_cohort_IDs[:cohorts[f'BCOM{termA}']]
     bcomB_cohorts = all_cohort_IDs[:cohorts[f'BCOM{termB}']]
     
+    all_cohorts = pcomA_cohorts + pcomB_cohorts + bcomA_cohorts + bcomB_cohorts
+    
     lectures = {
         'pcomA': pcomA_lecs,
         'pcomB': pcomB_lecs,
@@ -107,7 +109,10 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
         print(f"week start dates: {week_starts}")
         print(f"holidays: {holidays}")
 
-    return week_starts
+    return {
+        "cohorts": all_cohorts,
+        "week starts": week_starts 
+    }
 
 
 if __name__ == '__main__':

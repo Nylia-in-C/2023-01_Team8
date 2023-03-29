@@ -22,7 +22,6 @@ from pprint import pprint
 
 #===================== TODOs (in no particular order) ==========================       
 
-#TODO: handle edge cases (e.g. avdm 0260 after all other courses)
 
 day = 1
 week = 1
@@ -182,7 +181,8 @@ def update_course_hours(course_hours: Dict[str, int], prev_schedule: pd.DataFram
 def update_schedule(course_hours: Dict[str, int], prev_sched: pd.DataFrame) -> pd.DataFrame:
     '''
     Takes the previous day's schedule and the course hours dict. If any courses
-    have met their term hour requirements, they are removed and replaced with empty strings
+    have met their term hour requirements, they are removed and replaced 
+    with empty strings
     '''
 
     # courses that have met their required hours should be removed
@@ -209,10 +209,16 @@ def filter_courses(courses: List[Course], sched: pd.DataFrame,
     the schedule or have already met their term hour requirements. Sort the list
     of courses in descending order of total term hours before returning it
     '''
+
+    # PCOM 0130 & PCOM 0140 dont start until halfway through the term
+    if day_count < 13:
+        courses = list(filter(lambda c: c.ID not in ["PCOM 0130", "PCOM 0140"], courses))
     
-    # TODO: add checks for edge cases 
-    # (e.g. certain courses have to be start on a certain day of the term)
-    
+    # AVDM 0260 runs on the last 2 days of the term, for 3 hour sessions
+    if day_count < 25:
+        courses = list(filter(lambda c: c.ID != "AVDM 0260", courses))
+
+        
     # given course list should only contain a single type of course
     # (online courses dont include cohort IDs)
     if all(c.isOnline for c in courses):
@@ -222,7 +228,7 @@ def filter_courses(courses: List[Course], sched: pd.DataFrame,
     
     valid = [c for c in courses if c.ID not in scheduled 
              and course_hours[c.ID]['remaining'] > 0]
-    
+
     valid.sort(key=lambda x: x.termHours, reverse=True)
     
     return valid
@@ -332,7 +338,7 @@ def add_lectures_to_db():
     return
 
 # testing only
-def is_valid_core_sched(lectures, sched):
+def is_invalid_core_sched(lectures, sched):
 
     pcomA_strs = [c.ID for c in lectures['pcomA']]
     pcomB_strs = [c.ID for c in lectures['pcomB']]
@@ -423,7 +429,7 @@ def make_core_lecture_sched(lectures: Dict[str, List[Course]],
         pcomA, pcomB, bcomA, bcomB, key=lambda x: len(x)
     )
 
-    for i in range(len(most_courses)):
+    for i in range(1):
         
         if len(pcomA) > i:
             sched = add_lec(pcomA[i], pcomA_cohorts, c_hours,
@@ -828,10 +834,6 @@ def make_core_online_sched(lectures: Dict[str, List[Course]],
     bcomA = filter_courses(online['bcomA'], onl_sched, c_hours)
     bcomB = filter_courses(online['bcomB'], onl_sched, c_hours)
     
-    # avdm 0260 should be scheduled at the end of the term
-    # if (day < 23):
-    #     valid_bcomB = [o for o in valid_bcomB if o.ID != "AVDM 0260"]
-    
     # schedule as many courses as possible
     most_courses = max(
         pcomA, pcomB, bcomA, bcomB, key=lambda x: len(x)
@@ -965,7 +967,7 @@ def add_onl(online: Course, course_hours: Dict[str, int],
         for start in times:
             end = start + blocks
             
-            if not online_course_overlap(curr_sched, invalid, start, end):
+            if can_sched_online(curr_sched, invalid, start, end):
                 
                 cohort = f"{prgm_str}0{online.term}01"
                 room   = list(onl_sched.columns)[0]
@@ -984,14 +986,15 @@ def add_onl(online: Course, course_hours: Dict[str, int],
     
     return onl_sched
 
-def online_course_overlap(curr_sched: pd.DataFrame, invalid_courses: List[str], 
-                          start: int, end: int) -> bool:
+def can_sched_online(curr_sched: pd.DataFrame, invalid_courses: List[str], 
+                     start: int, end: int) -> bool:
     '''
     Compares a possible start & end time for an online course and returns a 
     boolean indicating if the course can be scheduled at that time.
     '''
+
     for room in curr_sched.columns:
-        for idx in range(max(start-3, 0), end+2):
+        for idx in range(max(start-3, 0), min(end+2, len(curr_sched.index))):
             if (curr_sched.iloc[idx][room])[:-3] in invalid_courses:
                 return False
     return True
@@ -1051,7 +1054,7 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             lectures, cohorts, course_hours, prev_lecs
         )
         
-        if is_valid_core_sched(lectures, lecture_sched): 
+        if is_invalid_core_sched(lectures, lecture_sched): 
             invalid += 1
             
         lab_sched = make_core_lab_sched(
@@ -1081,8 +1084,8 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             week_starts.append(day)
 
         
-    #print(f"\n\nINVALID COUNT: {invalid}\n\n")
-    #pprint(course_hours)
+    print(f"\n\nINVALID COUNT: {invalid}\n\n")
+    pprint(course_hours)
         
     add_lectures_to_db()
     return full_schedule, week_starts
@@ -1121,6 +1124,7 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
     prev_onls = create_empty_schedule([r for r in rooms if r.ID == 'ONLINE'], True)
 
     full_schedule = {}
+    invalid = 0
     
     while day < end_day:
         
@@ -1139,6 +1143,9 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
         lecture_sched = make_prgm_lecture_sched(
             lectures, cohorts, course_hours, prev_lecs
         )
+        
+        if is_invalid_prgm_sched(lectures, lecture_sched):
+            invalid += 1
 
         lab_sched = make_prgm_lab_sched(
             lectures, labs, cohorts, course_hours, lecture_sched, prev_labs
@@ -1165,7 +1172,8 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
             week += 1
             week_starts.append(day)
 
-    #pprint(course_hours)
+    print(f"\n\nINVALID COUNT: {invalid}\n\n")
+    pprint(course_hours)
 
     add_lectures_to_db()
     return full_schedule, week_starts
