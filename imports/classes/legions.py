@@ -1,3 +1,7 @@
+"""
+Legion contains data for a small group of students that take classes together.
+"""
+
 from dataclasses import dataclass
 
 # Count of legions for autoincrement in class

@@ -1,6 +1,11 @@
-# class that represents one of seven possible programs
+"""
+Program contains data for a program in the School of Continuing Education.
 
-# attributes: ID (string), courses (list of strings indicating courses unique to the program)
+Cohort contains data for a formal group of students that take courses together in a specific program.
+
+For automatic id incrementing, Cohort must be created with the makeCohort method in fillData.
+Otherwise, pass the cohortID directly to Cohort on creation.
+"""
 
 from dataclasses import field, dataclass
 
@@ -41,22 +46,7 @@ class Program:
         Passed to database to load program into the database.
         """
         return ( self.ID, self.courses)
-       
-        #testing purposes
-    # def printPrograms(self):
-    #     pass
-    #      #print( self.createProgramItemInfo())
 
-
-# Need to move this to the database
-'''
-cohortCounts = {"PM01" : 0, "PM02" : 0, "PM03" : 0,
-                "BA01" : 0, "BA02" : 0, "BA03" : 0,
-                "GLM01": 0, "GLM02": 0, "GLM03": 0, 
-                "FS01" : 0, "FS02" : 0, "FS03" : 0, 
-                "DXD01": 0, "DXD02": 0, "DXD03": 0,
-                "BK01" : 0, "BK02" : 0, "BK03" : 0 }
-'''
 
 # When database is implemented, needs to check if the 
 @dataclass
@@ -66,8 +56,6 @@ class Cohort(Program):
 
     ***legions must be declared on class creation!***
     ***It will not function properly if you do not specify legions***
-
-    cohortCounts needs to be replaced with a sql call to the database.
     """
     legions: list = field(default_factory=list) #Bandaid solution for the "non-default follows default" error
     term: int = 0
@@ -108,9 +96,3 @@ class Cohort(Program):
         # May need to expand on self.legions, as each legion will need to be loaded into the database
         
         return ( self.ID, self.term, self.cohortID, legionString, courseString )
-
-         
-#testing purposes
-# Dummy = Program('BK', ["ACCT 0201", "ACCT 0202", "ACCT 0203", "ACCT 0206", "ACCT 0210", "ACCT 0211", 
-#             "ACCT 0208", "ACCT 9901"])      
-# Dummy.printPrograms() 
