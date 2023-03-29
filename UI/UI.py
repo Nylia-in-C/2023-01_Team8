@@ -1339,13 +1339,25 @@ class UI(QMainWindow):
                     """
 
                 
-                else: pass
+                else: #pass
+                    readErr = QMessageBox(QMessageBox.Warning, "Error!", 
+                                        "Bad template. Please re-create")
+                    readErr.setStyleSheet("color: black")
+                    readErr.exec()
                     #print("Bad template!")
 
-            except: pass
+            except: #pass
+                readErr = QMessageBox(QMessageBox.Warning, "Error Reading Values", 
+                                        "Please Retry.")
+                readErr.setStyleSheet("color: black")
+                readErr.exec()
                 #print("Error reading values")  # add error message here eventually
 
-        except: pass
+        except: #pass
+            openErr = QMessageBox(QMessageBox.Warning, "Error Opening File", 
+                                      "Please Retry.")
+            openErr.setStyleSheet("color: black")
+            openErr.exec()      
            # print("Error Opening File")# Maybe put an actual error message here eventually about opening files
 
 
@@ -1642,7 +1654,11 @@ class UI(QMainWindow):
             self.update_course_combos()
 
         except:
-            pass
+            #pass
+            addErr = QMessageBox(QMessageBox.Warning, "Error Adding Course", 
+                                    "Please Retry.")
+            addErr.setStyleSheet("color: black")
+            addErr.exec()
             #print("error adding course")
 
     def update_course_combos(self):

@@ -43,9 +43,9 @@ class Program:
         return ( self.ID, self.courses)
        
         #testing purposes
-    def printPrograms(self):
-        pass
-         #print( self.createProgramItemInfo())
+    # def printPrograms(self):
+    #     pass
+    #      #print( self.createProgramItemInfo())
 
 
 # Need to move this to the database

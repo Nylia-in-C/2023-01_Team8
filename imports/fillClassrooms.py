@@ -273,8 +273,8 @@ def fillClassrooms(term):
 
 
 #===================================================================================================
-if __name__ == '__main__':
-    pass
+# if __name__ == '__main__':
+#     pass
     # print(rooms, ghostRooms)
     # add_ghost_room(True)
     # print(rooms, ghostRooms)
