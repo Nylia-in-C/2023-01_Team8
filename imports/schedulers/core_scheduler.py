@@ -1,4 +1,5 @@
 import os, sys
+
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
@@ -7,14 +8,11 @@ sys.path.append(grandparentdir)
 from imports.classes.courses import *
 from imports.fillClassrooms import *
 from imports.classes.classrooms import *
-from imports.schedulers.initialize_data import *
 from imports.schedulers.scheduling_functions import *
-import database.database as database
-from imports.schedulers.initialize_data import *
 from typing import *
 
 
-def get_sched(term: int) -> Dict[str, pd.DataFrame]:
+def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
     '''
     Main driver function for generating the core course term schedule, where
     term indicates if the schedule is for fall, winter, or spring semester
@@ -22,7 +20,7 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     # in theory this will never happen, but just to be safe:
     if term not in [1, 2, 3]:
         return None
-    
+
     if (term == 1):
         termA = 1
         termB = 3
@@ -62,11 +60,18 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     bcomA_onls = [c for c in bcomA_courses if c.isOnline]
     bcomB_onls = [c for c in bcomB_courses if c.isOnline]
     
-    # list of uppercase letters, length vary
-    pcomA_cohorts = string.ascii_uppercase[:cohorts[f'PCOM{termA}']]
-    pcomB_cohorts = string.ascii_uppercase[:cohorts[f'PCOM{termB}']]
-    bcomA_cohorts = string.ascii_uppercase[:cohorts[f'BCOM{termA}']]
-    bcomB_cohorts = string.ascii_uppercase[:cohorts[f'BCOM{termB}']]
+    # assume an absolute max of 9 cohorts (this we never be reached in practice)
+    all_cohort_IDs = [f'0{i}' for i in range(1, 10)]
+    
+    pcomA_cohorts = all_cohort_IDs[:cohorts[f'PCOM{termA}']]
+    pcomB_cohorts = all_cohort_IDs[:cohorts[f'PCOM{termB}']]
+    bcomA_cohorts = all_cohort_IDs[:cohorts[f'BCOM{termA}']]
+    bcomB_cohorts = all_cohort_IDs[:cohorts[f'BCOM{termB}']]
+    
+    all_cohorts = [f"PCOM0{termA}{c}" for c in pcomA_cohorts] + \
+                  [f"PCOM0{termB}{c}" for c in pcomB_cohorts] + \
+                  [f"BCOM0{termA}{c}" for c in bcomA_cohorts] + \
+                  [f"BCOM0{termB}{c}" for c in bcomB_cohorts]
     
     lectures = {
         'pcomA': pcomA_lecs,
@@ -96,24 +101,27 @@ def get_sched(term: int) -> Dict[str, pd.DataFrame]:
     # get all 26 day schedules as a dictionary of dataframes
     # (technically, we only need the lecture objects, but having this makes 
     # scheduling & debugging 1000x easier)
-    full_schedule = create_core_term_schedule(
+    full_schedule, week_starts = create_core_term_schedule(
         lectures, labs, online, cohorts, rooms, start_day, holidays
     )
-    i = 0
-    for day, sched in full_schedule.items():
-        print(f"\n\t\t {day} :\n")
-        print(sched)
-        i += 1
-        
-    print(f"holidays: {holidays}")
+    
+    if debug:
+        for day, sched in full_schedule.items():
+            print(f"\n\t\t {day} :\n")
+            print(sched)
+        print(f"week start dates: {week_starts}")
+        print(f"holidays: {holidays}")
 
-    return 
+    return {
+        "cohorts": all_cohorts,
+        "week starts": week_starts 
+    }
 
 
 if __name__ == '__main__':
 
-    print("Enter a number for the term you want to generate a core schedule for: \
-          \n1. Fall \n2. Winter \n3. Spring/Summer")
+    #print("Enter a number for the term you want to generate a core schedule for: \
+    #      \n1. Fall \n2. Winter \n3. Spring/Summer")
     term = int(input())
 
     get_sched(term)

@@ -60,8 +60,9 @@ class Course:
         return ( self.ID, self.title, self.termHours, self.term, self.duration, self.isCore, self.isOnline, self.hasLab, preReqsString )
        
         #testing purposes
-    def printCourse(self):
-         print( self.createCourseItemInfo())
+    # def printCourse(self):
+    #      pass
+    #      #print( self.createCourseItemInfo())
 
 
 @dataclass

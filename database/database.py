@@ -341,6 +341,32 @@ def readLectureItem_UI(conn, room, day, core):
     except Exception as e:
         print("Issues reading from table: ", e)
     return rows
+
+def readLectureItem_UI_cohorts(conn, cohort, day, core):
+    #reads lecture item from DB
+    #parameters:Connection string,  room as string, week as int
+    rows =[]
+    try:
+        queryString = f"Select * from LECTURE where CohortID like '{cohort}' and StartDay like '{day}' and isCore={core}"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return rows
+
+def deleteLectureItem_UI(conn):
+    # delete all lecture items
+    try:
+        queryString = f"DELETE FROM Lecture"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
 def addStudentItem(conn, PID, Term, Count):
     #add item to table from passed connection and student row info
     try:
@@ -368,7 +394,7 @@ def readStudentItem(conn, PID, Term):
     return rows
 def deleteStudentItem(conn,  PID, Term):
         try:
-            queryString = f"delete from Student where PID like '{PID}' and Term like {Term}"
+            queryString = f"delete from Student where PID like '{PID}' and Term like '{Term}'"
             cur = conn.cursor()
             cur.execute(queryString)
             # rows = cur.fetchall()
@@ -378,113 +404,3 @@ def deleteStudentItem(conn,  PID, Term):
             print("Issues reading from table: ", e)
         return
 ##########################End of Read/write helpers ###########################################
-def mainTest():
-    #main function to connect to database and test helper functions
-    database = r".\database\database.db"  #database.db file path 
-    connection = create_connection(database)    
-   
-    if connection is not None: 
-       
-        delete_table(connection, "LECTURE")
-        LEGIONSTableCols = """ CREATE TABLE IF NOT EXISTS LEGIONS (
-                    ProgID VARCHAR(100) NOT NULL,
-                    TermID INT NOT NULL,
-                    legionID INT NOT NULL,
-                    Name VARCHAR(100) NOT NULL,
-                    Count INT
-                ); """
-        COURSESTableCols = """ CREATE TABLE IF NOT EXISTS COURSES (
-                    CourseID VARCHAR(100) NOT NULL,
-                    Title VARCHAR(100) NOT NULL,
-                    TermHours INT NOT NULL,
-                    Term INT NOT NULL,
-                    Duration INT NOT NULL,
-                    isCore BIT NOT NULL,
-                    isOnline BIT NOT NULL,
-                    isLab BIT NOT NULL, 
-                    PreReqs VARCHAR(200)
-                ); """ 
-        PROGRAMSTableCols = """ CREATE TABLE IF NOT EXISTS PROGRAMS (
-                    ProgID VARCHAR(100) NOT NULL,
-                   CourseID VARCHAR(100) NOT NULL 
-                ); """
-        CLASSROOMSTableCols = """ CREATE TABLE IF NOT EXISTS CLASSROOMS (
-                    ClassID VARCHAR(100) NOT NULL,
-                    Capacity INT NOT NULL,
-                    IsLab BIT NOT NULL
-                ); """
-        LECTURETableCols = """ CREATE TABLE IF NOT EXISTS LECTURE (
-                    CourseID VARCHAR(100) NOT NULL,
-                    Title VARCHAR(100) NOT NULL,
-                    CohortID VARCHAR(100) NOT NULL,
-                    Room VARCHAR(100) NOT NULL,
-                    TermHours INT NOT NULL,
-                    Term INT NOl NULL,
-                    Duration INT NOT NULL, 
-                    StartWeek INT NOT NULL,
-                    StartDay INT NOT NULL,
-                    StartTime VARCHAR(100) NOT NULL,
-                    isCore BIT NOT NULL,
-                    isOnline BIT NOT NULL,
-                    isLab BIT NOT NULL,
-                    PreReqs VARCHAR(200)
-                ); """
-        COHORTTableCols = """ CREATE TABLE IF NOT EXISTS COHORT (
-                    PID VARCHAR(100) NOT NULL,
-                    Term INT NOT NULL,
-                    CohortID INT NOT NULL,
-                    Legions VARCHAR(200) NOT NULL,
-                    Courses VARCHAR(200)
-                ); """
-        #Changed CID to PID in Cohort Table creation, since it takes program and it was PID in addCohortItem. If database is complaining drop it and recreate
-        
-      
-        create_table(connection, COHORTTableCols)
-        create_table(connection, COURSESTableCols)
-        create_table(connection, LECTURETableCols)
-        create_table(connection, PROGRAMSTableCols)
-        create_table(connection, CLASSROOMSTableCols)
-        create_table(connection, LEGIONSTableCols)  
-
-        # addLegionItem(connection,'PM', '01', 5)
-        # addLegionItem(connection,'BA',"01",2)
-        # addLegionItem(connection,'PM',"02", 0)
-        # addLegionItem(connection,'PM',"02", 0)
-        # print(addLegionItem(connection,'PM',"02", 20))
-
-        # addCohortItem(connection, "PM", "01", ["PM01A. PM01B. PM01C"])
-        # addCohortItem(connection, "PM", "01", ["PM01D. PM01E. PM01F"])
-        # addCohortItem(connection, "PM", "02", ["PM01D. PM01E. PM01F"])
-
-        # val = readCohortItem(connection,'PM', '1' )
-        # print('VALUE', val)
-        # lectureObj = Lecture('CourseID', 'title', 20, 100, 3, 1,0,0, ['preReq', 'preReq'],'cohortID','room',13, 5,'startTime')
-        # addLectureItem(connection, lectureObj)
-        # val = readLectureItem(connection, 'CourseID', 'cohortID' )
-        # print('VALUE', val)
-        # classroomObj = Classroom('ClassroomID101', 100,1)
-        # addClassroomItem(connection, classroomObj)
-        # val = readClassroomItem(connection,'ClassroomID')
-        # print('VALUE', val)
-        # addLegionItem(connection,'ProgID', 2, 100)
-        # val = readLegionItem(connection,'PM0101')
-        # print('VALUE', val)
-        # programObj = Program('DXD', ["AVDM 0165", "DXDI 0101", "DXDI 0102", "AVDM 0170", "AVDM 0138", "DXDI 0103","DXDI 0104","AVDM 0238","AVDM 0270","DXDI 9901"] )
-        # addProgramItem(connection, programObj)
-        # val = readProgramItem(connection,'%')
-        # print('VALUE', val)
-        # courseObj = Course('CMSK 1053', 'title', 100,3, 101,1,0,0,["CMSK 1052", "CMSK 0157"])
-        # addCourseItem(connection, courseObj)
-        # val = readCourseItem(connection,'CMSK 1053')
-        # print('VALUE', val)
-        # deleteClassroomItem(connection,'%')
-
-    else: 
-         print("Could not connect to database")
-  
-    close_connection(connection)
- 
-    return 
-
-
- 

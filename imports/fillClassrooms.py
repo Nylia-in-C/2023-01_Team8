@@ -247,7 +247,7 @@ def fillClassrooms(term):
         for program in studentCounts:
             program_counts[program[0] + str(program[1])] = int(program[2])
     
-    print(program_counts)
+    #print(program_counts)
 
     #--------------------------------------------------------
     # Calculate ghost rooms
@@ -273,7 +273,8 @@ def fillClassrooms(term):
 
 
 #===================================================================================================
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     pass
     # print(rooms, ghostRooms)
     # add_ghost_room(True)
     # print(rooms, ghostRooms)
@@ -299,7 +300,7 @@ if __name__ == '__main__':
     # print(roomHours)
     # print(ghostRooms)
 
-    print(fillClassrooms(1))
+    #print(fillClassrooms(1))
     #print(rooms)
     #print(roomHours)
     #print(ghostRooms)
