@@ -1,5 +1,6 @@
 import sqlite3
 import os, sys
+import helpers
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -14,7 +15,7 @@ import database as database
 
 def mainTest():
     #main function to connect to database and test helper functions
-    database = r".\database\database.db"  #database.db file path 
+    database = helpers.check_path("database\database.db")  #database.db file path 
     connection = database.create_connection(database)    
    
     if connection is not None: 
