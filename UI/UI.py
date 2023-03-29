@@ -12,6 +12,7 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 import random
 import database.database
+import fill_data
 from database.database import *
 import imports.fillClassrooms
 
@@ -341,7 +342,26 @@ class UI(QMainWindow):
         vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addLayout(self.update_course_section())
+        vbox_overall.addWidget(self.create_horizontal_line())
 
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(16)
+
+        reset_label = QLabel("Reset all:")
+        reset_label.setFont(font)
+        reset_label.setStyleSheet("color: #fefdea")
+        reset_button = QPushButton("Reset to default settings")
+        reset_button.setMinimumWidth(300)
+        reset_button.setStyleSheet(style_glass)
+        reset_button.clicked.connect(self.reset_db)
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(reset_label)
+        hbox.addWidget(reset_button)
+        hbox.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+
+        vbox_overall.addLayout(hbox)
         return vbox_overall
 
 
@@ -798,6 +818,14 @@ class UI(QMainWindow):
 
         vbox_all.addLayout(hbox_inputs)
 
+        #Load saved student numbers button
+        load_saved_students = QPushButton("Load Saved Student Numbers")
+        load_saved_students.setStyleSheet(style_glass)
+        load_saved_students.clicked.connect(self.load_db_stu_num)
+
+        vbox_all.addWidget(load_saved_students)
+
+
         return vbox_all
 
 
@@ -1175,15 +1203,15 @@ class UI(QMainWindow):
 
         self.update_class_combos()
 
-        #TODO This is where the cohorts should be put in the combo box
-        self.cohort_tab_combo.addItem("PCOM0301")
-
-        start_days = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
+        schedule_info = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
         imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
+        week_starts = schedule_info["week starts"]
+        self.cohort_tab_combo.addItems(schedule_info["cohorts"])
+
         index = 0
-        for week_start in range(1, len(start_days)):
-            WEEK_DISPLAY_DATE[week_start] = start_days[index].strftime("%Y-%m-%d")
+        for week_start in range(1, len(week_starts)):
+            WEEK_DISPLAY_DATE[week_start] = week_starts[index].strftime("%Y-%m-%d")
             index+=1
 
         self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[1] + "\nWeek " + str(WEEK))
@@ -1374,6 +1402,33 @@ class UI(QMainWindow):
                 addStudentItem(connection, programs[each_input], 1, term_1[each_input])
                 addStudentItem(connection, programs[each_input], 2, term_2[each_input])
                 addStudentItem(connection, programs[each_input], 3, term_3[each_input])
+
+            close_connection(connection)
+
+        except:
+            #print("Could not read database")
+            close_connection(connection)
+
+        return
+
+
+    # Retrieve student items saved in db
+    def load_db_stu_num(self):
+
+        try:
+            db = r".\database\database.db"  # database.db file path
+            connection = create_connection(db)
+
+            term_1 = readStudentItem(connection, '%', 1)
+            term_2 = readStudentItem(connection, '%', 2)
+            term_3 = readStudentItem(connection, '%', 3)
+
+            # Takes the currently input numbers, and adds them to the DB.
+            for field in range(8):
+
+                self.term_1_inputs.itemAt(field).widget().setValue(term_1[field][2])
+                self.term_2_inputs.itemAt(field).widget().setValue(term_2[field][2])
+                self.term_3_inputs.itemAt(field).widget().setValue(term_3[field][2])
 
             close_connection(connection)
 
@@ -1701,11 +1756,33 @@ class UI(QMainWindow):
         self.show_schedule(wednesday, 2)
         self.show_schedule(thursday, 3)
 
+    def reset_db(self):
+
+        answer = QMessageBox.warning(self, "Reset Database",
+                                     "Are you sure you want to reset the database?\n\nAll data will be lost",
+                                     buttons=QMessageBox.Yes | QMessageBox.No, defaultButton=QMessageBox.No)
+
+        if answer == QMessageBox.Yes:
+            try:
+                os.remove("./database/database.db")
+                fill_data.createDefaultDatabase()
+                self.update_class_combos()
+                self.update_course_combos()
+                self.cohort_tab_combo.clear()
+
+            except:
+                return
+        else:
+            return
+
+
 
     '''
     # ------------------------------------------------------------------------
     
     the following sections will be the slightly editted functions to handle the cohort table
+    
+    #--------------------------------------------------------------------------
     
     '''
     def cohort_selector_show_schedule(self):
