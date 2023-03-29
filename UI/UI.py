@@ -50,6 +50,10 @@ CORE_SCHEDULE = {}
 PROG_SCHEDULE = {}
 CORE_SCHEDULE_COHORTS = {}
 PROG_SCHEDULE_COHORTS = {}
+
+CORE_END_DATES = {}
+PROG_END_DATES = {}
+
 WEEK_DISPLAY_DATE = {}
 ROOM = ""
 global PROG_LABELS
@@ -1188,7 +1192,7 @@ class UI(QMainWindow):
             return
     def create_schedule(self):
         global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
-            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE
+            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE, CORE_END_DATES, PROG_END_DATES
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
@@ -1230,6 +1234,10 @@ class UI(QMainWindow):
         prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         week_starts = schedule_info["week starts"]
+
+        CORE_END_DATES = schedule_info["last days"]
+        PROG_END_DATES = prog_schedule_info["last days"]
+
         self.cohort_tab_combo.addItems(schedule_info["cohorts"])
         self.cohort_tab_combo.addItems(prog_schedule_info["cohorts"])
 
@@ -1493,10 +1501,13 @@ class UI(QMainWindow):
     # With the 4-tuple lists for each week
     def get_lecture_items(self):
 
-        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM
+        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, CORE_END_DATES, PROG_END_DATES
         
         core_week_list = []
         prog_week_list = []
+
+        core_cross_check = []
+        prog_cross_check = []
 
         core_last_known_sched = [""] *26
         prog_last_known_sched = [""] *26
@@ -1514,16 +1525,27 @@ class UI(QMainWindow):
             # i.e. An odd COre Day / PRog day = Monday / Tuesday, even = Wednesday/ thursday
             for each_day in range(1, 3):
 
+                core_pass = []
+                prog_pass = []
+
                 core_lectures_in_week = readLectureItem_UI(connection, ROOM, CORE_DAY, 1)
                 prog_lectures_in_week = readLectureItem_UI(connection, ROOM, PROG_DAY, 0)
 
-                # Checking if there was any new differences in schedule
-                # if not, then simply add the last known schedule since it hasnt changed.
-                if len(core_lectures_in_week) != 0:
-                    core_last_known_sched = self.convert_to_list(core_lectures_in_week)
+                # Append to overall list of lectures. Compare against dictionary for end dates
+                # Remove entry if it is past the end date.
+                core_cross_check += core_lectures_in_week
+                for course in core_cross_check:
+                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                        core_pass.append(course)
 
-                if len(prog_lectures_in_week) != 0:
-                    prog_last_known_sched = self.convert_to_list(prog_lectures_in_week)
+                prog_cross_check += prog_lectures_in_week
+                for course in prog_cross_check:
+                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                        prog_pass.append(course)
+
+                core_last_known_sched = self.convert_to_list(core_pass)
+
+                prog_last_known_sched = self.convert_to_list(prog_pass)
 
                 core_week_list.append(core_last_known_sched)
                 prog_week_list.append(prog_last_known_sched)
