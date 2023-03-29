@@ -133,6 +133,11 @@ class UI(QMainWindow):
         self.course_pre_reqs_label = QLabel()
         self.course_pre_reqs_label.setStyleSheet("color: #fefdea")
 
+        self.load_msg = QLabel("Loading ...")
+        loadfont = QFont()
+        loadfont.setPointSize(30)
+        self.load_msg.setFont(loadfont)
+        self.load_msg.setAlignment(Qt.AlignCenter)
 
         '''
         Creating tables for each tab
@@ -997,9 +1002,6 @@ class UI(QMainWindow):
         self.show_schedule(thursday, 3)
 
 
-
-
-
     def create_schedule(self):
         # Will eventually replace create_schedule, as it will pull form the db
         room_requested = self.select_room.currentText().split(" ")[0]
@@ -1012,6 +1014,7 @@ class UI(QMainWindow):
         PROG_SCHEDULE.clear()
         WEEK = 1
         ROOM = self.select_room.currentText()
+
         if ROOM.find("(LAB)") != -1:
             ROOM = ROOM[:ROOM.find(" ")].strip() + " (LAB)"
             self.create_schedule_base(1)
@@ -1024,6 +1027,19 @@ class UI(QMainWindow):
         # Then parse the schedule.
         self.pass_stu_num_db()
         self.add_ghost_rooms()
+
+        # Loading message
+        load_font = QFont()
+        load_font.setPointSize(40)
+        load_msg = QSplashScreen()
+        load_msg.setFixedSize(400,200)
+        
+
+        load_msg.setStyleSheet(style_glass)
+        load_msg.setFont(load_font)
+        load_msg.show()
+        load_msg.showMessage("Loading...", 0, QColor(255,255,255))
+
         self.update_class_combos()
 
         imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
@@ -1049,9 +1065,8 @@ class UI(QMainWindow):
         self.show_schedule(wednesday, 2)
         self.show_schedule(thursday, 3)
 
-
-
-
+        #close load message
+        load_msg.close()
 
     # Action event for creating template file
     def create_template(self):
