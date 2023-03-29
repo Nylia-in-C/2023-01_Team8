@@ -53,6 +53,8 @@ PROG_SCHEDULE_COHORTS = {}
 
 CORE_END_DATES = {}
 PROG_END_DATES = {}
+CORE_HOLIDAYS = []
+PROG_HOLIDAYS = []
 
 WEEK_DISPLAY_DATE = {}
 ROOM = ""
@@ -1509,7 +1511,8 @@ class UI(QMainWindow):
     # With the 4-tuple lists for each week
     def get_lecture_items(self):
 
-        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, CORE_END_DATES, PROG_END_DATES
+        global CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, CORE_END_DATES, PROG_END_DATES\
+            , CORE_HOLIDAYS, PROG_HOLIDAYS
         
         core_week_list = []
         prog_week_list = []
@@ -1573,7 +1576,8 @@ class UI(QMainWindow):
 
     def get_cohort_lecture_items(self):
 
-        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN, CORE_END_DATES, PROG_END_DATES
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN, CORE_END_DATES\
+            , PROG_END_DATES, CORE_HOLIDAYS, PROG_HOLIDAYS
 
         core_week_list = []
         prog_week_list = []
