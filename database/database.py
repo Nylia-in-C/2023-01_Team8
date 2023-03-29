@@ -1,5 +1,13 @@
 #database file - 395 team 8
-"""ref:connection string:  https://www.sqlitetutorial.net/sqlite-python/creating-tables/
+"""
+ref:connection string:  https://www.sqlitetutorial.net/sqlite-python/creating-tables/
+
+Methods for accessing SQL Database.
+
+All methods require an open connection for the conn parameter
+
+For read/delete, pass '%' to fetch/delete all entries in the table.
+To read/delete only some entries, pass yourString + '%' to access all entries beginning with yourString.
 """ 
 import sqlite3
 import os, sys
@@ -15,8 +23,12 @@ from imports.classes.courses import Lecture
 
 
 def create_connection(db_file):
-    #creates database connection on passed .db file. 
-    #returns connection object or none
+    """
+    Creates database connection on passed .db file. 
+    Returns connection object or none
+
+    Remember to close opened connections when finished with them!"
+    """
     conn = None
     try: 
         conn = sqlite3.connect(db_file)

@@ -34,10 +34,12 @@ roomHours = {
     "FS": {} 
 }
 
-
 #===================================================================================================
 # Functions
 def delete_ghost_rooms():
+    """
+    Deletes all ghost rooms in the classrooms table
+    """
     connection = create_connection(r".\database\database.db")
 
     deleteClassroomItem(connection, 'ghost%')
@@ -161,12 +163,13 @@ def fillPrograms(program_counts):
             else: 
                 scheduled = True
                 cohortDict[program] = cohorts
-                #print(program + ':', cohorts) #debug print
         
     return cohortDict
 
 def ghostTestData():
-    
+    """
+    Generates dummy data for testing
+    """
     program_counts = {}
     for key in programCoursesByTerm.keys():
         program_counts[key] = random.randint(18, 189)
@@ -259,9 +262,6 @@ def fillClassrooms(term):
     close_connection(connection)
 
     return cohortDict
-
-# TODO:
-#   - Account for online classroom
 
 # Nice to have:
 #   - Reduced program hours only on lab rooms

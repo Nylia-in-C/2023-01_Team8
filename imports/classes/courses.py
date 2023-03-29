@@ -1,7 +1,8 @@
-# represents a specific course 
+"""
+Course contains data for a single course.
 
-# attributes: ID (string), title (string), pre-reqs (dict ),  
-#             term hours (int), isCore (bool), timeSlot (int), isOnline (bool)
+Lecture contains data for a specific lecture offering of a course.
+"""
 
 from dataclasses import field, dataclass
 from imports.classes.programs import *
