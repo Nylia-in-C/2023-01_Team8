@@ -14,6 +14,7 @@ from openpyxl.workbook import Workbook
 import random
 import database.database
 import fill_data
+import helpers
 from database.database import *
 import imports.fillClassrooms
 
@@ -201,17 +202,10 @@ class UI(QMainWindow):
     def splash_screen(self):
         # Start up splash screen
         # adapted from: https://stackoverflow.com/questions/58661539/create-splash-screen-in-pyqt5
-        logo = '..\\macewan_logo.png'
 
-        #Check if running in .exe
-        if getattr(sys, 'frozen', False):
-            app_path = os.path.dirname(sys.executable)
-        elif __file__:
-            app_path = os.path.dirname(__file__)
-        logo_path = os.path.join(app_path, logo)
-        print(logo_path)
+        logo = helpers.check_path('macewan_logo.png')
 
-        splash_pic = QPixmap(logo_path)
+        splash_pic = QPixmap(logo)
         splash_msg = QSplashScreen(splash_pic)
         splash_msg.setFixedSize(965, 568)
         splash_msg.setStyleSheet(style_glass)
@@ -304,7 +298,7 @@ class UI(QMainWindow):
         # Read me Doc
         read_me = QTextEdit()
         rdme = '..\\README.md'
-        
+
         #Check if running in .exe
         if getattr(sys, 'frozen', False):
             app_path = os.path.dirname(sys.executable)
