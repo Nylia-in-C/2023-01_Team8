@@ -13,10 +13,11 @@
         [3.1.5. Create Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#315-create-schedule)  
     [3.2. Tabs](https://github.com/MacEwanCMPT395/2023-01_Team8#32-tabs)  
         [3.2.1. Classroom Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#321-classroom-schedule)  
-        [3.2.2. Cohort Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#322-cohort-schedule) 
+        [3.2.2. Cohort Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#322-cohort-schedule)   
         [3.2.3. Options](https://github.com/MacEwanCMPT395/2023-01_Team8#323-options)  
             [3.2.3.1. Room Options](https://github.com/MacEwanCMPT395/2023-01_Team8#3231-room-options)  
             [3.2.3.2. Course Options](https://github.com/MacEwanCMPT395/2023-01_Team8#3232-course-options)  
+            [3.2.3.3. Reset Database](https://github.com/MacEwanCMPT395/2023-01_Team8#3233-reset-database)  
         [3.2.4. Instructions](https://github.com/MacEwanCMPT395/2023-01_Team8#324-instructions)  
 &nbsp;  
 # 1. Introduction
@@ -36,8 +37,8 @@ On the left sidebar, the user can adjust the number of students either manually 
 Optionally, the user can upload a file to populate enrollment numbers automatically.  
 &nbsp; 
 *Scheduler* will accept two types of templates to create the same kind of output:  
-a. Template A (by program): *Student_Number_Inputs_Template.xlsx*
-b. Template B (by student ID) *Students_by_ID.xlsx*
+a. Template A (by program): *Student_Number_Inputs_Template.xlsx*  
+b. Template B (by student ID) *Students_by_ID.xlsx*  
 &nbsp; 
 ### 3.1.2. Create Template
 If no file exists yet, click the *Create Template* button to make a compatible .xlsx file that can be filled out with enrollment numbers via any available spreadsheet editor program *(e.g. Microsoft Excel)*.  
