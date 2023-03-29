@@ -213,7 +213,7 @@ class UI(QMainWindow):
             logo = '..\\macewan_logo.png'
 
         splash_pic = QPixmap(logo)
-        splash_msg = QSplashScreen(splash_pic)
+        splash_msg = QSplashScreen(splash_pic, Qt.WindowStaysOnTopHint)
         splash_msg.setFixedSize(965, 568)
         splash_msg.setStyleSheet(style_glass)
 
