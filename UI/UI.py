@@ -1565,10 +1565,13 @@ class UI(QMainWindow):
 
     def get_cohort_lecture_items(self):
 
-        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN, CORE_END_DATES, PROG_END_DATES
 
         core_week_list = []
         prog_week_list = []
+
+        core_cross_check = []
+        prog_cross_check = []
 
         core_last_known_sched = [""] * 26
         prog_last_known_sched = [""] * 26
@@ -1585,16 +1588,29 @@ class UI(QMainWindow):
             # i.e. An odd COre Day / PRog day = Monday / Tuesday, even = Wednesday/ thursday
             for each_day in range(1, 3):
 
+                core_pass = []
+                prog_pass = []
+
                 core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1)
                 prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0)
 
+                # Append to overall list of lectures. Compare against dictionary for end dates
+                # Remove entry if it is past the end date.
+                core_cross_check += core_lectures_in_week
+                for course in core_cross_check:
+                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                        core_pass.append(course)
+
+                prog_cross_check += prog_lectures_in_week
+                for course in prog_cross_check:
+                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                        prog_pass.append(course)
+
                 # Checking if there was any new differences in schedule
                 # if not, then simply add the last known schedule since it hasnt changed.
-                if len(core_lectures_in_week) != 0:
-                    core_last_known_sched = self.cohort_convert_to_list(core_lectures_in_week)
+                core_last_known_sched = self.cohort_convert_to_list(core_pass)
 
-                if len(prog_lectures_in_week) != 0:
-                    prog_last_known_sched = self.cohort_convert_to_list(prog_lectures_in_week)
+                prog_last_known_sched = self.cohort_convert_to_list(prog_pass)
 
                 core_week_list.append(core_last_known_sched)
                 prog_week_list.append(prog_last_known_sched)
