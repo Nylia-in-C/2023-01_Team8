@@ -49,7 +49,8 @@ def get_courses(prog: str, term: int) -> List[Course]:
         cur.execute(query)
         rows = cur.fetchall()
     except:
-        print("unable to retrieve core courses from database")
+        pass
+        #print("unable to retrieve core courses from database")
         return
 
     close_connection(connection)
@@ -79,7 +80,8 @@ def get_rooms() -> List[Classroom]:
         cur.execute(query)
         rows = cur.fetchall()
     except:
-        print("unable to retrieve classrooms from database")
+        pass
+        #print("unable to retrieve classrooms from database")
 
     close_connection(connection)
 
@@ -1054,8 +1056,8 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             week_starts.append(day)
 
         
-    print(f"\n\nINVALID COUNT: {invalid}\n\n")
-    pprint(course_hours)
+    #print(f"\n\nINVALID COUNT: {invalid}\n\n")
+    #pprint(course_hours)
         
     add_lectures_to_db()
     return full_schedule, week_starts
@@ -1138,7 +1140,7 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
             week += 1
             week_starts.append(day)
 
-    pprint(course_hours)
+    #pprint(course_hours)
 
     add_lectures_to_db()
     return full_schedule, week_starts

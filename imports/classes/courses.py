@@ -61,7 +61,8 @@ class Course:
        
         #testing purposes
     def printCourse(self):
-         print( self.createCourseItemInfo())
+         pass
+         #print( self.createCourseItemInfo())
 
 
 @dataclass
