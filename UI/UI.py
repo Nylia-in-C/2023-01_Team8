@@ -963,7 +963,10 @@ class UI(QMainWindow):
         db = r".\database\database.db"  # database.db file path
         connection = create_connection(db)
         if (len(readClassroomItem(connection, "ghost%")) != 0):
-            QMessageBox.warning(self, "Insufficient Room Space", "Be advised that additional rooms are required.")
+            ghost_rooms = QMessageBox(QMessageBox.Warning, "Insufficient Room Space", 
+                                      "Be advised that additional rooms are required.")
+            ghost_rooms.setStyleSheet("color: black")
+            ghost_rooms.exec()
 
         close_connection(connection)
 
