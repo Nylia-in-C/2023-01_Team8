@@ -7,6 +7,7 @@ Used to first initialize database on first use, or to reset database back to def
 """ 
 import sqlite3
 import os, sys
+import helpers
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -177,7 +178,7 @@ pcomObj = Program('PCOM',["PCOM 0101","PCOM 0105", "PCOM 0107","CMSK 0233","CMSK
 bcomObj = Program('BCOM',["PCOM 0203","SUPR 0751","PCOM 0204","CMSK 0237","SUPR 0837","SUPR 0841","SUPR 0821","SUPR 0822","SUPR 0718","SUPR 0836","AVDM 0199","PCOM 0106","PCOM 0205","PCOM TBD","PCOM 0207","SUPR 0863","PCOM 0206","AVDM 0260"])
 #-----------------------------------------------------------------------
 def createDefaultDatabase():
-    db = r".\database\database.db"  #database.db file path
+    db = helpers.check_path("database\database.db")  #database.db file path
     connection = database.create_connection(db)    
    
     if connection is not None: 

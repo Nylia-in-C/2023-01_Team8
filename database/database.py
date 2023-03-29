@@ -369,6 +369,21 @@ def readLectureItem_UI_cohorts(conn, cohort, day, core):
         print("Issues reading from table: ", e)
     return rows
 
+def readLectureItem_UI_cohorts_online(conn, cohort, day, core):
+    #reads lecture item from DB
+    #parameters:Connection string,  room as string, week as int
+    rows =[]
+    try:
+        queryString = f"Select * from LECTURE where CohortID like '{cohort}%' and Room = 'ONLINE' and StartDay like '{day}' and isCore={core}"
+        cur = conn.cursor()
+        cur.execute(queryString)
+        rows = cur.fetchall()
+        # for row in rows:
+        #     print(row)
+    except Exception as e:
+        print("Issues reading from table: ", e)
+    return rows
+
 def deleteLectureItem_UI(conn):
     # delete all lecture items
     try:

@@ -13,10 +13,11 @@
         [3.1.5. Create Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#315-create-schedule)  
     [3.2. Tabs](https://github.com/MacEwanCMPT395/2023-01_Team8#32-tabs)  
         [3.2.1. Classroom Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#321-classroom-schedule)  
-        [3.2.2. Cohort Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#322-cohort-schedule) 
+        [3.2.2. Cohort Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#322-cohort-schedule)   
         [3.2.3. Options](https://github.com/MacEwanCMPT395/2023-01_Team8#323-options)  
             [3.2.3.1. Room Options](https://github.com/MacEwanCMPT395/2023-01_Team8#3231-room-options)  
             [3.2.3.2. Course Options](https://github.com/MacEwanCMPT395/2023-01_Team8#3232-course-options)  
+            [3.2.3.3. Reset Database](https://github.com/MacEwanCMPT395/2023-01_Team8#3233-reset-database)  
         [3.2.4. Instructions](https://github.com/MacEwanCMPT395/2023-01_Team8#324-instructions)  
 &nbsp;  
 # 1. Introduction
@@ -36,8 +37,8 @@ On the left sidebar, the user can adjust the number of students either manually 
 Optionally, the user can upload a file to populate enrollment numbers automatically.  
 &nbsp; 
 *Scheduler* will accept two types of templates to create the same kind of output:  
-a. Template A (by program): *Student_Number_Inputs_Template.xlsx*
-b. Template B (by student ID) *Students_by_ID.xlsx*
+a. Template A (by program): *Student_Number_Inputs_Template.xlsx*  
+b. Template B (by student ID) *Students_by_ID.xlsx*  
 &nbsp; 
 ### 3.1.2. Create Template
 If no file exists yet, click the *Create Template* button to make a compatible .xlsx file that can be filled out with enrollment numbers via any available spreadsheet editor program *(e.g. Microsoft Excel)*.  
@@ -63,14 +64,19 @@ The schedule of the first room in the list is displayed from Monday to Thursday 
 Each lecture is represented by a coloured block; matching colours denote lectures of the same course. 
 &nbsp;   
 To view a different week, click on the left and right arrow navigation buttons above the schedule.
-&nbsp;   
-Note: The Full-Stack Development program has its own <!INSERT TO FINISH THIS POINT ONCE FS IMPLEMENTED>  
+
+Note: *Ghost rooms* denote rooms that do not currently exist, indicating a need to get an additional room. 
+
 &nbsp;   
 ### 3.2.1. Cohort Schedule
 After at least one classroom schedule has been created, the user can filter by cohorts to receive a cohort-specific schedule. This schedule can be navigated left and right the same way as the classroom schedule.
+
+Note: *Ghost rooms* denote rooms that do not currently exist, indicating a need to get an additional room. 
+
 &nbsp; 
 ### 3.2.3. Options  
 The *Options* tab provides the ability to add/delete rooms and courses.  
+
 &nbsp;   
 #### 3.2.3.1 Room Options  
 Rooms can be added or deleted here.  
@@ -109,6 +115,7 @@ Courses can be added or edited here.
 In order to reset the database to default values, click the *Reset to Default Settings* button. Confirm in the pop-up window.
 
 Note: **This will delete everything previously put into the database and reset to defaults. DO NOT use unless absolutely sure.**  
+
 &nbsp; 
 ### 3.2.4. Instructions
 These instructions can be found in the *Instructions* tab for easy access without an internet connection. 

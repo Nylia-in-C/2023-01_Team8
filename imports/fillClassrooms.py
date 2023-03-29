@@ -2,6 +2,7 @@
 # Imports
 import sys
 import os
+import helpers
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -37,10 +38,8 @@ roomHours = {
 #===================================================================================================
 # Functions
 def delete_ghost_rooms():
-    """
-    Deletes all ghost rooms in the classrooms table
-    """
-    connection = create_connection(r".\database\database.db")
+    db = helpers.check_path("database\database.db")
+    connection = create_connection(db)
 
     deleteClassroomItem(connection, 'ghost%')
 
@@ -50,7 +49,8 @@ def add_ghost_room(hasLab):
     """
     Adds ghost room to ghostRooms global variable
     """
-    connection = create_connection(r".\database\database.db")
+    db = helpers.check_path("database\database.db")
+    connection = create_connection(db)
     database_ghosts = readClassroomItem(connection, 'ghost%')
     close_connection(connection)
 
@@ -167,7 +167,6 @@ def fillPrograms(program_counts):
     return cohortDict
 
 def ghostTestData():
-    """
     Generates dummy data for testing
     """
     program_counts = {}
@@ -197,8 +196,8 @@ def fillClassrooms(term):
         "Program": {},
         "FS": {} 
     }
-
-    connection = create_connection(r".\database\database.db")
+    db = helpers.check_path("database\database.db")
+    connection = create_connection(db)
 
     #--------------------------------------------------------
     # Pull Courses from database
@@ -289,7 +288,8 @@ def fillClassrooms(term):
 
     # add_ghost_room(False)
     # for room in ghostRooms:
-    #         connection = create_connection(r".\database\database.db")
+    #         db = helpers.check_path("database\database.db")
+    #         connection = create_connection(db)
     #         addClassroomItem(connection, room)
     #         close_connection(connection)
 
@@ -312,8 +312,8 @@ def fillClassrooms(term):
     # print(ghostRooms)
 
     # delete_ghost_rooms()
-
-    # connection = create_connection(r".\database\database.db")
+    # db = helpers.check_path("database\database.db")
+    # connection = create_connection(db)
 
     # addStudentItem(connection, "PCOM", 1, 103)
     # addStudentItem(connection, "PCOM", 2, 123)
