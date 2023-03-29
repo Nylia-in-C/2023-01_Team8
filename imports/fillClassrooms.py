@@ -20,8 +20,6 @@ from database.database  import *
 COREHOURS       = 2*13*9
 PROGRAMHOURS    = 2*13*8.5 #days*weeks*hours
 FSPRROGRAMHOURS = 2*13*4
-#PROGRAMHOURS = 60
-#COREHOURS
 
 programCoursesByTerm = {}
 
@@ -38,6 +36,9 @@ roomHours = {
 #===================================================================================================
 # Functions
 def delete_ghost_rooms():
+    """
+    Deletes all ghostrooms from database
+    """
     db = helpers.check_path("database\database.db")
     connection = create_connection(db)
 
@@ -167,6 +168,7 @@ def fillPrograms(program_counts):
     return cohortDict
 
 def ghostTestData():
+    """
     Generates dummy data for testing
     """
     program_counts = {}
@@ -180,8 +182,6 @@ def fillClassrooms(term):
     Loads course and room data from database, calculates ghostrooms, and adds ghostrooms to the database.
 
     Returns a dictionary of the cohorts per program and term
-
-    Need to load students from database.
     """
     global programCoursesByTerm
     global rooms
@@ -261,67 +261,3 @@ def fillClassrooms(term):
     close_connection(connection)
 
     return cohortDict
-
-# Nice to have:
-#   - Reduced program hours only on lab rooms
-#   - Programs with the most students are scheduled first
-#   - Extensive testing: Efficient and proper fill
-#   - When ghost room is added do entire scheduling again?
-#   - Add rhyme and reason to ghostroom capacity in add_ghost_room()
-#   - Better cohort split algorithm
-
-
-#===================================================================================================
-# if __name__ == '__main__':
-#     pass
-    # print(rooms, ghostRooms)
-    # add_ghost_room(True)
-    # print(rooms, ghostRooms)
-
-    # print(rooms, ghostRooms)
-    # print(enough_hours("PM01", [36, 24]))
-    # print(rooms, ghostRooms)
-
-    # print(rooms, ghostRooms, roomHours)
-    # print(cohorts_fits("PM01", [40, 24]))
-    # print(rooms, ghostRooms, roomHours)
-
-    # add_ghost_room(False)
-    # for room in ghostRooms:
-    #         db = helpers.check_path("database\database.db")
-    #         connection = create_connection(db)
-    #         addClassroomItem(connection, room)
-    #         close_connection(connection)
-
-    # program_counts = {}
-    # for key in programCoursesByTerm.keys():
-    #     program_counts[key] = random.randint(18, 189)
-    # fillPrograms(program_counts)
-    # print(roomHours)
-    # print(ghostRooms)
-
-    #print(fillClassrooms(1))
-    #print(rooms)
-    #print(roomHours)
-    #print(ghostRooms)
-    #fillClassrooms(1)
-    # print(roomHours)
-    # print(ghostRooms)
-    # fillClassrooms(2)
-    # print(roomHours)
-    # print(ghostRooms)
-
-    # delete_ghost_rooms()
-    # db = helpers.check_path("database\database.db")
-    # connection = create_connection(db)
-
-    # addStudentItem(connection, "PCOM", 1, 103)
-    # addStudentItem(connection, "PCOM", 2, 123)
-    # addStudentItem(connection, "PCOM", 3, 87)
-    # addStudentItem(connection, "PM", 3, 18)
-    # addStudentItem(connection, "BA", 1, 51)
-    # addStudentItem(connection, "BA", 2, 23)
-    # addStudentItem(connection, "BA", 3, 78)
-    # addStudentItem(connection, "BK", 3, 33)
-
-    # close_connection(connection)

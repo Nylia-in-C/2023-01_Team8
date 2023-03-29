@@ -3,7 +3,7 @@
 ref:connection string:  https://www.sqlitetutorial.net/sqlite-python/creating-tables/
 
 Fills database with default values for program, course, classroom.
-Used to first initialize database on first use, or to reset database back to default values.
+Used to initialize database on first use, or to reset database back to default values.
 """ 
 import sqlite3
 import os, sys

@@ -4,6 +4,7 @@ Program contains data for a program in the School of Continuing Education.
 Cohort contains data for a formal group of students that take courses together in a specific program.
 
 For automatic id incrementing, Cohort must be created with the makeCohort method in fillData.
+Otherwise, pass the cohortID directly to Cohort on creation.
 """
 
 from dataclasses import field, dataclass
