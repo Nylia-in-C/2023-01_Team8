@@ -1592,10 +1592,10 @@ class UI(QMainWindow):
                 prog_pass = []
 
                 core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1)
-                core_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], CORE_DAY))
+                core_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], CORE_DAY, 1))
 
                 prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0)
-                prog_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], PROG_DAY))
+                prog_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], PROG_DAY, 0))
 
                 # Append to overall list of lectures. Compare against dictionary for end dates
                 # Remove entry if it is past the end date.
