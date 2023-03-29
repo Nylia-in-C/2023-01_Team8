@@ -2,6 +2,7 @@
 
 #Imports
 import os
+import time
 import pandas as pd
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
@@ -132,12 +133,6 @@ class UI(QMainWindow):
         self.course_pre_reqs_label = QLabel()
         self.course_pre_reqs_label.setStyleSheet("color: #fefdea")
 
-        self.load_msg = QLabel("Loading ...")
-        loadfont = QFont()
-        loadfont.setPointSize(30)
-        self.load_msg.setFont(loadfont)
-        self.load_msg.setAlignment(Qt.AlignCenter)
-
         '''
         Creating tables for each tab
         and giving proper settings (i.e. un-editable, resize to width etc)
@@ -165,6 +160,29 @@ class UI(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.show()
+
+    def splash_screen(self):
+        # Start up splash screen
+        splash_font = QFont()
+        splash_font.setPointSize(60)
+        splash_pic = QPixmap("macewan_logo.png")
+        splash_msg = QSplashScreen(splash_pic)
+        splash_msg.setFixedSize(965, 568)
+        splash_msg.setStyleSheet(style_glass)
+        splash_msg.setFont(splash_font)
+            # add fade to splashscreen 
+        opaqueness = 0.0
+        step = 0.05
+        splash_msg.setWindowOpacity(opaqueness)
+        splash_msg.show()
+        while opaqueness < 1:
+            splash_msg.setWindowOpacity(opaqueness)
+            time.sleep(step) # Gradually appears
+            opaqueness+=step
+        #splash_msg.showMessage("Scheduler", 1, QColor(255,255,255))
+        time.sleep(2)
+        splash_msg.close()
+
 
     # Creates all items for central widget
     def create_hlayout(self):
@@ -1032,8 +1050,6 @@ class UI(QMainWindow):
         load_font.setPointSize(40)
         load_msg = QSplashScreen()
         load_msg.setFixedSize(400,200)
-        
-
         load_msg.setStyleSheet(style_glass)
         load_msg.setFont(load_font)
         load_msg.show()
