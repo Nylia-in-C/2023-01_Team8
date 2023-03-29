@@ -62,6 +62,8 @@ WEEK_COHORTS = 1
 COHORT_CHOSEN = ""
 COHORT_COURSE_TO_ROOM = {}
 
+CREATE_SCHEDULE_CLICKED = 0
+
 # Removes colours that make the text hard to read / separate from the background
 def remove_colours():
     global BG_COLOURS
@@ -1012,7 +1014,7 @@ class UI(QMainWindow):
                 side_fill.setStyleSheet("border: solid white;"
                                         "border-width : 0px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] == "":
+                if cell + 1 <= 26 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.main_table.setCellWidget(cell, weekday, side_fill)
@@ -1027,7 +1029,7 @@ class UI(QMainWindow):
                 label_fill.setStyleSheet("border: solid white;"
                                          "border-width : 2px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] != course:
+                if cell + 1 <= 26 and lecture_list[cell + 1] != course:
                     label_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
 
@@ -1166,7 +1168,8 @@ class UI(QMainWindow):
         except:
             return
     def create_schedule(self):
-        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR, WEEK_DISPLAY_DATE
+        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
+            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
@@ -1241,6 +1244,8 @@ class UI(QMainWindow):
 
         #close load message
         load_msg.close()
+
+        CREATE_SCHEDULE_CLICKED = 1
 
     # Action event for creating template file
     def create_template(self):
@@ -1724,6 +1729,9 @@ class UI(QMainWindow):
     '''
     def room_selector_show_schedule(self):
 
+        if not CREATE_SCHEDULE_CLICKED:
+            return
+
         global WEEK, ROOM, CORE_DAY, PROG_DAY, WEEK_DISPLAY_DATE
         WEEK = 1
         self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[1] + "\nWeek " + str(WEEK))
@@ -1760,6 +1768,8 @@ class UI(QMainWindow):
 
     def reset_db(self):
 
+        global CREATE_SCHEDULE_CLICKED, CORE_SCHEDULE, CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, PROG_SCHEDULE
+
         answer = QMessageBox.warning(self, "Reset Database",
                                      "Are you sure you want to reset the database?\n\nAll data will be lost",
                                      buttons=QMessageBox.Yes | QMessageBox.No, defaultButton=QMessageBox.No)
@@ -1771,6 +1781,13 @@ class UI(QMainWindow):
                 self.update_class_combos()
                 self.update_course_combos()
                 self.cohort_tab_combo.clear()
+                self.reset_table()
+                self.reset_table_cohort()
+                CORE_SCHEDULE_COHORTS.clear()
+                PROG_SCHEDULE_COHORTS.clear()
+                CORE_SCHEDULE.clear()
+                PROG_SCHEDULE.clear()
+                CREATE_SCHEDULE_CLICKED = 0
 
             except:
                 return
@@ -1942,7 +1959,7 @@ class UI(QMainWindow):
                 side_fill.setStyleSheet("border: solid white;"
                                         "border-width : 0px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] == "":
+                if cell + 1 <= 26 and lecture_list[cell + 1] == "":
                     side_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
                 self.cohort_table.setCellWidget(cell, weekday, side_fill)
@@ -1957,7 +1974,7 @@ class UI(QMainWindow):
                 label_fill.setStyleSheet("border: solid white;"
                                          "border-width : 2px 2px 0px 2px;")
 
-                if cell + 1 <= 18 and lecture_list[cell + 1] != course:
+                if cell + 1 <= 26 and lecture_list[cell + 1] != course:
                     label_fill.setStyleSheet("border: solid white;"
                                             "border-width : 0px 2px 2px 2px;")
 
