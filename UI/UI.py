@@ -54,8 +54,11 @@ CORE_DAY = 1
 PROG_DAY = 1
 COLOUR_INDEX = -1
 COURSE_COLOUR = {}
+COHORT_COURSE_COLOUR = {}
 
 WEEK_COHORTS = 1
+COHORT_CHOSEN = ""
+COHORT_COURSE_TO_ROOM = {}
 
 # Removes colours that make the text hard to read / separate from the background
 def remove_colours():
@@ -164,6 +167,7 @@ class UI(QMainWindow):
         '''
         self.cohort_table = QTableWidget()
         self.cohort_tab_combo = QComboBox()
+        self.cohort_tab_combo.activated.connect(self.cohort_selector_show_schedule)
 
         self.cohort_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.cohort_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -340,46 +344,7 @@ class UI(QMainWindow):
         return vbox_overall
 
 
-    # Creating the basics of the cohort sched tab.
-    # This is identical to the main_tab
-    def make_cohort_sched_tab(self):
-        
-        cohort_table_box = QVBoxLayout(self)
-        week_choose = QHBoxLayout(self)
 
-        #Left/Right Navigation Arrows
-        arrowfont = QFont()
-        arrowfont.setBold(True)
-        arrowfont.setPointSize(20)
-
-        left = QPushButton("←")
-        left.setStyleSheet( "background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; "+
-                            "border-radius: 5px; "+
-                            "border-color: #fefdea")
-        left.setFont(arrowfont)
-
-        right = QPushButton("→")
-        right.setStyleSheet( "background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; "+
-                            "border-radius: 5px; "+
-                            "border-color: #fefdea")
-        right.setFont(arrowfont)
-
-        right.clicked.connect(self.forward_week_cohort)
-        left.clicked.connect(self.back_week_cohort)
-
-        week_choose.addWidget(left)
-        week_choose.addWidget(self.cohort_week_label)
-        week_choose.addWidget(right)
-
-        cohort_table_box.addWidget(self.cohort_tab_combo)
-        cohort_table_box.addLayout(week_choose)
-        cohort_table_box.addWidget(self.cohort_table)
-        
-        return cohort_table_box
 
     def update_classroom_section(self):
         room_add_layout = QHBoxLayout()
@@ -697,33 +662,6 @@ class UI(QMainWindow):
 
         # Fill with empty items to change background colours later
         self.reset_table()
-    def create_cohorts_schedule_base(self):
-
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
-        times = []
-
-        # Creation of all times from 8:00 AM to 5:00 PM to use as row headers
-
-        first_time = datetime.datetime(year=2000, month=1, day=1, hour=8, minute=00)
-        time_dif = datetime.timedelta(minutes=30)
-
-        times.append(first_time.strftime("%I:%M %p"))
-        new_time = first_time + time_dif
-
-        # Has to be up to 8:30pm since we can't know if a room extends that far.
-        for half_hour in range(25):
-            times.append(new_time.strftime("%I:%M %p"))
-            new_time = new_time + time_dif
-
-
-        self.cohort_table.setColumnCount(4)
-        self.cohort_table.setHorizontalHeaderLabels(days)
-
-        self.cohort_table.setRowCount(len(times))
-        self.cohort_table.setVerticalHeaderLabels(times)
-
-        # Fill with empty items to change background colours later
-        self.reset_table_cohort()
 
     # Creates the bottom layout where most user interaction takes place
     def create_leftlayout(self):
@@ -975,7 +913,7 @@ class UI(QMainWindow):
 
 
     '''
-    Reset functions for both tables (Schedule + Cohorts)
+    Reset function
     '''
     def reset_table(self):
         # Use this to populate table with values to allow
@@ -994,23 +932,6 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
-    def reset_table_cohort(self):
-        # Use this to populate table with values to allow
-        # Background colouring
-
-        rows = self.cohort_table.rowCount()
-        columns = self.cohort_table.columnCount()
-
-        # necessary to display colour codes correctly
-        self.cohort_table.setStyleSheet("background-color: None; color: #4f4f4f")
-
-        for row in range(rows):
-            for column in range(columns):
-                placeholder = QTableWidgetItem()
-                placeholder.setTextAlignment(Qt.AlignCenter)
-                placeholder.setBackground(QtGui.QColor('#5e869c'))
-                self.cohort_table.setItem(row, column, placeholder)
-                self.cohort_table.removeCellWidget(row, column)
 
     def retrieve_term_inputs(self, layout):
 
@@ -1044,7 +965,10 @@ class UI(QMainWindow):
         course = ""
 
         font = QFont()
-        font.setPointSize(11)
+        if ROOM.find("(LAB)") != -1:
+            font.setPointSize(9)
+        else:
+            font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
@@ -1085,7 +1009,6 @@ class UI(QMainWindow):
                     COURSE_COLOUR[course] = BG_COLOURS[COLOUR_INDEX]
                 self.main_table.setCellWidget(cell, weekday, label_fill)
                 self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
-
 
     def add_ghost_rooms(self):
 
@@ -1180,10 +1103,10 @@ class UI(QMainWindow):
             wednesday = core[1]
             tuesday = prog[0]
             thursday = prog[1]
-            self.show_schedule(monday,0)
-            self.show_schedule(tuesday, 1)
-            self.show_schedule(wednesday, 2)
-            self.show_schedule(thursday, 3)
+            self.show_schedule_cohorts(monday,0)
+            self.show_schedule_cohorts(tuesday, 1)
+            self.show_schedule_cohorts(wednesday, 2)
+            self.show_schedule_cohorts(thursday, 3)
             self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
         except:
             return
@@ -1206,18 +1129,16 @@ class UI(QMainWindow):
             wednesday = core[1]
             tuesday = prog[0]
             thursday = prog[1]
-            self.show_schedule(monday,0)
-            self.show_schedule(tuesday, 1)
-            self.show_schedule(wednesday, 2)
-            self.show_schedule(thursday, 3)
+            self.show_schedule_cohorts(monday,0)
+            self.show_schedule_cohorts(tuesday, 1)
+            self.show_schedule_cohorts(wednesday, 2)
+            self.show_schedule_cohorts(thursday, 3)
             self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
         except:
             return
     def create_schedule(self):
-        # Will eventually replace create_schedule, as it will pull form the db
-        room_requested = self.select_room.currentText().split(" ")[0]
         self.week_label.setText("Week 1")
-        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR
+        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
@@ -1233,9 +1154,12 @@ class UI(QMainWindow):
             ROOM = ROOM[:ROOM.find(" ")].strip()
             self.create_schedule_base(0)
 
+
+        # Clear out the lectures table
         # Pass in student numbers to db
         # Then calculate ghost rooms
         # Then parse the schedule.
+        self.clear_lectures()
         self.pass_stu_num_db()
         self.add_ghost_rooms()
 
@@ -1251,11 +1175,14 @@ class UI(QMainWindow):
 
         self.update_class_combos()
 
+        #TODO This is where the cohorts should be put in the combo box
+        self.cohort_tab_combo.addItem("PCOM0301")
+
         imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
         imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
-
         random.shuffle(BG_COLOURS)
         COURSE_COLOUR.clear()
+        COHORT_COURSE_COLOUR.clear()
         self.reset_table()
 
         # All lecture items should now be recorded in the dictionaries
@@ -1419,9 +1346,7 @@ class UI(QMainWindow):
             connection = create_connection(db)
 
             # Clear table
-            cur = connection.cursor()
-            cur.execute("DELETE FROM Student")
-            cur.execute("DELETE FROM Lecture")
+            deleteStudentItem(connection, "%", "%")
 
             # Takes the currently input numbers, and adds them to the DB.
             for each_input in range(8):
@@ -1437,6 +1362,24 @@ class UI(QMainWindow):
             close_connection(connection)
 
         return
+
+    '''
+    clears out the lecture table
+    to prevent bloating
+    and incorrect schedules
+    '''
+    def clear_lectures(self):
+        try:
+            db = r".\database\database.db"  # database.db file path
+            connection = create_connection(db)
+            # Clear table
+            deleteLectureItem_UI(connection)
+
+        except:
+            print("Could not read database")
+
+        close_connection(connection)
+
 
 
     # Get the schedule for a specified semester, and fill the dictionary
@@ -1491,6 +1434,54 @@ class UI(QMainWindow):
 
         close_connection(connection)
 
+    def get_cohort_lecture_items(self):
+
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN
+
+        core_week_list = []
+        prog_week_list = []
+
+        core_last_known_sched = [""] * 26
+        prog_last_known_sched = [""] * 26
+
+        db = r".\database\database.db"  # database.db file path
+        connection = create_connection(db)
+
+        # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
+        # 13 weeks in a semester
+        for weeks in range(1, 14):
+
+            # Create a list for each day (2), (26 slots) for each list to correspond for each time
+            # Recall that CORE_DAY and  PROG DAY are independant
+            # i.e. An odd COre Day / PRog day = Monday / Tuesday, even = Wednesday/ thursday
+            for each_day in range(1, 3):
+
+                core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1)
+                prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0)
+
+                # Checking if there was any new differences in schedule
+                # if not, then simply add the last known schedule since it hasnt changed.
+                if len(core_lectures_in_week) != 0:
+                    core_last_known_sched = self.cohort_convert_to_list(core_lectures_in_week)
+
+                if len(prog_lectures_in_week) != 0:
+                    prog_last_known_sched = self.cohort_convert_to_list(prog_lectures_in_week)
+
+                core_week_list.append(core_last_known_sched)
+                prog_week_list.append(prog_last_known_sched)
+
+                CORE_DAY += 1
+                PROG_DAY += 1
+
+            # All weeks should be account for in the dictionaries now
+            # Deepcopies must be made, since python does by reference
+            CORE_SCHEDULE_COHORTS[weeks] = copy.deepcopy(core_week_list)
+            PROG_SCHEDULE_COHORTS[weeks] = copy.deepcopy(prog_week_list)
+            # Clear the list of lists
+            core_week_list.clear()
+            prog_week_list.clear()
+
+        close_connection(connection)
 
     # Creates a list using the data pulled from the DB
     # The list matches what should be displayed in the UI.
@@ -1645,6 +1636,11 @@ class UI(QMainWindow):
         self.course_pre_reqs.clear()
         self.course_pre_reqs_label.clear()
 
+
+    '''
+    Following functions change the schedule when selecting
+    room
+    '''
     def room_selector_show_schedule(self):
 
         global WEEK, ROOM, CORE_DAY, PROG_DAY
@@ -1680,3 +1676,192 @@ class UI(QMainWindow):
         self.show_schedule(tuesday, 1)
         self.show_schedule(wednesday, 2)
         self.show_schedule(thursday, 3)
+
+
+    '''
+    # ------------------------------------------------------------------------
+    
+    the following sections will be the slightly editted functions to handle the cohort table
+    
+    '''
+    def cohort_selector_show_schedule(self):
+
+        global WEEK_UI, COHORT_CHOSEN, CORE_DAY, PROG_DAY, COHORT_COURSE_TO_ROOM, COHORT_COURSE_COLOUR
+        self.cohort_week_label.setText("Week 1")
+        WEEK_UI = 1
+        CORE_DAY = 1
+        PROG_DAY = 1
+        COHORT_CHOSEN = self.cohort_tab_combo.currentText()
+        COHORT_COURSE_TO_ROOM.clear()
+
+        random.shuffle(BG_COLOURS)
+        COHORT_COURSE_COLOUR.clear()
+        self.reset_table_cohort()
+
+
+        # All lecture items should now be recorded in the dictionaries
+        self.get_cohort_lecture_items()
+
+        # Get the lists for each day
+        core = CORE_SCHEDULE_COHORTS[WEEK_UI]
+        prog = PROG_SCHEDULE_COHORTS[WEEK_UI]
+
+        monday = core[0]
+        wednesday = core[1]
+        tuesday = prog[0]
+        thursday = prog[1]
+        self.show_schedule_cohorts(monday, 0)
+        self.show_schedule_cohorts(tuesday, 1)
+        self.show_schedule_cohorts(wednesday, 2)
+        self.show_schedule_cohorts(thursday, 3)
+
+    # Creates a list using the COhort chosen
+    # The list matches what should be displayed in the UI.
+    def cohort_convert_to_list(self, db_pull):
+        global TIMES, COHORT_COURSE_TO_ROOM
+        day_sched = [""] * 26
+
+        for each_lecture in range(len(db_pull)):
+            start_in_list = TIMES[db_pull[each_lecture][9]]
+            slots_needed = int(db_pull[each_lecture][6] / .5)
+
+            for each_slot in range(start_in_list, start_in_list + slots_needed):
+                day_sched[each_slot] = db_pull[each_lecture][0] + "~" + db_pull[each_lecture][3]
+
+        return day_sched
+
+    # Creating the basics of the cohort sched tab.
+    # This is identical to the main_tab
+    def make_cohort_sched_tab(self):
+
+        cohort_table_box = QVBoxLayout(self)
+        week_choose = QHBoxLayout(self)
+
+        # Left/Right Navigation Arrows
+        arrowfont = QFont()
+        arrowfont.setBold(True)
+        arrowfont.setPointSize(20)
+
+        left = QPushButton("←")
+        left.setStyleSheet("background-color: #4f4f4f; " +
+                           "color: #fefdea; " +
+                           "border-width: 3px; " +
+                           "border-radius: 5px; " +
+                           "border-color: #fefdea")
+        left.setFont(arrowfont)
+
+        right = QPushButton("→")
+        right.setStyleSheet("background-color: #4f4f4f; " +
+                            "color: #fefdea; " +
+                            "border-width: 3px; " +
+                            "border-radius: 5px; " +
+                            "border-color: #fefdea")
+        right.setFont(arrowfont)
+
+        right.clicked.connect(self.forward_week_cohort)
+        left.clicked.connect(self.back_week_cohort)
+
+        week_choose.addWidget(left)
+        week_choose.addWidget(self.cohort_week_label)
+        week_choose.addWidget(right)
+
+        cohort_table_box.addWidget(self.cohort_tab_combo)
+        cohort_table_box.addLayout(week_choose)
+        cohort_table_box.addWidget(self.cohort_table)
+
+        return cohort_table_box
+
+    def create_cohorts_schedule_base(self):
+
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
+        times = []
+
+        # Creation of all times from 8:00 AM to 5:00 PM to use as row headers
+
+        first_time = datetime.datetime(year=2000, month=1, day=1, hour=8, minute=00)
+        time_dif = datetime.timedelta(minutes=30)
+
+        times.append(first_time.strftime("%I:%M %p"))
+        new_time = first_time + time_dif
+
+        # Has to be up to 8:30pm since we can't know if a room extends that far.
+        for half_hour in range(25):
+            times.append(new_time.strftime("%I:%M %p"))
+            new_time = new_time + time_dif
+
+
+        self.cohort_table.setColumnCount(4)
+        self.cohort_table.setHorizontalHeaderLabels(days)
+
+        self.cohort_table.setRowCount(len(times))
+        self.cohort_table.setVerticalHeaderLabels(times)
+
+        # Fill with empty items to change background colours later
+        self.reset_table_cohort()
+
+    def reset_table_cohort(self):
+        # Use this to populate table with values to allow
+        # Background colouring
+
+        rows = self.cohort_table.rowCount()
+        columns = self.cohort_table.columnCount()
+
+        # necessary to display colour codes correctly
+        self.cohort_table.setStyleSheet("background-color: None; color: #4f4f4f")
+
+        for row in range(rows):
+            for column in range(columns):
+                placeholder = QTableWidgetItem()
+                placeholder.setTextAlignment(Qt.AlignCenter)
+                placeholder.setBackground(QtGui.QColor('#5e869c'))
+                self.cohort_table.setItem(row, column, placeholder)
+                self.cohort_table.removeCellWidget(row, column)
+
+    def show_schedule_cohorts(self, lecture_list, weekday):
+
+        global COLOUR_INDEX
+
+        course = ""
+
+        font = QFont()
+        font.setPointSize(9)
+
+        for cell in range(self.cohort_table.rowCount()):
+
+            if lecture_list[cell] == "":
+                continue
+
+            # If this cell is the same name as the course from the previous cell,
+            # Consider it part of the same block
+            elif lecture_list[cell] != "" and course == lecture_list[cell]:
+                self.cohort_table.item(cell,weekday).setBackground(QtGui.QColor(COHORT_COURSE_COLOUR[course]))
+                side_fill = QLabel()
+                side_fill.setStyleSheet("border: solid white;"
+                                        "border-width : 0px 2px 0px 2px;")
+
+                if cell + 1 <= 18 and lecture_list[cell + 1] == "":
+                    side_fill.setStyleSheet("border: solid white;"
+                                            "border-width : 0px 2px 2px 2px;")
+                self.cohort_table.setCellWidget(cell, weekday, side_fill)
+
+            # The course listed is a new one, and must be given a new colour + block
+            else:
+                course = lecture_list[cell]
+                name = course.replace("~", "\n")
+                label_fill = QLabel(name)
+                label_fill.setFont(font)
+                label_fill.setAlignment(Qt.AlignCenter)
+                label_fill.setStyleSheet("border: solid white;"
+                                         "border-width : 2px 2px 0px 2px;")
+
+                if cell + 1 <= 18 and lecture_list[cell + 1] != course:
+                    label_fill.setStyleSheet("border: solid white;"
+                                            "border-width : 0px 2px 2px 2px;")
+
+                if course not in COHORT_COURSE_COLOUR.keys():
+                    COLOUR_INDEX += 1
+                    if COLOUR_INDEX == len(BG_COLOURS):
+                        COLOUR_INDEX = 0
+                    COHORT_COURSE_COLOUR[course] = BG_COLOURS[COLOUR_INDEX]
+                self.cohort_table.setCellWidget(cell, weekday, label_fill)
+                self.cohort_table.item(cell, weekday).setBackground(QtGui.QColor(COHORT_COURSE_COLOUR[course]))
