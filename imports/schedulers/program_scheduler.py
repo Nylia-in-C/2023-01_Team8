@@ -183,7 +183,7 @@ def get_sched(term: int, debug=False):
     # get all 26 day schedules as a dictionary of dataframes
     # (technically, we only need the lecture objects, but having this makes
     # scheduling & debugging 1000x easier)
-    full_schedule, week_starts, last_days = create_prgm_term_schedule(
+    full_schedule, week_starts, last_days, h_ints = create_prgm_term_schedule(
         lectures, labs, online, cohorts, rooms, start_day, holidays
     )
     
@@ -197,7 +197,8 @@ def get_sched(term: int, debug=False):
     return {
         "cohorts": all_cohorts,
         "week starts": week_starts,
-        "last days": last_days
+        "last days": last_days,
+        "holidays": h_ints,
     }
 
 
