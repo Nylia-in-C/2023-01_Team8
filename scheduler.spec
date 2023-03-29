@@ -9,7 +9,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[('.\\README.md', '.'), ('.\\database\\database.db', '.'),
-            ('.\\macewan_logo.png, '.')],
+            ('.\\macewan_logo.png', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
