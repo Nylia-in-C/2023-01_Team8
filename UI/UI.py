@@ -1172,6 +1172,7 @@ class UI(QMainWindow):
         PROG_DAY = 1
         CORE_SCHEDULE.clear()
         PROG_SCHEDULE.clear()
+        self.cohort_tab_combo.clear()
         WEEK = 1
         ROOM = self.select_room.currentText()
 
@@ -1204,10 +1205,11 @@ class UI(QMainWindow):
         self.update_class_combos()
 
         schedule_info = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
-        imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
+        prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         week_starts = schedule_info["week starts"]
         self.cohort_tab_combo.addItems(schedule_info["cohorts"])
+        self.cohort_tab_combo.addItems(prog_schedule_info["cohorts"])
 
         index = 0
         for week_start in range(1, len(week_starts)):
@@ -1925,7 +1927,7 @@ class UI(QMainWindow):
         course = ""
 
         font = QFont()
-        font.setPointSize(9)
+        font.setPointSize(8)
 
         for cell in range(self.cohort_table.rowCount()):
 
