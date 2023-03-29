@@ -171,6 +171,7 @@ class UI(QMainWindow):
         '''
         self.cohort_table = QTableWidget()
         self.cohort_tab_combo = QComboBox()
+        self.cohort_tab_combo.setStyleSheet(style_glass)
         self.cohort_tab_combo.activated.connect(self.cohort_selector_show_schedule)
 
         self.cohort_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -271,8 +272,8 @@ class UI(QMainWindow):
                                 "color: #4f4f4f; " +
                                 "border-color: #fefdea; ")
         tab4 = QWidget()
-        tab4.setStyleSheet(     "background-color: #fefdea; " +
-                                "color: #4f4f4f; " +
+        tab4.setStyleSheet(     "background-color: #3b0918; " +
+                                "color: #fefdea; " +
                                 "border-color: #fefdea; ")
                                 
         tabs.addTab(tab1, "Classroom Schedule")
@@ -345,25 +346,30 @@ class UI(QMainWindow):
         vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addLayout(self.update_course_section())
         vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addWidget(self.create_horizontal_line())
 
         font = QFont()
         font.setBold(True)
         font.setPointSize(16)
 
-        reset_label = QLabel("Reset all:")
+        #Reset database button
+        reset_label = QLabel("Reset Database")
         reset_label.setFont(font)
         reset_label.setStyleSheet("color: #fefdea")
-        reset_button = QPushButton("Reset to default settings")
-        reset_button.setMinimumWidth(300)
+        reset_button = QPushButton("Reset to Default Settings")
+        reset_button.setFixedWidth(200)
         reset_button.setStyleSheet(style_glass)
         reset_button.clicked.connect(self.reset_db)
 
-        hbox = QHBoxLayout()
+        hbox = QVBoxLayout()
+        hbox.setContentsMargins(20,40,0,50)
         hbox.addWidget(reset_label)
         hbox.addWidget(reset_button)
-        hbox.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
+        vbox_overall.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
         vbox_overall.addLayout(hbox)
+        vbox_overall.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+
         return vbox_overall
 
 
@@ -484,7 +490,7 @@ class UI(QMainWindow):
 
     def update_course_section(self):
         vbox_course = QVBoxLayout()
-        vbox_course.setContentsMargins(20,0,0,100)
+        vbox_course.setContentsMargins(20,0,0,0)
 
         font = QFont()
         font.setBold(True)
@@ -1769,10 +1775,12 @@ class UI(QMainWindow):
     def reset_db(self):
 
         global CREATE_SCHEDULE_CLICKED, CORE_SCHEDULE, CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, PROG_SCHEDULE
-
-        answer = QMessageBox.warning(self, "Reset Database",
-                                     "Are you sure you want to reset the database?\n\nAll data will be lost",
-                                     buttons=QMessageBox.Yes | QMessageBox.No, defaultButton=QMessageBox.No)
+        answer = QMessageBox(QMessageBox.Warning, "Reset Database",
+                                     "Are you sure you want to reset the database?\n\nAll data will be lost!",
+                                     buttons=QMessageBox.Yes | QMessageBox.No)
+        answer.setDefaultButton(QMessageBox.No)
+        answer.setStyleSheet("color: black")
+        answer.exec()
 
         if answer == QMessageBox.Yes:
             try:

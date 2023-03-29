@@ -1083,9 +1083,9 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             week += 1
             week_starts.append(day)
 
-        
-    print(f"\n\nINVALID COUNT: {invalid}\n\n")
-    pprint(course_hours)
+    #Debug prints    
+    #print(f"\n\nINVALID COUNT: {invalid}\n\n")
+    #pprint(course_hours)
         
     add_lectures_to_db()
     return full_schedule, week_starts
@@ -1172,8 +1172,9 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
             week += 1
             week_starts.append(day)
 
-    print(f"\n\nINVALID COUNT: {invalid}\n\n")
-    pprint(course_hours)
+    #Debug Print
+    #print(f"\n\nINVALID COUNT: {invalid}\n\n")
+    #pprint(course_hours)
 
     add_lectures_to_db()
     return full_schedule, week_starts
