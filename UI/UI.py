@@ -1202,7 +1202,7 @@ class UI(QMainWindow):
             return
     def create_schedule(self):
         global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
-            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE, CORE_END_DATES, PROG_END_DATES
+            ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE, CORE_END_DATES, PROG_END_DATES, CORE_HOLIDAYS, PROG_HOLIDAYS
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
@@ -1244,6 +1244,8 @@ class UI(QMainWindow):
         prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
 
         week_starts = schedule_info["week starts"]
+
+        #TODO set the holidays here
 
         CORE_END_DATES = schedule_info["last days"]
         PROG_END_DATES = prog_schedule_info["last days"]
