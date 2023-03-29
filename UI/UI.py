@@ -2,6 +2,7 @@
 
 #Imports
 import os
+import sys
 import time
 import pandas as pd
 from PyQt5 import QtGui
@@ -200,7 +201,17 @@ class UI(QMainWindow):
     def splash_screen(self):
         # Start up splash screen
         # adapted from: https://stackoverflow.com/questions/58661539/create-splash-screen-in-pyqt5
-        splash_pic = QPixmap("macewan_logo.png")
+        logo = '..\\macewan_logo.png'
+
+        #Check if running in .exe
+        if getattr(sys, 'frozen', False):
+            app_path = os.path.dirname(sys.executable)
+        elif __file__:
+            app_path = os.path.dirname(__file__)
+        logo_path = os.path.join(app_path, logo)
+        print(logo_path)
+
+        splash_pic = QPixmap(logo_path)
         splash_msg = QSplashScreen(splash_pic)
         splash_msg.setFixedSize(965, 568)
         splash_msg.setStyleSheet(style_glass)
