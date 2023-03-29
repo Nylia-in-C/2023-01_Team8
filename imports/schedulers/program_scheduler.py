@@ -13,7 +13,7 @@ from imports.fillClassrooms import *
 from imports.classes.courses import *
 
 
-def get_sched(term: int, debug=True):
+def get_sched(term: int, debug=False):
     '''
     Main driver function for generating the term schedule for program-specific courses, 
     where the term passed indicates if the schedule is for fall, winter, or spring semester
