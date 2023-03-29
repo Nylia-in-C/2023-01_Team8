@@ -47,6 +47,7 @@ CORE_SCHEDULE = {}
 PROG_SCHEDULE = {}
 CORE_SCHEDULE_COHORTS = {}
 PROG_SCHEDULE_COHORTS = {}
+WEEK_DISPLAY_DATE = {}
 ROOM = ""
 global PROG_LABELS
 WEEK = 1
@@ -1051,7 +1052,7 @@ class UI(QMainWindow):
             self.show_schedule(tuesday, 1)
             self.show_schedule(wednesday, 2)
             self.show_schedule(thursday, 3)
-            self.week_label.setText("Week " + str(WEEK))
+            self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK] + "\nWeek " + str(WEEK))
         except:
             return
 
@@ -1078,7 +1079,7 @@ class UI(QMainWindow):
             self.show_schedule(tuesday, 1)
             self.show_schedule(wednesday, 2)
             self.show_schedule(thursday, 3)
-            self.week_label.setText("Week " + str(WEEK))
+            self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK] + "\nWeek " + str(WEEK))
         except:
             return
 
@@ -1107,7 +1108,7 @@ class UI(QMainWindow):
             self.show_schedule_cohorts(tuesday, 1)
             self.show_schedule_cohorts(wednesday, 2)
             self.show_schedule_cohorts(thursday, 3)
-            self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
+            self.cohort_week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK_COHORTS] + "\nWeek " + str(WEEK_COHORTS))
         except:
             return
     def back_week_cohort(self):
@@ -1133,12 +1134,11 @@ class UI(QMainWindow):
             self.show_schedule_cohorts(tuesday, 1)
             self.show_schedule_cohorts(wednesday, 2)
             self.show_schedule_cohorts(thursday, 3)
-            self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
+            self.cohort_week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK_COHORTS] + "\nWeek " + str(WEEK_COHORTS))
         except:
             return
     def create_schedule(self):
-        self.week_label.setText("Week 1")
-        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR
+        global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR, WEEK_DISPLAY_DATE
         # Reset values
         CORE_DAY = 1
         PROG_DAY = 1
@@ -1178,8 +1178,16 @@ class UI(QMainWindow):
         #TODO This is where the cohorts should be put in the combo box
         self.cohort_tab_combo.addItem("PCOM0301")
 
-        imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
+        start_days = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
         imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
+
+        index = 0
+        for week_start in range(1, len(start_days)):
+            WEEK_DISPLAY_DATE[week_start] = start_days[index].strftime("%Y-%m-%d")
+            index+=1
+
+        self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[1] + "\nWeek " + str(WEEK))
+
         random.shuffle(BG_COLOURS)
         COURSE_COLOUR.clear()
         COHORT_COURSE_COLOUR.clear()
@@ -1643,9 +1651,9 @@ class UI(QMainWindow):
     '''
     def room_selector_show_schedule(self):
 
-        global WEEK, ROOM, CORE_DAY, PROG_DAY
-        self.week_label.setText("Week 1")
+        global WEEK, ROOM, CORE_DAY, PROG_DAY, WEEK_DISPLAY_DATE
         WEEK = 1
+        self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[1] + "\nWeek " + str(WEEK))
         CORE_DAY = 1
         PROG_DAY = 1
         ROOM = self.select_room.currentText()
@@ -1686,9 +1694,9 @@ class UI(QMainWindow):
     '''
     def cohort_selector_show_schedule(self):
 
-        global WEEK_UI, COHORT_CHOSEN, CORE_DAY, PROG_DAY, COHORT_COURSE_TO_ROOM, COHORT_COURSE_COLOUR
-        self.cohort_week_label.setText("Week 1")
-        WEEK_UI = 1
+        global WEEK_COHORTS, COHORT_CHOSEN, CORE_DAY, PROG_DAY, COHORT_COURSE_TO_ROOM, COHORT_COURSE_COLOUR, WEEK_DISPLAY_DATE
+        WEEK_COHORTS = 1
+        self.cohort_week_label.setText("Week of " + WEEK_DISPLAY_DATE[1] + "\nWeek " + str(WEEK_COHORTS))
         CORE_DAY = 1
         PROG_DAY = 1
         COHORT_CHOSEN = self.cohort_tab_combo.currentText()
@@ -1703,8 +1711,8 @@ class UI(QMainWindow):
         self.get_cohort_lecture_items()
 
         # Get the lists for each day
-        core = CORE_SCHEDULE_COHORTS[WEEK_UI]
-        prog = PROG_SCHEDULE_COHORTS[WEEK_UI]
+        core = CORE_SCHEDULE_COHORTS[WEEK_COHORTS]
+        prog = PROG_SCHEDULE_COHORTS[WEEK_COHORTS]
 
         monday = core[0]
         wednesday = core[1]
