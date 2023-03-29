@@ -965,7 +965,10 @@ class UI(QMainWindow):
         course = ""
 
         font = QFont()
-        font.setPointSize(11)
+        if ROOM.find("(LAB)") != -1:
+            font.setPointSize(9)
+        else:
+            font.setPointSize(11)
 
         for cell in range(self.main_table.rowCount()):
 
@@ -1100,10 +1103,10 @@ class UI(QMainWindow):
             wednesday = core[1]
             tuesday = prog[0]
             thursday = prog[1]
-            self.show_schedule(monday,0)
-            self.show_schedule(tuesday, 1)
-            self.show_schedule(wednesday, 2)
-            self.show_schedule(thursday, 3)
+            self.show_schedule_cohorts(monday,0)
+            self.show_schedule_cohorts(tuesday, 1)
+            self.show_schedule_cohorts(wednesday, 2)
+            self.show_schedule_cohorts(thursday, 3)
             self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
         except:
             return
@@ -1126,10 +1129,10 @@ class UI(QMainWindow):
             wednesday = core[1]
             tuesday = prog[0]
             thursday = prog[1]
-            self.show_schedule(monday,0)
-            self.show_schedule(tuesday, 1)
-            self.show_schedule(wednesday, 2)
-            self.show_schedule(thursday, 3)
+            self.show_schedule_cohorts(monday,0)
+            self.show_schedule_cohorts(tuesday, 1)
+            self.show_schedule_cohorts(wednesday, 2)
+            self.show_schedule_cohorts(thursday, 3)
             self.cohort_week_label.setText("Week " + str(WEEK_COHORTS))
         except:
             return
@@ -1821,7 +1824,7 @@ class UI(QMainWindow):
         course = ""
 
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(9)
 
         for cell in range(self.cohort_table.rowCount()):
 
