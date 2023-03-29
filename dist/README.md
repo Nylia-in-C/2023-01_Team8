@@ -2,22 +2,22 @@
 &nbsp; 
 # Table of Contents  
 &nbsp;  
-[1. Introduction](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#1-introduction)  
-[2. Installation](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#2-installation)  
-[3. Basic UI Overview](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3-basic-ui-overview)  
-    [3.1. Sidebar](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#31-sidebar)  
-        [3.1.1. File Import](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#311-file-import)    
-        [3.1.2. Create Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#312-create-template)  
-        [3.1.3. Import Template](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#313-import-template)   
-        [3.1.4. Students per Term Menu](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#314-students-per-term-menu)  
-        [3.1.5. Create Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#315-create-schedule)  
-    [3.2. Tabs](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#32-tabs)  
-        [3.2.1. Classroom Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#321-classroom-schedule)  
-        [3.2.2. Cohort Schedule](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#322-cohort-schedule) 
-        [3.2.3. Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#323-options)  
-            [3.2.3.1. Room Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3231-room-options)  
-            [3.2.3.2. Course Options](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#3232-course-options)  
-        [3.2.4. Instructions](https://github.com/Nylia-in-C/2023-01_Team8/blob/main/README.md#324-instructions)  
+[1. Introduction](https://github.com/MacEwanCMPT395/2023-01_Team8#1-introduction)
+[2. Installation](https://github.com/MacEwanCMPT395/2023-01_Team8#2-installation)  
+[3. Basic UI Overview](https://github.com/MacEwanCMPT395/2023-01_Team8#3-basic-ui-overview)  
+    [3.1. Sidebar](https://github.com/MacEwanCMPT395/2023-01_Team8#31-sidebar)  
+        [3.1.1. File Import](https://github.com/MacEwanCMPT395/2023-01_Team8#311-file-import)    
+        [3.1.2. Create Template](https://github.com/MacEwanCMPT395/2023-01_Team8#312-create-template)  
+        [3.1.3. Import Template](https://github.com/MacEwanCMPT395/2023-01_Team8#313-import-template)   
+        [3.1.4. Students per Term Menu](https://github.com/MacEwanCMPT395/2023-01_Team8#314-students-per-term-menu)  
+        [3.1.5. Create Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#315-create-schedule)  
+    [3.2. Tabs](https://github.com/MacEwanCMPT395/2023-01_Team8#32-tabs)  
+        [3.2.1. Classroom Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#321-classroom-schedule)  
+        [3.2.2. Cohort Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#322-cohort-schedule) 
+        [3.2.3. Options](https://github.com/MacEwanCMPT395/2023-01_Team8#323-options)  
+            [3.2.3.1. Room Options](https://github.com/MacEwanCMPT395/2023-01_Team8#3231-room-options)  
+            [3.2.3.2. Course Options](https://github.com/MacEwanCMPT395/2023-01_Team8#3232-course-options)  
+        [3.2.4. Instructions](https://github.com/MacEwanCMPT395/2023-01_Team8#324-instructions)  
 &nbsp;  
 # 1. Introduction
 *Scheduler* is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
