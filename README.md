@@ -65,9 +65,13 @@ Each lecture is represented by a coloured block; matching colours denote lecture
 &nbsp;   
 To view a different week, click on the left and right arrow navigation buttons above the schedule.
 
+Note: *Ghost rooms* denote rooms that do not currently exist, indicating a need to get an additional room. 
+
 &nbsp;   
 ### 3.2.1. Cohort Schedule
 After at least one classroom schedule has been created, the user can filter by cohorts to receive a cohort-specific schedule. This schedule can be navigated left and right the same way as the classroom schedule.
+
+Note: *Ghost rooms* denote rooms that do not currently exist, indicating a need to get an additional room. 
 
 &nbsp; 
 ### 3.2.3. Options  
