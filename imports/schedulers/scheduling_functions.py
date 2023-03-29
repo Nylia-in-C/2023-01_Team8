@@ -978,6 +978,8 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
     lec_objs  = []
     last_days = {}
     
+    holiday_ints = []
+    
     # starting monday dates for each week (all terms start on a wednesday)
     week_starts = [day - dt.timedelta(days=2)]
     
@@ -999,16 +1001,16 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
 
     while day < (start_day + dt.timedelta(weeks=13)):
         
-        day_count += 1
-        
         if day in holidays:
             full_schedule[day] = (f"HOLIDAY")
+            holiday_ints.append(day_count)
             if (day.weekday() == 0):
                 day += dt.timedelta(days=2)
             elif (day.weekday() == 2):
                 day += dt.timedelta(days=5)
                 week += 1
                 week_starts.append(day)
+            day_count += 1
             continue
         
         lecture_sched = make_core_lecture_sched(
@@ -1043,9 +1045,11 @@ def create_core_term_schedule(lectures: Dict[str, List[Course]],
             day += dt.timedelta(days=5)
             week += 1
             week_starts.append(day)
-        
+            
+        day_count += 1
+
     add_lectures_to_db()
-    return full_schedule, week_starts, last_days
+    return full_schedule, week_starts, last_days, holiday_ints
 
 def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
                               labs: Dict[str, List[Course]],
@@ -1062,10 +1066,12 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
 
     day  = start_day
     week = 1
-    
+
     day_count = 0
     lec_objs  = []
     last_days = {}
+    
+    holiday_ints = []
     
     # starting tuesday dates for each week 
     week_starts = [day - dt.timedelta(days=2)]
@@ -1088,16 +1094,16 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
     
     while day < (start_day + dt.timedelta(weeks=13)):
         
-        day_count += 1
-
         if day in holidays:
             full_schedule[day] = (f"HOLIDAY")
+            holiday_ints.append(day_count)
             if (day.weekday() == 0):
                 day += dt.timedelta(days=2)
             elif (day.weekday() == 2):
                 day += dt.timedelta(days=5)
                 week += 1
                 week_starts.append(day)
+            day_count += 1
             continue
 
         lecture_sched = make_prgm_lecture_sched(
@@ -1131,9 +1137,10 @@ def create_prgm_term_schedule(lectures: Dict[str, List[Course]],
             day += dt.timedelta(days=5)
             week += 1
             week_starts.append(day)
-
+        day_count += 1
+        
     add_lectures_to_db()
-    return full_schedule, week_starts, last_days
+    return full_schedule, week_starts, last_days, holiday_ints
 
 def getHolidaysMonWed(fallYear):
     '''

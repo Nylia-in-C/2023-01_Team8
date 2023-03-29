@@ -29,7 +29,7 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
     elif (term == 2):
         termA = 1
         termB = 2
-        start_day = getWinterStartDay(2024)
+        start_day = getWinterStartDay(2024) 
         holidays  = getHolidaysMonWed(2023)
     elif (term == 3):
         termA = 2
@@ -101,7 +101,7 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
     # get all 26 day schedules as a dictionary of dataframes
     # (technically, we only need the lecture objects, but having this makes 
     # scheduling & debugging 1000x easier)
-    full_schedule, week_starts, last_days = create_core_term_schedule(
+    full_schedule, week_starts, last_days, h_ints = create_core_term_schedule(
         lectures, labs, online, cohorts, rooms, start_day, holidays
     )
     
@@ -115,7 +115,8 @@ def get_sched(term: int, debug=False) -> Dict[str, pd.DataFrame]:
     return {
         "cohorts": all_cohorts,
         "week starts": week_starts,
-        "last days": last_days 
+        "last days": last_days,
+        "holidays": h_ints,
     }
 
 
