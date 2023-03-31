@@ -60,8 +60,8 @@ WEEK_DISPLAY_DATE = {}
 ROOM = ""
 global PROG_LABELS
 WEEK = 1
-CORE_DAY = 1
-PROG_DAY = 1
+CORE_DAY = 0
+PROG_DAY = 0
 COLOUR_INDEX = -1
 COURSE_COLOUR = {}
 COHORT_COURSE_COLOUR = {}
@@ -1204,8 +1204,8 @@ class UI(QMainWindow):
         global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
             ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE, CORE_END_DATES, PROG_END_DATES, CORE_HOLIDAYS, PROG_HOLIDAYS
         # Reset values
-        CORE_DAY = 1
-        PROG_DAY = 1
+        CORE_DAY = 0
+        PROG_DAY = 0
         CORE_SCHEDULE.clear()
         PROG_SCHEDULE.clear()
         self.cohort_tab_combo.clear()
@@ -1514,6 +1514,9 @@ class UI(QMainWindow):
         db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
+        # Get classes set on day 0
+        core_lectures_in_week = readLectureItem_UI(connection, ROOM, 0, 1)
+        prog_lectures_in_week = readLectureItem_UI(connection, ROOM, 0, 0)
 
         # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
         # 13 weeks in a semester
@@ -1527,8 +1530,8 @@ class UI(QMainWindow):
                 core_pass = []
                 prog_pass = []
 
-                core_lectures_in_week = readLectureItem_UI(connection, ROOM, CORE_DAY, 1)
-                prog_lectures_in_week = readLectureItem_UI(connection, ROOM, PROG_DAY, 0)
+                core_lectures_in_week.extend(readLectureItem_UI(connection, ROOM, CORE_DAY, 1))
+                prog_lectures_in_week.extend(readLectureItem_UI(connection, ROOM, PROG_DAY, 0))
 
                 # Append to overall list of lectures. Compare against dictionary for end dates
                 # Remove entry if it is past the end date.
@@ -1585,6 +1588,9 @@ class UI(QMainWindow):
         db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
+        core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, 0, 1)
+        prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, 0, 0)
+
         # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
         # 13 weeks in a semester
         for weeks in range(1, 14):
@@ -1597,10 +1603,10 @@ class UI(QMainWindow):
                 core_pass = []
                 prog_pass = []
 
-                core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1)
+                core_lectures_in_week.extend(readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1))
                 core_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], CORE_DAY, 1))
 
-                prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0)
+                prog_lectures_in_week.extend(readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0))
                 prog_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], PROG_DAY, 0))
 
                 # Append to overall list of lectures. Compare against dictionary for end dates
