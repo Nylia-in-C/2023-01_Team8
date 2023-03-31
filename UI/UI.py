@@ -1534,12 +1534,12 @@ class UI(QMainWindow):
                 # Remove entry if it is past the end date.
                 core_cross_check += core_lectures_in_week
                 for course in core_cross_check:
-                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                    if not CORE_DAY > CORE_END_DATES.get(course[0], 0):
                         core_pass.append(course)
 
                 prog_cross_check += prog_lectures_in_week
                 for course in prog_cross_check:
-                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                    if not PROG_DAY > PROG_END_DATES.get(course[0], 0):
                         prog_pass.append(course)
 
                 if CORE_DAY in CORE_HOLIDAYS:
@@ -1607,12 +1607,12 @@ class UI(QMainWindow):
                 # Remove entry if it is past the end date.
                 core_cross_check += core_lectures_in_week
                 for course in core_cross_check:
-                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                    if not CORE_DAY > CORE_END_DATES.get(course[0], 0):
                         core_pass.append(course)
 
                 prog_cross_check += prog_lectures_in_week
                 for course in prog_cross_check:
-                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                    if not PROG_DAY > PROG_END_DATES.get(course[0], 0):
                         prog_pass.append(course)
 
                 # Checking if there was any new differences in schedule
