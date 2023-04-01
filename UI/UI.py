@@ -640,8 +640,6 @@ class UI(QMainWindow):
 
         return vbox
 
-
-
     # Makes layout for the term input section
     def legion_inputs(self):
         vbox_all = QVBoxLayout()
@@ -649,9 +647,9 @@ class UI(QMainWindow):
         hbox_inputs = QHBoxLayout()
 
         hbox_inputs.addLayout(self.program_labels())
-        hbox_inputs.addLayout(self.create_term1_inputs())
-        hbox_inputs.addLayout(self.create_term2_inputs())
-        hbox_inputs.addLayout(self.create_term3_inputs())
+        hbox_inputs.addLayout(self.create_term_inputs(self.term_1_inputs, "Term 1"))
+        hbox_inputs.addLayout(self.create_term_inputs(self.term_2_inputs, "Term 2"))
+        hbox_inputs.addLayout(self.create_term_inputs(self.term_3_inputs, "Term 3"))
 
         vbox_all.addLayout(hbox_inputs)
 
@@ -685,63 +683,18 @@ class UI(QMainWindow):
 
         return vbox_labels
 
-
-    def create_term1_inputs(self):
-
-        '''
-        self.term_1_inputs holds all the fields here
-        '''
+    def create_term_inputs(self, inputs, header_text):
         vbox = QVBoxLayout()
 
         for n in range(len(PROG_LABELS)):
-            self.term_1_inputs.addWidget(self.stu_num_input())
+            inputs.addWidget(self.stu_num_input())
 
-        self.term_1_inputs.setAlignment(Qt.AlignLeft)
+        inputs.setAlignment(Qt.AlignLeft)
 
-        header = w.label(w.snow_reg, "Term 1")
-
-        vbox.addWidget(header)
-        vbox.addLayout(self.term_1_inputs)
-
-        return vbox
-    
-    def create_term2_inputs(self):
-
-
-        '''
-        self.term_2_inputs holds all the fields here
-        '''
-        vbox = QVBoxLayout()
-
-        for n in range(len(PROG_LABELS)):
-            self.term_2_inputs.addWidget(self.stu_num_input())
-
-        self.term_2_inputs.setAlignment(Qt.AlignLeft)
-
-        header = w.label(w.snow_reg, "Term 2")
+        header = w.label(w.snow_reg, header_text)
 
         vbox.addWidget(header)
-        vbox.addLayout(self.term_2_inputs)
-
-        return vbox
-
-    def create_term3_inputs(self):
-
-
-        '''
-        self.term_2_inputs holds all the fields here
-        '''
-        vbox = QVBoxLayout()
-
-        for n in range(len(PROG_LABELS)):
-            self.term_3_inputs.addWidget(self.stu_num_input())
-
-        self.term_3_inputs.setAlignment(Qt.AlignLeft)
-
-        header = w.label(w.snow_reg, "Term 3")
-
-        vbox.addWidget(header)
-        vbox.addLayout(self.term_3_inputs)
+        vbox.addLayout(inputs)
 
         return vbox
 
