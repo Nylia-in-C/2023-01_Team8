@@ -242,6 +242,7 @@ class UI(QMainWindow):
 
         return vbox_overall
     
+
     def make_readme_tab(self):
         # Read me Doc
         read_me = QTextEdit()
@@ -256,6 +257,7 @@ class UI(QMainWindow):
         layout.addWidget(read_me)
 
         return layout
+
 
     def update_classroom_section(self):
         room_add_layout = QHBoxLayout()
@@ -645,12 +647,6 @@ class UI(QMainWindow):
         return vbox_all
 
 
-    def stu_num_input(self):
-        input_box = w.spin_box(w.glass, 0, 1000)
-        input_box.setMinimumWidth(50)
-        return input_box
-
-
     def program_labels(self):
         global PROG_LABELS
         vbox_labels = QVBoxLayout()
@@ -670,7 +666,9 @@ class UI(QMainWindow):
         vbox = QVBoxLayout()
 
         for n in range(len(PROG_LABELS)):
-            inputs.addWidget(self.stu_num_input())
+            input_box = w.spin_box(w.glass, 0, 1000)
+            input_box.setMinimumWidth(50)
+            inputs.addWidget(input_box)
 
         inputs.setAlignment(Qt.AlignLeft)
 
@@ -815,6 +813,7 @@ class UI(QMainWindow):
                 self.main_table.setCellWidget(cell, weekday, label_fill)
                 self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
+
     def add_ghost_rooms(self):
 
         imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
@@ -829,10 +828,10 @@ class UI(QMainWindow):
 
         close_connection(connection)
 
+
     '''
     Action Event functions
     '''
-
     def back_week(self):
         global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
 
