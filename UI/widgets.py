@@ -86,3 +86,10 @@ def label(Style, text, size = 10):
     label.setFont(Style.font)
 
     return label
+
+def drop_down(Style, task = None):
+    dropdown = QComboBox()
+    dropdown.setStyleSheet(Style.style)
+    dropdown.activated.connect(task)
+
+    return dropdown

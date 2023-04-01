@@ -12,7 +12,6 @@ from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 import random
-import database.database
 import fill_data
 from UI import widgets as w
 import helpers
@@ -99,20 +98,11 @@ class UI(QMainWindow):
         self.setWindowTitle("Scheduler")
         self.setStyleSheet("background-color: #6f2937") 
 
-        #Stylesheet
-        global style_glass
-        style_glass =        (  "background-color: #5e869c; " +
-                                "color: #fefdea; " +
-                                "border-color: #fefdea; ")
-
-
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
         self.file_path = ""
         self.file_label = w.label(w.snow_reg, "No File Chosen")
-        self.select_room = QComboBox()
-        self.select_room.activated.connect(self.room_selector_show_schedule)
-        self.select_room.setStyleSheet(style_glass)
+        self.select_room = w.drop_down(w.glass, self.room_selector_show_schedule)
 
         self.week_label = w.label(w.snow_header1, "")
         self.week_label.setAlignment(Qt.AlignCenter)
@@ -121,35 +111,35 @@ class UI(QMainWindow):
         self.cohort_week_label.setAlignment(Qt.AlignCenter)
 
         self.pick_semester = QComboBox()
-        self.pick_semester.setStyleSheet(style_glass) 
+        self.pick_semester.setStyleSheet(w.glass.style) 
         self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
         self.class_id = QLineEdit()
         self.class_lab = QButtonGroup()
         self.class_capacity = QSpinBox()
-        self.class_capacity.setStyleSheet(style_glass)
+        self.class_capacity.setStyleSheet(w.glass.style)
         self.classroom_list = QComboBox()
-        self.classroom_list.setStyleSheet(style_glass)
+        self.classroom_list.setStyleSheet(w.glass.style)
 
         self.courses = QComboBox()
-        self.courses.setStyleSheet(style_glass)
+        self.courses.setStyleSheet(w.glass.style)
         self.courses_edit_new = QButtonGroup()
         self.course_id = QLineEdit()
         self.course_term_hours = QSpinBox()
-        self.course_term_hours.setStyleSheet(style_glass)
+        self.course_term_hours.setStyleSheet(w.glass.style)
         self.course_term = QSpinBox()
-        self.course_term.setStyleSheet(style_glass)
+        self.course_term.setStyleSheet(w.glass.style)
         self.course_duration = QSpinBox()
-        self.course_duration.setStyleSheet(style_glass) 
+        self.course_duration.setStyleSheet(w.glass.style) 
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
         self.course_program = QComboBox()
-        self.course_program.setStyleSheet(style_glass)
+        self.course_program.setStyleSheet(w.glass.style)
 
         self.course_pre_req_selector = QComboBox()
-        self.course_pre_req_selector.setStyleSheet(style_glass)
+        self.course_pre_req_selector.setStyleSheet(w.glass.style)
         self.course_pre_reqs = []
         self.course_pre_reqs_label = w.label(w.snow_reg, "")
 
@@ -172,9 +162,7 @@ class UI(QMainWindow):
         + Combobox for picking cohort
         '''
         self.cohort_table = QTableWidget()
-        self.cohort_tab_combo = QComboBox()
-        self.cohort_tab_combo.setStyleSheet(style_glass)
-        self.cohort_tab_combo.activated.connect(self.cohort_selector_show_schedule)
+        self.cohort_tab_combo = w.drop_down(w.glass, self.cohort_selector_show_schedule)
 
         self.cohort_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.cohort_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -211,7 +199,7 @@ class UI(QMainWindow):
         splash_pic = QPixmap(logo)
         splash_msg = QSplashScreen(splash_pic, Qt.WindowStaysOnTopHint)
         splash_msg.setFixedSize(965, 568)
-        splash_msg.setStyleSheet(style_glass)
+        splash_msg.setStyleSheet(w.glass)
 
         #Fade in, fade out
         opaque = 0.00
@@ -267,7 +255,7 @@ class UI(QMainWindow):
 
         # Create tabs
         tabs = QTabWidget()
-        tabs.setStyleSheet(style_glass)
+        tabs.setStyleSheet(w.glass.style)
         tab1 = QWidget()
         tab1.setStyleSheet(    "background-color: #3b0918; " +
                                "color: #fefdea; ")                                 
@@ -342,7 +330,6 @@ class UI(QMainWindow):
         vbox_overall.addWidget(self.create_horizontal_line())
 
         #Reset database button
-        w.snow.font.setBold(True)
         reset_label = w.label(w.snow_header1, "Reset Database")
 
         reset_button = w.push_button(w.glass, "Reset to Default Settings", self.reset_db)
@@ -457,13 +444,7 @@ class UI(QMainWindow):
         vbox_course = QVBoxLayout()
         vbox_course.setContentsMargins(20,0,0,0)
 
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(16)
-
-        course_section_text = QLabel("Course Options")
-        course_section_text.setStyleSheet("color: #fefdea")
-        course_section_text.setFont(font)
+        course_section_text = w.label(w.snow_header1, "Course Options")
         
         vbox_course.addWidget(course_section_text)
         vbox_course.addWidget(self.create_horizontal_line())
@@ -501,8 +482,7 @@ class UI(QMainWindow):
         #-----------------------------
 
         hbox_program = QHBoxLayout()
-        prog_label = QLabel("Program: ")
-        prog_label.setStyleSheet("color: #fefdea")
+        prog_label = w.label(w.snow_reg, "Program: ")
         hbox_program.addWidget(prog_label)
         self.course_program.addItems(["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"])
         hbox_program.addWidget(self.course_program)
@@ -510,8 +490,7 @@ class UI(QMainWindow):
         # -----------------------------
 
         course_id_sec = QHBoxLayout()
-        course_name_label = QLabel("Course Name")
-        course_name_label.setStyleSheet("color: #fefdea")
+        course_name_label = w.label(w.snow_reg, "Course Name")
         course_id_sec.addWidget(course_name_label)
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
         self.course_id.setStyleSheet("color: #fefdea")
@@ -525,20 +504,17 @@ class UI(QMainWindow):
 
         vbox_spin_boxes = QVBoxLayout()
         hbox_hours = QHBoxLayout()
-        hours_label = QLabel("Course Hours: ")
-        hours_label.setStyleSheet("color: #fefdea")
+        hours_label = w.label(w.snow_reg, "Course Hours: ")
         hbox_hours.addWidget(hours_label)
         hbox_hours.addWidget(self.course_term_hours)
 
         hbox_term = QHBoxLayout()
-        term_label = QLabel("Term: ")
-        term_label.setStyleSheet("color: #fefdea")
+        term_label = w.label(w.snow_reg, "Term: ")
         hbox_term.addWidget(term_label)
         hbox_term.addWidget(self.course_term)
 
         hbox_duration = QHBoxLayout()
-        duration_label = QLabel("Duration: ")
-        duration_label.setStyleSheet("color: #fefdea")
+        duration_label = w.label(w.snow_reg, "Duration: ")
         hbox_duration.addWidget(duration_label)
         hbox_duration.addWidget(self.course_duration)
 
@@ -551,20 +527,17 @@ class UI(QMainWindow):
         hbox_online_lab = QHBoxLayout()
 
         core_hbox = QHBoxLayout()
-        core_label = QLabel("Core Course: ")
-        core_label.setStyleSheet("color: #fefdea")
+        core_label = w.label(w.snow_reg, "Core Course: ")
         core_hbox.addWidget(core_label)
         core_hbox.addWidget(self.course_core)
 
         online_hbox = QHBoxLayout()
-        online_label = QLabel("Online: ")
-        online_label.setStyleSheet("color: #fefdea")
+        online_label = w.label(w.snow_reg, "Online: ")
         online_hbox.addWidget(online_label)
         online_hbox.addWidget(self.course_online)
 
         hbox_lab = QHBoxLayout()
-        lab_comp_label = QLabel("Lab Component: ")
-        lab_comp_label.setStyleSheet("color: #fefdea")
+        lab_comp_label = w.label(w.snow_reg, "Lab Component: ")
         hbox_lab.addWidget(lab_comp_label)
         hbox_lab.addWidget(self.course_lab)
 
@@ -580,8 +553,7 @@ class UI(QMainWindow):
         hbox_pre_reqs = QHBoxLayout()
         vbox_pre_reqs = QVBoxLayout()
 
-        pre_req_label = QLabel("Chosen Pre-Reqs")
-        pre_req_label.setStyleSheet("color: #fefdea")
+        pre_req_label = w.label(w.snow_reg, "Chosen Pre-Reqs")
         hbox_pre_reqs.addWidget(pre_req_label)
         add_pre_req = w.push_button(w.glass, "Add Pre-Req", self.add_pre_req)
         rem_pre_req = w.push_button(w.glass, "Clear Pre-Reqs", self.clear_pre_reqs)
@@ -662,27 +634,16 @@ class UI(QMainWindow):
         vbox.setSizeConstraint(QLayout.SetFixedSize) # Prevents left side from resizing
 
         #Big Scheduler label in top left corner
-        title = QLabel("Scheduler")
+        title = w.label(w.snow_header1, "Scheduler", 40)
         title.setMaximumWidth(LEFT_MAX_WIDTH)
-        title.setStyleSheet("color: #fefdea")
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(40)
-        title.setFont(font)
 
         #Students Per Term Label
-        input_title = QLabel("Students per Term")
+        input_title = w.label(w.snow_header1, "Students per Term", 18)
         input_title.setMaximumWidth(LEFT_MAX_WIDTH)
-        input_title.setStyleSheet("color: #fefdea")
-        font.setPointSize(12)
-        input_title.setFont(font)
 
         #Term & Classroom label
-        select_title = QLabel("Term & Classroom")
+        select_title = w.label(w.snow_header1, "Term & Classroom", 18)
         select_title.setMaximumWidth(LEFT_MAX_WIDTH)
-        select_title.setStyleSheet("color: #fefdea")
-        font.setPointSize(12)
-        select_title.setFont(font)
 
         #Big green Create Schedule Button
         create_sched = w.push_button(w.coal, "Create Schedule", self.create_schedule)
@@ -726,7 +687,7 @@ class UI(QMainWindow):
         vbox = QVBoxLayout()
 
         #Title
-        title = QLabel("Enrollment Import")
+        title = w.label(w.snow_header1, "Enrollment Import", 18)
         title.setStyleSheet("color: #fefdea")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
         
@@ -786,7 +747,7 @@ class UI(QMainWindow):
         input_box = QSpinBox()
         input_box.setMaximum(1000)
         input_box.setMinimumWidth(50)
-        input_box.setStyleSheet(style_glass)
+        input_box.setStyleSheet(w.glass.style)
         return input_box
 
     def program_labels(self):
@@ -798,8 +759,7 @@ class UI(QMainWindow):
         PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for label in PROG_LABELS:
-            program = QLabel(label)
-            program.setStyleSheet("color: #fefdea")
+            program = w.label(w.snow_reg, label)
             vbox_labels.addWidget(program)
 
         return vbox_labels
@@ -817,8 +777,7 @@ class UI(QMainWindow):
 
         self.term_1_inputs.setAlignment(Qt.AlignLeft)
 
-        header = QLabel("Term 1")
-        header.setStyleSheet("color: #fefdea")
+        header = w.label(w.snow_reg, "Term 1")
 
         vbox.addWidget(header)
         vbox.addLayout(self.term_1_inputs)
@@ -838,8 +797,7 @@ class UI(QMainWindow):
 
         self.term_2_inputs.setAlignment(Qt.AlignLeft)
 
-        header = QLabel("Term 2")
-        header.setStyleSheet("color: #fefdea")
+        header = w.label(w.snow_reg, "Term 2")
 
         vbox.addWidget(header)
         vbox.addLayout(self.term_2_inputs)
@@ -859,8 +817,7 @@ class UI(QMainWindow):
 
         self.term_3_inputs.setAlignment(Qt.AlignLeft)
 
-        header = QLabel("Term 3")
-        header.setStyleSheet("color: #fefdea")
+        header = w.label(w.snow_reg, "Term 3")
 
         vbox.addWidget(header)
         vbox.addLayout(self.term_3_inputs)
@@ -1158,7 +1115,7 @@ class UI(QMainWindow):
         load_font.setPointSize(40)
         load_msg = QSplashScreen()
         load_msg.setFixedSize(400,200)
-        load_msg.setStyleSheet(style_glass)
+        load_msg.setStyleSheet(w.glass)
         load_msg.setFont(load_font)
         load_msg.show()
         load_msg.showMessage("Loading...", 0, QColor(255,255,255))
