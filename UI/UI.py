@@ -111,35 +111,33 @@ class UI(QMainWindow):
         self.cohort_week_label.setAlignment(Qt.AlignCenter)
 
         self.pick_semester = QComboBox()
-        self.pick_semester.setStyleSheet(w.glass.style) 
+        self.pick_semester.setStyleSheet(w.glass.specs) 
         self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
         self.class_id = QLineEdit()
         self.class_lab = QButtonGroup()
-        self.class_capacity = QSpinBox()
-        self.class_capacity.setStyleSheet(w.glass.style)
-        self.classroom_list = QComboBox()
-        self.classroom_list.setStyleSheet(w.glass.style)
+        self.class_capacity = w.spin_box(w.glass)
+        self.classroom_list = w.drop_down(w.glass)
 
         self.courses = QComboBox()
-        self.courses.setStyleSheet(w.glass.style)
+        self.courses.setStyleSheet(w.glass.specs)
         self.courses_edit_new = QButtonGroup()
         self.course_id = QLineEdit()
         self.course_term_hours = QSpinBox()
-        self.course_term_hours.setStyleSheet(w.glass.style)
+        self.course_term_hours.setStyleSheet(w.glass.specs)
         self.course_term = QSpinBox()
-        self.course_term.setStyleSheet(w.glass.style)
+        self.course_term.setStyleSheet(w.glass.specs)
         self.course_duration = QSpinBox()
-        self.course_duration.setStyleSheet(w.glass.style) 
+        self.course_duration.setStyleSheet(w.glass.specs) 
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
         self.course_program = QComboBox()
-        self.course_program.setStyleSheet(w.glass.style)
+        self.course_program.setStyleSheet(w.glass.specs)
 
         self.course_pre_req_selector = QComboBox()
-        self.course_pre_req_selector.setStyleSheet(w.glass.style)
+        self.course_pre_req_selector.setStyleSheet(w.glass.specs)
         self.course_pre_reqs = []
         self.course_pre_reqs_label = w.label(w.snow_reg, "")
 
@@ -255,7 +253,7 @@ class UI(QMainWindow):
 
         # Create tabs
         tabs = QTabWidget()
-        tabs.setStyleSheet(w.glass.style)
+        tabs.setStyleSheet(w.glass.specs)
         tab1 = QWidget()
         tab1.setStyleSheet(    "background-color: #3b0918; " +
                                "color: #fefdea; ")                                 
@@ -747,7 +745,7 @@ class UI(QMainWindow):
         input_box = QSpinBox()
         input_box.setMaximum(1000)
         input_box.setMinimumWidth(50)
-        input_box.setStyleSheet(w.glass.style)
+        input_box.setStyleSheet(w.glass.specs)
         return input_box
 
     def program_labels(self):

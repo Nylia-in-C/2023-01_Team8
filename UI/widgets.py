@@ -23,21 +23,21 @@ class Style:
 
     def __init__(self):
         self.font = QFont()
-        self.style = ""
+        self.specs = ""
 
 
 #Button Styles
 
 #Most buttons
 glass = Style()
-glass.style = (     "background-color: #5e869c; " +
+glass.specs = (     "background-color: #5e869c; " +
                     "color: #fefdea; " +
                     "border-color: #fefdea; ")
 
 
 #Navigation arrows and other major buttons
 coal = Style()
-coal.style =  (     "background-color: #4f4f4f; " +
+coal.specs =  (     "background-color: #4f4f4f; " +
                     "color: #fefdea; " +
                     "border-width: 3px; "+
                     "border-radius: 5px; "+
@@ -50,21 +50,21 @@ coal.font.setPointSize(20)
 #Most Labels
 #Regular text
 snow_reg = Style()
-snow_reg.style = ("color: #fefdea")
+snow_reg.specs = ("color: #fefdea")
 snow_reg.font.setPointSize(10)
 snow_reg.font.setBold(False)
 snow_reg.font.setItalic(False)
 
 #Headers
 snow_header1 = Style()
-snow_header1.style = ("color: #fefdea")
+snow_header1.specs = ("color: #fefdea")
 snow_header1.font.setPointSize(16)
 snow_header1.font.setBold(True)
 snow_header1.font.setItalic(False)
 
 #Subheaders
 snow_header2 = Style()
-snow_header2.style = ("color: #fefdea")
+snow_header2.specs = ("color: #fefdea")
 snow_header2.font.setPointSize(14)
 snow_header2.font.setBold(True)
 snow_header2.font.setItalic(True)
@@ -74,14 +74,14 @@ snow_header2.font.setItalic(True)
 def push_button(Style, label, task):
     button = QPushButton(label)
     button.setFont(Style.font)
-    button.setStyleSheet(Style.style)
+    button.setStyleSheet(Style.specs)
     button.clicked.connect(task)
 
     return button
 
 def label(Style, text, size = 10):
     label = QLabel(text)
-    label.setStyleSheet(Style.style)
+    label.setStyleSheet(Style.specs)
     Style.font.setPointSize(size)
     label.setFont(Style.font)
 
@@ -89,7 +89,17 @@ def label(Style, text, size = 10):
 
 def drop_down(Style, task = None):
     dropdown = QComboBox()
-    dropdown.setStyleSheet(Style.style)
-    dropdown.activated.connect(task)
+    dropdown.setStyleSheet(Style.specs)
+    if task != None:
+        dropdown.activated.connect(task)
 
     return dropdown
+
+def spin_box(Style, min = 0, max = 1000):
+    spinbox = QSpinBox()
+    spinbox.setStyleSheet(Style.specs)
+    spinbox.setMinimum(min)
+    spinbox.setValue(min)
+    spinbox.setMaximum(max)
+
+    return spinbox
