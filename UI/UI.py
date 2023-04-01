@@ -177,39 +177,21 @@ class UI(QMainWindow):
         tabs = QTabWidget()
         tabs.setStyleSheet(w.glass.specs)
 
-        tab1 = QWidget()
-        tab1.setStyleSheet(w.brick.specs)                                 
-        tab2 = QWidget()
-        tab2.setStyleSheet(w.brick.specs)  
-        tab3 = QWidget()
-        tab3.setStyleSheet(w.brick.specs)
-        tab4 = QWidget()        
-        tab4.setStyleSheet(w.paper.specs)
-                                
-        tabs.addTab(tab1, "Classroom Schedule")
-        tabs.addTab(tab2, "Cohort Schedule")
-        tabs.addTab(tab3, "Options")
-        tabs.addTab(tab4, "Instructions")
+        (tab1, tab2, tab3, tab4) = (QWidget(), QWidget(), QWidget(), QWidget())
+
+        t_list = [tab1, tab2, tab3, tab4]
+        styles = [w.brick.specs, w.brick.specs, w.brick.specs, w.paper.specs]
+        t_titles = ["Classroom Schedule", "Cohort Schedule", "Options", "Instructions"]
+        t_funcs = [self.make_main_tab(), self.make_cohort_sched_tab(), 
+                   self.make_options_tab(), self.make_readme_tab()]
+
+        for i in range(len(t_list)):
+            t_list[i].setStyleSheet(styles[i])
+            tabs.addTab(t_list[i], t_titles[i])
+            t_list[i].setLayout(t_funcs[i])
 
         self.create_schedule_base(0)
         self.create_cohorts_schedule_base()
-
-        tab1.setLayout(self.make_main_tab())
-        tab2.setLayout(self.make_cohort_sched_tab())
-        tab3.setLayout(self.make_options_tab())
-
-        # Read me Doc
-        read_me = QTextEdit()
-        rdme_path = helpers.check_path('README.md')
-        try:
-            file_content = open(rdme_path).read()
-        except:
-            rdme_path = helpers.check_path('..\\README.md')
-            file_content = open(rdme_path).read()
-        read_me.setMarkdown(file_content)
-        layout = QHBoxLayout()
-        layout.addWidget(read_me)
-        tab4.setLayout(layout)
 
         return tabs
 
@@ -260,6 +242,20 @@ class UI(QMainWindow):
 
         return vbox_overall
     
+    def make_readme_tab(self):
+        # Read me Doc
+        read_me = QTextEdit()
+        rdme_path = helpers.check_path('README.md')
+        try:
+            file_content = open(rdme_path).read()
+        except:
+            rdme_path = helpers.check_path('..\\README.md')
+            file_content = open(rdme_path).read()
+        read_me.setMarkdown(file_content)
+        layout = QHBoxLayout()
+        layout.addWidget(read_me)
+
+        return layout
 
     def update_classroom_section(self):
         room_add_layout = QHBoxLayout()
