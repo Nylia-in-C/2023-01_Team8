@@ -766,10 +766,8 @@ class UI(QMainWindow):
         title.setFont(font)
 
         hbox_file_choose = QHBoxLayout(self)
-        choose_input_button = QPushButton("Choose File", self)
-        choose_input_button.setStyleSheet(style_glass)
+        choose_input_button = w.push_button(w.glass, "Choose File", self.choose_file)
         choose_input_button.setMaximumWidth(100)
-        choose_input_button.clicked.connect(self.choose_file)
 
         self.file_label.setText("No File Chosen")
         self.file_label.setStyleSheet("color: #fefdea")
@@ -778,19 +776,15 @@ class UI(QMainWindow):
         hbox_file_choose.addWidget(choose_input_button)
         hbox_file_choose.addWidget(self.file_label)
 
-        load_data = QPushButton("Load Data")
-        load_data.setStyleSheet(style_glass)     
-        load_data.clicked.connect(self.load_student_numbers)
+        load_data = w.push_button(w.glass, "Load Data", self.load_student_numbers)
 
-        create_template_button = QPushButton("Create Template")
-        create_template_button.setStyleSheet(style_glass)
-        create_template_button.clicked.connect(self.create_template)
+        create_template_btn = w.push_button(w.glass, "Create Template", self.create_template)
 
         vbox.addWidget(title)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox_file_choose)
         vbox.addWidget(load_data)
-        vbox.addWidget(create_template_button)
+        vbox.addWidget(create_template_btn)
 
         return vbox
 
@@ -810,9 +804,9 @@ class UI(QMainWindow):
         vbox_all.addLayout(hbox_inputs)
 
         #Load saved student numbers button
-        load_saved_students = QPushButton("Load Saved Student Numbers")
-        load_saved_students.setStyleSheet(style_glass)
-        load_saved_students.clicked.connect(self.load_db_stu_num)
+        load_saved_students = w.push_button(w.glass, 
+                                            "Load Saved Student Numbers", 
+                                            self.load_db_stu_num)
 
         vbox_all.addWidget(load_saved_students)
 
@@ -1923,28 +1917,8 @@ class UI(QMainWindow):
         week_choose = QHBoxLayout(self)
 
         # Left/Right Navigation Arrows
-        arrowfont = QFont()
-        arrowfont.setBold(True)
-        arrowfont.setPointSize(20)
-
-        left = QPushButton("←")
-        left.setStyleSheet("background-color: #4f4f4f; " +
-                           "color: #fefdea; " +
-                           "border-width: 3px; " +
-                           "border-radius: 5px; " +
-                           "border-color: #fefdea")
-        left.setFont(arrowfont)
-
-        right = QPushButton("→")
-        right.setStyleSheet("background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; " +
-                            "border-radius: 5px; " +
-                            "border-color: #fefdea")
-        right.setFont(arrowfont)
-
-        right.clicked.connect(self.forward_week_cohort)
-        left.clicked.connect(self.back_week_cohort)
+        left =  w.push_button(w.coal,"←", self.back_week_cohort)
+        right = w.push_button(w.coal,"→", self.forward_week_cohort)
 
         week_choose.addWidget(left)
         week_choose.addWidget(self.cohort_week_label)

@@ -26,7 +26,7 @@ class Button_Style:
         self.style = ""
 
 
-#Button Style
+#Button Styles
 glass = Button_Style()
 glass.style = (     "background-color: #5e869c; " +
                     "color: #fefdea; " +
