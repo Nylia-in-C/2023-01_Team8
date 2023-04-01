@@ -357,10 +357,8 @@ class UI(QMainWindow):
         reset_label = QLabel("Reset Database")
         reset_label.setFont(font)
         reset_label.setStyleSheet("color: #fefdea")
-        reset_button = QPushButton("Reset to Default Settings")
+        reset_button = w.push_button(w.glass, "Reset to Default Settings", self.reset_db)
         reset_button.setFixedWidth(200)
-        reset_button.setStyleSheet(style_glass)
-        reset_button.clicked.connect(self.reset_db)
 
         hbox = QVBoxLayout()
         hbox.setContentsMargins(20,40,0,50)
