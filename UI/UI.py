@@ -194,35 +194,27 @@ class UI(QMainWindow):
         # Create tabs
         tabs = QTabWidget()
         tabs.setStyleSheet(w.glass.specs)
-        tab1 = QWidget()
-        tab1.setStyleSheet(    "background-color: #3b0918; " +
-                               "color: #fefdea; ")                                 
-        tab2 = QWidget()
-        tab2.setStyleSheet(    "background-color: #3b0918; " +
-                               "color: #4f4f4f; ")  
 
-        tab3 = QWidget()        
-        tab3.setStyleSheet(     "background-color: #fefdea; " +
-                                "color: #4f4f4f; " +
-                                "border-color: #fefdea; ")
-        tab4 = QWidget()
-        tab4.setStyleSheet(     "background-color: #3b0918; " +
-                                "color: #fefdea; " +
-                                "border-color: #fefdea; ")
+        tab1 = QWidget()
+        tab1.setStyleSheet(w.brick.specs)                                 
+        tab2 = QWidget()
+        tab2.setStyleSheet(w.brick.specs)  
+        tab3 = QWidget()
+        tab3.setStyleSheet(w.brick.specs)
+        tab4 = QWidget()        
+        tab4.setStyleSheet(w.paper.specs)
                                 
         tabs.addTab(tab1, "Classroom Schedule")
-        tabs.addTab(tab4, "Cohort Schedule")
-        tabs.addTab(tab2, "Options")
-        tabs.addTab(tab3, "Instructions")
+        tabs.addTab(tab2, "Cohort Schedule")
+        tabs.addTab(tab3, "Options")
+        tabs.addTab(tab4, "Instructions")
 
         self.create_schedule_base(0)
         self.create_cohorts_schedule_base()
 
         tab1.setLayout(self.make_main_tab())
-        tab2.setLayout(self.make_options_tab())
-
-        # Cohorts schedule tab
-        tab4.setLayout(self.make_cohort_sched_tab())
+        tab2.setLayout(self.make_cohort_sched_tab())
+        tab3.setLayout(self.make_options_tab())
 
         # Read me Doc
         read_me = QTextEdit()
@@ -235,7 +227,7 @@ class UI(QMainWindow):
         read_me.setMarkdown(file_content)
         layout = QHBoxLayout()
         layout.addWidget(read_me)
-        tab3.setLayout(layout)
+        tab4.setLayout(layout)
 
         return tabs
 
@@ -283,9 +275,7 @@ class UI(QMainWindow):
         vbox_overall.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
 
         return vbox_overall
-
-
-
+    
 
     def update_classroom_section(self):
         room_add_layout = QHBoxLayout()
