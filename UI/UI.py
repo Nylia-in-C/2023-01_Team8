@@ -109,21 +109,15 @@ class UI(QMainWindow):
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
         self.file_path = ""
-        self.file_label = w.label(w.snow, "No File Chosen")
+        self.file_label = w.label(w.snow, "No File Chosen", 10)
         self.select_room = QComboBox()
         self.select_room.activated.connect(self.room_selector_show_schedule)
         self.select_room.setStyleSheet(style_glass)
 
-        self.week_label = QLabel()
-        font = QFont()
-        font.setPointSize(16)
-        self.week_label.setFont(font)
+        self.week_label = w.label(w.snow, "", 16)
         self.week_label.setAlignment(Qt.AlignCenter)
 
-        self.cohort_week_label = QLabel()
-        font = QFont()
-        font.setPointSize(16)
-        self.cohort_week_label.setFont(font)
+        self.cohort_week_label = w.label(w.snow, "", 16)
         self.cohort_week_label.setAlignment(Qt.AlignCenter)
 
         self.pick_semester = QComboBox()
@@ -157,8 +151,7 @@ class UI(QMainWindow):
         self.course_pre_req_selector = QComboBox()
         self.course_pre_req_selector.setStyleSheet(style_glass)
         self.course_pre_reqs = []
-        self.course_pre_reqs_label = QLabel()
-        self.course_pre_reqs_label.setStyleSheet("color: #fefdea")
+        self.course_pre_reqs_label = w.label(w.snow, "", 12)
 
         '''
         Creating tables for each tab
@@ -348,14 +341,10 @@ class UI(QMainWindow):
         vbox_overall.addWidget(self.create_horizontal_line())
         vbox_overall.addWidget(self.create_horizontal_line())
 
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(16)
-
         #Reset database button
-        reset_label = QLabel("Reset Database")
-        reset_label.setFont(font)
-        reset_label.setStyleSheet("color: #fefdea")
+        w.snow.font.setBold(True)
+        reset_label = w.label(w.snow, "Reset Database", 16)
+
         reset_button = w.push_button(w.glass, "Reset to Default Settings", self.reset_db)
         reset_button.setFixedWidth(200)
 
@@ -380,46 +369,34 @@ class UI(QMainWindow):
         room_delete_layout = QHBoxLayout()
         room_delete_layout.setSpacing(15)
 
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(16)
-
-        subfont = QFont()
-        subfont.setBold(True)
-        subfont.setItalic(True)
-        subfont.setPointSize(14)
-
         # Classroom section
         vbox_class = QVBoxLayout()
         vbox_class.setContentsMargins(20,0,0,0)
-        class_section_text = QLabel("Room Options")
-        class_section_text.setStyleSheet("color: #fefdea")
-        class_section_text.setFont(font)
+        w.snow.font.setBold(True)
+        class_section_text = w.label(w.snow, "Room Options", 16)
 
         #Header
         vbox_class.addWidget(class_section_text)
         vbox_class.addWidget(self.create_horizontal_line())
 
         #Adding a Room Subheader
-        class_add_text = QLabel("Add New Room")
-        class_add_text.setStyleSheet("color: #fefdea")
-        class_add_text.setFont(subfont)
+        w.snow.font.setItalic(True)
+        class_add_text = w.label(w.snow, "Add New Room", 14)
+        w.snow.font.setItalic(False)
         vbox_class.addWidget(class_add_text)
 
         # Class ID section
         self.class_id.setPlaceholderText("Classroom Name")
         self.class_id.setStyleSheet("color: #fefdea")
         class_id_box = QHBoxLayout()
-        class_id_label = QLabel("Room ID")
-        class_id_label.setStyleSheet("color: #fefdea")
+        class_id_label = w.label(w.snow, "Room ID", 10)
         class_id_box.addWidget(class_id_label)
         #self.class_id.setMaximumWidth(100)
         class_id_box.addWidget(self.class_id)
 
         # Class Capacity Section
         class_capacity_box = QHBoxLayout()
-        room_cap_label = QLabel("Room Capacity")
-        room_cap_label.setStyleSheet("color: #fefdea")
+        room_cap_label = w.label(w.snow, "Room Capacity", 10)
         class_capacity_box.addWidget(room_cap_label)
         self.class_capacity.setValue(10)
         self.class_capacity.setMinimum(10)
@@ -437,8 +414,7 @@ class UI(QMainWindow):
         self.class_lab.addButton(b1)
         self.class_lab.addButton(b2)
 
-        lab_bool_label = QLabel("Room Type")
-        lab_bool_label.setStyleSheet("color: #fefdea")
+        lab_bool_label = w.label(w.snow, "Room Type", 10)
         class_lab_bool.addWidget(lab_bool_label)
         class_lab_bool.addWidget(b1)
         class_lab_bool.addWidget(b2)
@@ -458,9 +434,7 @@ class UI(QMainWindow):
         #Deleting a Room
 
         #Delete Room Header
-        class_delete_text = QLabel("Delete Room")
-        class_delete_text.setStyleSheet("color: #fefdea")
-        class_delete_text.setFont(subfont)
+        class_delete_text = w.label(w.snow, "Delete Room", 14)
 
         # Create remove button
         remove_btn = w.push_button(w.glass, "Remove", self.remove_classroom)

@@ -48,8 +48,26 @@ coal.font.setPointSize(20)
 #Label Styles
 
 #Most Labels
-snow = Style()
-snow.style = ("color: #fefdea")
+#Regular text
+snow_regular = Style()
+snow_regular.style = ("color: #fefdea")
+snow_regular.style.font.setPointSize(10)
+snow_regular.style.font.setBold(False)
+snow_regular.style.font.setItalic(False)
+
+#Headers
+snow_header1 = Style()
+snow_header1.style = ("color: #fefdea")
+snow_header1.style.font.setPointSize(16)
+snow_header1.style.font.setBold(True)
+snow_header1.style.font.setItalic(False)
+
+#Subheaders
+snow_header2 = Style()
+snow_header2.style = ("color: #fefdea")
+snow_header2.style.font.setPointSize(14)
+snow_header2.style.font.setBold(True)
+snow_header2.style.font.setItalic(True)
 
 
 #Widget functions
@@ -61,8 +79,10 @@ def push_button(Style, label, task):
 
     return button
 
-def label(Style, text):
+def label(Style, text, size = 10):
     label = QLabel(text)
     label.setStyleSheet(Style.style)
+    Style.font.setPointSize(size)
+    label.setFont(Style.font)
 
     return label
