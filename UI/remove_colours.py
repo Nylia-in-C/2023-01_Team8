@@ -2,8 +2,6 @@
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from openpyxl.reader.excel import load_workbook
-from database.database import *
 
 def remove_colours(BG_COLOURS):
     excludedcolours = ["aliceblue", "mediumturquoise", "midnightblue", 

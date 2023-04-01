@@ -1,22 +1,8 @@
 #Imports
-import os
-import sys
-import time
-import pandas as pd
-from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from openpyxl.reader.excel import load_workbook
-from openpyxl.workbook import Workbook
 from database.database import *
-import imports.fillClassrooms
-
-import imports.schedulers.core_scheduler
-import imports.schedulers.program_scheduler
-import imports.classes.classrooms
-import datetime
-import copy
 
 #Button Styles
 class Style:
@@ -24,9 +10,6 @@ class Style:
     def __init__(self):
         self.font = QFont()
         self.specs = ""
-
-
-#Button Styles
 
 #Most buttons
 glass = Style()
@@ -124,3 +107,21 @@ def splash(Style):
     splash.setFont(snow_header1.font)
 
     return splash
+
+def create_horizontal_line():
+    h_line = QFrame()
+    h_line.setFrameShape(QFrame.HLine)
+    h_line.setFrameShadow(QFrame.Plain)
+    h_line.setStyleSheet("color: #fefdea")
+    h_line.setLineWidth(3)
+
+    return h_line
+
+def create_vertical_line():
+    v_line = QFrame()
+    v_line.setFrameShape(QFrame.VLine)
+    v_line.setLineWidth(2)
+    v_line.setFrameShadow(QFrame.Plain)
+    v_line.setStyleSheet("color: #fefdea")
+
+    return v_line
