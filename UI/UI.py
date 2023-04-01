@@ -11,6 +11,7 @@ from openpyxl.workbook import Workbook
 import random
 import fill_data
 from UI import widgets as w
+from UI import remove_colours as rc
 import helpers
 from database.database import *
 import imports.fillClassrooms
@@ -20,9 +21,6 @@ import imports.schedulers.program_scheduler
 import imports.classes.classrooms
 import datetime
 import copy
-
-
-BG_COLOURS = QtGui.QColor.colorNames()
 
 SEM = {"Fall":1, "Winter":2, "Spring / Summer":3}
 # Quickly match times to slots when displaying schedule.
@@ -43,22 +41,16 @@ TIMES = {"08:00":0, "08:30":1,
 LEFT_MAX_WIDTH = 450
 
 # Dictionaries where key = week number, value =list of (2) lists for each day that week
-CORE_SCHEDULE = {}
-PROG_SCHEDULE = {}
-CORE_SCHEDULE_COHORTS = {}
-PROG_SCHEDULE_COHORTS = {}
+(CORE_SCHEDULE, PROG_SCHEDULE) = ({}, {})
+(CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS) = ({}, {})
 
-CORE_END_DATES = {}
-PROG_END_DATES = {}
-CORE_HOLIDAYS = []
-PROG_HOLIDAYS = []
+(CORE_END_DATES, PROG_END_DATES) = ({}, {})
+(CORE_HOLIDAYS, PROG_HOLIDAYS) = ([], [])
 
 WEEK_DISPLAY_DATE = {}
 ROOM = ""
 global PROG_LABELS
-WEEK = 1
-CORE_DAY = 1
-PROG_DAY = 1
+(WEEK, CORE_DAY, PROG_DAY) = (1, 1, 1)
 COLOUR_INDEX = -1
 COURSE_COLOUR = {}
 COHORT_COURSE_COLOUR = {}
@@ -69,29 +61,16 @@ COHORT_COURSE_TO_ROOM = {}
 
 CREATE_SCHEDULE_CLICKED = 0
 
-# Removes colours that make the text hard to read / separate from the background
-def remove_colours():
-    global BG_COLOURS
-    excludedcolours = ["aliceblue", "mediumturquoise", "midnightblue", 
-                    "lavenderblush", "blue", "mediumblue", "blanchedalmond", 
-                    "indigo", "seashell", "navy", "black", "brown", "beige",
-                    "azure", "deeppink", "fuchsia", "hotpink", "magenta",
-                    "red", "pink", "mediumvioletred", "blueviolet", "darkviolet",
-                    "mediumpurple", "purple"]
-
-    for colour in excludedcolours:
-        BG_COLOURS.remove(colour)
-
-    _colours = BG_COLOURS.copy()
-    for colour in range(len(_colours)):
-        if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
-            BG_COLOURS.remove(_colours[colour])
+BG_COLOURS = QtGui.QColor.colorNames()
 
 class UI(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        remove_colours()
+
+        global BG_COLOURS
+        BG_COLOURS = rc.remove_colours(BG_COLOURS)
+
         self.setWindowTitle("Scheduler")
         self.setStyleSheet("background-color: #6f2937") 
 
@@ -101,10 +80,10 @@ class UI(QMainWindow):
         self.file_label = w.label(w.snow_reg, "No File Chosen")
         self.select_room = w.drop_down(w.glass, self.room_selector_show_schedule)
 
-        self.week_label = w.label(w.snow_header1, "")
+        self.week_label = w.label(w.snow_header1, "", 16)
         self.week_label.setAlignment(Qt.AlignCenter)
 
-        self.cohort_week_label = w.label(w.snow_header1, "")
+        self.cohort_week_label = w.label(w.snow_header1, "", 16)
         self.cohort_week_label.setAlignment(Qt.AlignCenter)
 
         self.pick_semester = w.drop_down(w.glass)
