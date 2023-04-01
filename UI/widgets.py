@@ -19,7 +19,7 @@ import datetime
 import copy
 
 #Button Styles
-class Button_Style:
+class Style:
 
     def __init__(self):
         self.font = QFont()
@@ -27,14 +27,16 @@ class Button_Style:
 
 
 #Button Styles
-glass = Button_Style()
+
+#Most buttons
+glass = Style()
 glass.style = (     "background-color: #5e869c; " +
                     "color: #fefdea; " +
                     "border-color: #fefdea; ")
 
 
 #Navigation arrows and other major buttons
-coal = Button_Style()
+coal = Style()
 coal.style =  (     "background-color: #4f4f4f; " +
                     "color: #fefdea; " +
                     "border-width: 3px; "+
@@ -43,8 +45,14 @@ coal.style =  (     "background-color: #4f4f4f; " +
 coal.font.setBold(True)
 coal.font.setPointSize(20)
 
+#Label Styles
 
-#Function to make button
+#Most Labels
+snow = Style()
+snow.style = ("color: #fefdea")
+
+
+#Widget functions
 def push_button(Style, label, task):
     button = QPushButton(label)
     button.setFont(Style.font)
@@ -52,3 +60,9 @@ def push_button(Style, label, task):
     button.clicked.connect(task)
 
     return button
+
+def label(Style, text):
+    label = QLabel(text)
+    label.setStyleSheet(Style.style)
+
+    return label

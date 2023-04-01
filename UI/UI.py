@@ -109,8 +109,7 @@ class UI(QMainWindow):
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
         self.file_path = ""
-        self.file_label = QLabel()
-        self.legion_size = QLabel()
+        self.file_label = w.label(w.snow, "No File Chosen")
         self.select_room = QComboBox()
         self.select_room.activated.connect(self.room_selector_show_schedule)
         self.select_room.setStyleSheet(style_glass)
@@ -769,8 +768,6 @@ class UI(QMainWindow):
         choose_input_button = w.push_button(w.glass, "Choose File", self.choose_file)
         choose_input_button.setMaximumWidth(100)
 
-        self.file_label.setText("No File Chosen")
-        self.file_label.setStyleSheet("color: #fefdea")
         self.file_label.setMaximumWidth(LEFT_MAX_WIDTH)
 
         hbox_file_choose.addWidget(choose_input_button)
