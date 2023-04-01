@@ -103,3 +103,11 @@ def spin_box(Style, min = 0, max = 1000):
     spinbox.setMaximum(max)
 
     return spinbox
+
+def splash(Style):
+    splash = QSplashScreen()
+    splash.setFixedSize(400,200)
+    splash.setStyleSheet(Style.specs)
+    splash.setFont(snow_header1.font)
+
+    return splash
