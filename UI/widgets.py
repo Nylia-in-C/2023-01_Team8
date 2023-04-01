@@ -49,11 +49,11 @@ coal.font.setPointSize(20)
 
 #Most Labels
 #Regular text
-snow_regular = Style()
-snow_regular.style = ("color: #fefdea")
-snow_regular.style.font.setPointSize(10)
-snow_regular.style.font.setBold(False)
-snow_regular.style.font.setItalic(False)
+snow_reg = Style()
+snow_reg.style = ("color: #fefdea")
+snow_reg.style.font.setPointSize(10)
+snow_reg.style.font.setBold(False)
+snow_reg.style.font.setItalic(False)
 
 #Headers
 snow_header1 = Style()

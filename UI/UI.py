@@ -109,15 +109,15 @@ class UI(QMainWindow):
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
         self.file_path = ""
-        self.file_label = w.label(w.snow, "No File Chosen", 10)
+        self.file_label = w.label(w.snow_reg, "No File Chosen")
         self.select_room = QComboBox()
         self.select_room.activated.connect(self.room_selector_show_schedule)
         self.select_room.setStyleSheet(style_glass)
 
-        self.week_label = w.label(w.snow, "", 16)
+        self.week_label = w.label(w.snow_header1, "")
         self.week_label.setAlignment(Qt.AlignCenter)
 
-        self.cohort_week_label = w.label(w.snow, "", 16)
+        self.cohort_week_label = w.label(w.snow_header1, "")
         self.cohort_week_label.setAlignment(Qt.AlignCenter)
 
         self.pick_semester = QComboBox()
@@ -151,7 +151,7 @@ class UI(QMainWindow):
         self.course_pre_req_selector = QComboBox()
         self.course_pre_req_selector.setStyleSheet(style_glass)
         self.course_pre_reqs = []
-        self.course_pre_reqs_label = w.label(w.snow, "", 12)
+        self.course_pre_reqs_label = w.label(w.snow_reg, "")
 
         '''
         Creating tables for each tab
@@ -343,7 +343,7 @@ class UI(QMainWindow):
 
         #Reset database button
         w.snow.font.setBold(True)
-        reset_label = w.label(w.snow, "Reset Database", 16)
+        reset_label = w.label(w.snow_header1, "Reset Database")
 
         reset_button = w.push_button(w.glass, "Reset to Default Settings", self.reset_db)
         reset_button.setFixedWidth(200)
@@ -372,31 +372,28 @@ class UI(QMainWindow):
         # Classroom section
         vbox_class = QVBoxLayout()
         vbox_class.setContentsMargins(20,0,0,0)
-        w.snow.font.setBold(True)
-        class_section_text = w.label(w.snow, "Room Options", 16)
+        class_section_text = w.label(w.snow_header1, "Room Options")
 
         #Header
         vbox_class.addWidget(class_section_text)
         vbox_class.addWidget(self.create_horizontal_line())
 
         #Adding a Room Subheader
-        w.snow.font.setItalic(True)
-        class_add_text = w.label(w.snow, "Add New Room", 14)
-        w.snow.font.setItalic(False)
+        class_add_text = w.label(w.snow_header2, "Add New Room")
         vbox_class.addWidget(class_add_text)
 
         # Class ID section
         self.class_id.setPlaceholderText("Classroom Name")
         self.class_id.setStyleSheet("color: #fefdea")
         class_id_box = QHBoxLayout()
-        class_id_label = w.label(w.snow, "Room ID", 10)
+        class_id_label = w.label(w.snow_reg, "Room ID")
         class_id_box.addWidget(class_id_label)
         #self.class_id.setMaximumWidth(100)
         class_id_box.addWidget(self.class_id)
 
         # Class Capacity Section
         class_capacity_box = QHBoxLayout()
-        room_cap_label = w.label(w.snow, "Room Capacity", 10)
+        room_cap_label = w.label(w.snow_reg, "Room Capacity")
         class_capacity_box.addWidget(room_cap_label)
         self.class_capacity.setValue(10)
         self.class_capacity.setMinimum(10)
@@ -414,7 +411,7 @@ class UI(QMainWindow):
         self.class_lab.addButton(b1)
         self.class_lab.addButton(b2)
 
-        lab_bool_label = w.label(w.snow, "Room Type", 10)
+        lab_bool_label = w.label(w.snow_reg, "Room Type")
         class_lab_bool.addWidget(lab_bool_label)
         class_lab_bool.addWidget(b1)
         class_lab_bool.addWidget(b2)
@@ -434,7 +431,7 @@ class UI(QMainWindow):
         #Deleting a Room
 
         #Delete Room Header
-        class_delete_text = w.label(w.snow, "Delete Room", 14)
+        class_delete_text = w.label(w.snow_header2, "Delete Room")
 
         # Create remove button
         remove_btn = w.push_button(w.glass, "Remove", self.remove_classroom)
