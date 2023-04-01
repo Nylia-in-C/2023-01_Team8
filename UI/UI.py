@@ -715,16 +715,9 @@ class UI(QMainWindow):
         select_title.setFont(font)
 
         #Big green Create Schedule Button
-        create_sched = QPushButton("Create Schedule")
-        font.setPointSize(20)
-        create_sched.setFont(font)
-        create_sched.setStyleSheet( "background-color: #4f4f4f; " +
-                                    "color: #fefdea; " +
-                                    "border-width: 3px; "+
-                                    "border-radius: 5px; "+
-                                    "border-color: #fefdea")
+        create_sched = w.push_button(w.coal, "Create Schedule", self.create_schedule)
         create_sched.setFixedSize(280,60)
-        create_sched.clicked.connect(self.create_schedule)
+
 
         # Read Current items in the Database
         self.update_class_combos()
