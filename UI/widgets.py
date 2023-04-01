@@ -51,23 +51,23 @@ coal.font.setPointSize(20)
 #Regular text
 snow_reg = Style()
 snow_reg.style = ("color: #fefdea")
-snow_reg.style.font.setPointSize(10)
-snow_reg.style.font.setBold(False)
-snow_reg.style.font.setItalic(False)
+snow_reg.font.setPointSize(10)
+snow_reg.font.setBold(False)
+snow_reg.font.setItalic(False)
 
 #Headers
 snow_header1 = Style()
 snow_header1.style = ("color: #fefdea")
-snow_header1.style.font.setPointSize(16)
-snow_header1.style.font.setBold(True)
-snow_header1.style.font.setItalic(False)
+snow_header1.font.setPointSize(16)
+snow_header1.font.setBold(True)
+snow_header1.font.setItalic(False)
 
 #Subheaders
 snow_header2 = Style()
 snow_header2.style = ("color: #fefdea")
-snow_header2.style.font.setPointSize(14)
-snow_header2.style.font.setBold(True)
-snow_header2.style.font.setItalic(True)
+snow_header2.font.setPointSize(14)
+snow_header2.font.setBold(True)
+snow_header2.font.setItalic(True)
 
 
 #Widget functions
