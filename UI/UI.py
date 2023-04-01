@@ -445,10 +445,8 @@ class UI(QMainWindow):
         class_lab_bool.addWidget(b2)
 
         # Create add button
-        class_btn = QPushButton("Add")
-        class_btn.setStyleSheet(style_glass) 
+        class_btn = w.push_button(w.glass, "Add", self.add_edit_classroom)
         class_btn.setMaximumWidth(100)
-        class_btn.clicked.connect(self.add_edit_classroom)
 
         # Put adding functions into the layout
         room_add_layout.addLayout(class_id_box)
