@@ -352,6 +352,7 @@ class UI(QMainWindow):
         
         return vbox_class
 
+
     def update_course_section(self):
         vbox_course = QVBoxLayout()
         vbox_course.setContentsMargins(20,0,0,0)
@@ -668,6 +669,7 @@ class UI(QMainWindow):
 
         return vbox_labels
 
+
     def create_term_inputs(self, inputs, header_text):
         vbox = QVBoxLayout()
 
@@ -682,6 +684,7 @@ class UI(QMainWindow):
         vbox.addLayout(inputs)
 
         return vbox
+
 
     '''
     Helper Functions
