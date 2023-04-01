@@ -45,6 +45,19 @@ coal.specs =  (     "background-color: #4f4f4f; " +
 coal.font.setBold(True)
 coal.font.setPointSize(20)
 
+
+#Backgrounds
+brick = Style()
+brick.specs = (    "background-color: #3b0918; " +
+                    "color: #fefdea; ") 
+
+
+
+paper = Style()
+paper.specs = (  "background-color: #fefdea; " +
+                    "color: #4f4f4f; " +
+                    "border-color: #fefdea; ")
+
 #Label Styles
 
 #Most Labels
