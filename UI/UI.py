@@ -110,8 +110,7 @@ class UI(QMainWindow):
         self.cohort_week_label = w.label(w.snow_header1, "")
         self.cohort_week_label.setAlignment(Qt.AlignCenter)
 
-        self.pick_semester = QComboBox()
-        self.pick_semester.setStyleSheet(w.glass.specs) 
+        self.pick_semester = w.drop_down(w.glass)
         self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
@@ -119,9 +118,7 @@ class UI(QMainWindow):
         self.class_lab = QButtonGroup()
         self.class_capacity = w.spin_box(w.glass)
         self.classroom_list = w.drop_down(w.glass)
-
-        self.courses = QComboBox()
-        self.courses.setStyleSheet(w.glass.specs)
+        self.courses = w.drop_down(w.glass)
         self.courses_edit_new = QButtonGroup()
         self.course_id = QLineEdit()
         self.course_term_hours = QSpinBox()
@@ -133,11 +130,10 @@ class UI(QMainWindow):
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
-        self.course_program = QComboBox()
-        self.course_program.setStyleSheet(w.glass.specs)
+        self.course_program = w.drop_down(w.glass)
 
-        self.course_pre_req_selector = QComboBox()
-        self.course_pre_req_selector.setStyleSheet(w.glass.specs)
+
+        self.course_pre_req_selector = w.drop_down(w.glass)
         self.course_pre_reqs = []
         self.course_pre_reqs_label = w.label(w.snow_reg, "")
 
