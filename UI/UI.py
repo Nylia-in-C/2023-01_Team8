@@ -170,24 +170,6 @@ class UI(QMainWindow):
 
         return hbox
 
-    # Quick function to make horizontal separators
-    def create_horizontal_line(self):
-        h_line = QFrame()
-        h_line.setFrameShape(QFrame.HLine)
-        h_line.setFrameShadow(QFrame.Plain)
-        h_line.setStyleSheet("color: #fefdea")
-        h_line.setLineWidth(3)
-        return h_line
-
-    # Quick function to make vertical separators
-    def create_vertical_line(self):
-        v_line = QFrame()
-        v_line.setFrameShape(QFrame.VLine)
-        v_line.setLineWidth(2)
-        v_line.setFrameShadow(QFrame.Plain)
-        v_line.setStyleSheet("color: #fefdea")
-        return v_line
-
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
 
@@ -249,15 +231,17 @@ class UI(QMainWindow):
 
         return main_table_box
 
+
     def make_options_tab(self):
         vbox_overall = QVBoxLayout()
 
         vbox_overall.addLayout(self.update_classroom_section())
-        vbox_overall.addWidget(self.create_horizontal_line())
-        vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addWidget(w.create_horizontal_line())
+        vbox_overall.addWidget(w.create_horizontal_line())
+
         vbox_overall.addLayout(self.update_course_section())
-        vbox_overall.addWidget(self.create_horizontal_line())
-        vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addWidget(w.create_horizontal_line())
+        vbox_overall.addWidget(w.create_horizontal_line())
 
         #Reset database button
         reset_label = w.label(w.snow_header1, "Reset Database")
@@ -291,7 +275,7 @@ class UI(QMainWindow):
 
         #Header
         vbox_class.addWidget(class_section_text)
-        vbox_class.addWidget(self.create_horizontal_line())
+        vbox_class.addWidget(w.create_horizontal_line())
 
         #Adding a Room Subheader
         class_add_text = w.label(w.snow_header2, "Add New Room")
@@ -337,9 +321,9 @@ class UI(QMainWindow):
 
         # Put adding functions into the layout
         room_add_layout.addLayout(class_id_box)
-        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addWidget(w.create_vertical_line())
         room_add_layout.addLayout(class_capacity_box)
-        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addWidget(w.create_vertical_line())
         room_add_layout.addLayout(class_lab_bool)
         room_add_layout.addWidget(class_btn)
         
@@ -375,7 +359,7 @@ class UI(QMainWindow):
         course_section_text = w.label(w.snow_header1, "Course Options")
         
         vbox_course.addWidget(course_section_text)
-        vbox_course.addWidget(self.create_horizontal_line())
+        vbox_course.addWidget(w.create_horizontal_line())
         vbox_course.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
         db = helpers.check_path("database\database.db")  # database.db file path
@@ -502,13 +486,13 @@ class UI(QMainWindow):
 
         hbox.setSpacing(15)
         hbox.addLayout(new_or_edit)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addLayout(vbox_course_specs1)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addLayout(vbox_spin_boxes)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addLayout(vbox_pre_reqs)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addWidget(course_btn)
 
         vbox_course.addLayout(hbox)
@@ -583,24 +567,24 @@ class UI(QMainWindow):
 
 
         vbox.addWidget(title)
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(self.create_file_choose())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(input_title)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(self.legion_inputs())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(select_title)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.pick_semester)
         vbox.addWidget(self.select_room)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(15, 15, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(create_sched)
         
@@ -668,6 +652,7 @@ class UI(QMainWindow):
         input_box = w.spin_box(w.glass, 0, 1000)
         input_box.setMinimumWidth(50)
         return input_box
+
 
     def program_labels(self):
         global PROG_LABELS
@@ -745,6 +730,7 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
+
 
     def retrieve_term_inputs(self, layout):
 
@@ -875,6 +861,7 @@ class UI(QMainWindow):
         except:
             return
 
+
     def forward_week(self):
         global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
 
@@ -930,9 +917,11 @@ class UI(QMainWindow):
             self.cohort_week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK_COHORTS] + "\nWeek " + str(WEEK_COHORTS))
         except:
             return
-    def back_week_cohort(self):
-        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, WEEK_COHORTS
+        
 
+    def back_week_cohort(self):
+    
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, WEEK_COHORTS
 
         # Cant go below week 1
         if WEEK_COHORTS == 1:
@@ -956,6 +945,8 @@ class UI(QMainWindow):
             self.cohort_week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK_COHORTS] + "\nWeek " + str(WEEK_COHORTS))
         except:
             return
+        
+
     def create_schedule(self):
         global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
             ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE, CORE_END_DATES, PROG_END_DATES, CORE_HOLIDAYS, PROG_HOLIDAYS
@@ -1249,8 +1240,6 @@ class UI(QMainWindow):
 
         close_connection(connection)
 
-
-
     # Get the schedule for a specified semester, and fill the dictionary
     # With the 4-tuple lists for each week
     def get_lecture_items(self):
@@ -1326,6 +1315,7 @@ class UI(QMainWindow):
             prog_week_list.clear()
 
         close_connection(connection)
+
 
     def get_cohort_lecture_items(self):
 
@@ -1420,6 +1410,7 @@ class UI(QMainWindow):
 
         return day_sched
 
+
     def add_edit_classroom(self):
         db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
@@ -1498,6 +1489,7 @@ class UI(QMainWindow):
             failure.setStyleSheet("color: black")
             failure.exec()
 
+
     def save_course(self):
         db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
@@ -1547,6 +1539,7 @@ class UI(QMainWindow):
             addErr.exec()
             #print("error adding course")
 
+
     def update_course_combos(self):
         db = helpers.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
@@ -1563,6 +1556,7 @@ class UI(QMainWindow):
         self.course_pre_req_selector.clear()
         self.course_pre_req_selector.addItems(course_name_list)
 
+
     def show_hide_course(self):
 
         if self.courses_edit_new.checkedButton().text() == "New Course":
@@ -1576,6 +1570,7 @@ class UI(QMainWindow):
     def add_pre_req(self):
         self.course_pre_reqs.append(self.course_pre_req_selector.currentText())
         self.course_pre_reqs_label.setText(", ".join(self.course_pre_reqs))
+
 
     def clear_pre_reqs(self):
         self.course_pre_reqs.clear()
@@ -1628,6 +1623,7 @@ class UI(QMainWindow):
         except:
             return
 
+
     def reset_db(self):
 
         global CREATE_SCHEDULE_CLICKED, CORE_SCHEDULE, CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, PROG_SCHEDULE
@@ -1657,8 +1653,6 @@ class UI(QMainWindow):
                 return
         else:
             return
-
-
 
     '''
     # ------------------------------------------------------------------------
@@ -1735,6 +1729,7 @@ class UI(QMainWindow):
 
         return cohort_table_box
 
+
     def create_cohorts_schedule_base(self):
 
         days = ["Monday", "Tuesday", "Wednesday", "Thursday"]
@@ -1763,6 +1758,7 @@ class UI(QMainWindow):
         # Fill with empty items to change background colours later
         self.reset_table_cohort()
 
+
     def reset_table_cohort(self):
         # Use this to populate table with values to allow
         # Background colouring
@@ -1780,6 +1776,7 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.cohort_table.setItem(row, column, placeholder)
                 self.cohort_table.removeCellWidget(row, column)
+
 
     def show_schedule_cohorts(self, lecture_list, weekday):
 
