@@ -2,9 +2,6 @@
 
 #Imports
 import os
-import sys
-import time
-import pandas as pd
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -121,11 +118,10 @@ class UI(QMainWindow):
         self.courses = w.drop_down(w.glass)
         self.courses_edit_new = QButtonGroup()
         self.course_id = QLineEdit()
-        self.course_term_hours = QSpinBox()
-        self.course_term_hours.setStyleSheet(w.glass.specs)
-        self.course_term = QSpinBox()
+        self.course_term_hours = w.spin_box(w.glass)
+        self.course_term = w.spin_box(w.glass)
         self.course_term.setStyleSheet(w.glass.specs)
-        self.course_duration = QSpinBox()
+        self.course_duration = w.spin_box(w.glass)
         self.course_duration.setStyleSheet(w.glass.specs) 
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
@@ -180,37 +176,6 @@ class UI(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.show()
-
-    def splash_screen(self):
-        # Start up splash screen
-        # adapted from: https://stackoverflow.com/questions/58661539/create-splash-screen-in-pyqt5
-        
-        if getattr(sys, 'frozen', True):
-            logo = 'macewan_logo.png'
-        else:
-            logo = '..\\macewan_logo.png'
-
-        splash_pic = QPixmap(logo)
-        splash_msg = QSplashScreen(splash_pic, Qt.WindowStaysOnTopHint)
-        splash_msg.setFixedSize(965, 568)
-        splash_msg.setStyleSheet(w.glass)
-
-        #Fade in, fade out
-        opaque = 0.00
-        step = 0.02
-        splash_msg.setWindowOpacity(opaque)
-        splash_msg.show()
-        while opaque < 1:
-            splash_msg.setWindowOpacity(opaque)
-            time.sleep(step)
-            opaque+=step
-        time.sleep(2)
-        while opaque > 0:
-            splash_msg.setWindowOpacity(opaque)
-            time.sleep(2*step)
-            opaque-=2*step
-        splash_msg.close()
-
 
     # Creates all items for central widget
     def create_hlayout(self):
@@ -684,11 +649,6 @@ class UI(QMainWindow):
         title = w.label(w.snow_header1, "Enrollment Import", 18)
         title.setStyleSheet("color: #fefdea")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
-        
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(12)
-        title.setFont(font)
 
         hbox_file_choose = QHBoxLayout(self)
         choose_input_button = w.push_button(w.glass, "Choose File", self.choose_file)
@@ -738,10 +698,8 @@ class UI(QMainWindow):
 
 
     def stu_num_input(self):
-        input_box = QSpinBox()
-        input_box.setMaximum(1000)
+        input_box = w.spin_box(w.glass, 0, 1000)
         input_box.setMinimumWidth(50)
-        input_box.setStyleSheet(w.glass.specs)
         return input_box
 
     def program_labels(self):
@@ -1109,7 +1067,7 @@ class UI(QMainWindow):
         load_font.setPointSize(40)
         load_msg = QSplashScreen()
         load_msg.setFixedSize(400,200)
-        load_msg.setStyleSheet(w.glass)
+        load_msg.setStyleSheet(w.glass.specs)
         load_msg.setFont(load_font)
         load_msg.show()
         load_msg.showMessage("Loading...", 0, QColor(255,255,255))
