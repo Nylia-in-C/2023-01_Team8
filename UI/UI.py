@@ -464,10 +464,8 @@ class UI(QMainWindow):
         class_delete_text.setFont(subfont)
 
         # Create remove button
-        remove_btn = QPushButton("Remove")
-        remove_btn.setStyleSheet(style_glass) 
+        remove_btn = w.push_button(w.glass, "Remove", self.remove_classroom)
         remove_btn.setMaximumWidth(150)
-        remove_btn.clicked.connect(self.remove_classroom)
 
         remove_section = QHBoxLayout()
         remove_section.addWidget(self.classroom_list)
@@ -605,9 +603,7 @@ class UI(QMainWindow):
         hbox_online_lab.addLayout(hbox_lab)
         #--------------------------
 
-        course_btn = QPushButton("Save Course")
-        course_btn.setStyleSheet(style_glass)
-        course_btn.clicked.connect(self.save_course)
+        course_btn = w.push_button(w.glass, "Save Course", self.save_course)
 
         # --------------------------
 
@@ -617,12 +613,9 @@ class UI(QMainWindow):
         pre_req_label = QLabel("Chosen Pre-Reqs")
         pre_req_label.setStyleSheet("color: #fefdea")
         hbox_pre_reqs.addWidget(pre_req_label)
-        add_pre_req = QPushButton("Add Pre-Req")
-        add_pre_req.setStyleSheet(style_glass)
-        add_pre_req.clicked.connect(self.add_pre_req)
-        rem_pre_req = QPushButton("Clear Pre-Reqs")
-        rem_pre_req.setStyleSheet(style_glass)
-        rem_pre_req.clicked.connect(self.clear_pre_reqs)
+        add_pre_req = w.push_button(w.glass, "Add Pre-Req", self.add_pre_req)
+        rem_pre_req = w.push_button(w.glass, "Clear Pre-Reqs", self.clear_pre_reqs)
+
 
         hbox_pre_reqs.addWidget(self.course_pre_reqs_label)
         vbox_pre_reqs.addLayout(hbox_pre_reqs)

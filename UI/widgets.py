@@ -19,22 +19,22 @@ import datetime
 import copy
 
 #Button Styles
-class Style:
+class Button_Style:
 
     def __init__(self):
         self.font = QFont()
         self.style = ""
 
 
-#Most Buttons
-glass = Style()
+#Button Style
+glass = Button_Style()
 glass.style = (     "background-color: #5e869c; " +
                     "color: #fefdea; " +
                     "border-color: #fefdea; ")
 
 
 #Navigation arrows and other major buttons
-coal = Style()
+coal = Button_Style()
 coal.style =  (     "background-color: #4f4f4f; " +
                     "color: #fefdea; " +
                     "border-width: 3px; "+
