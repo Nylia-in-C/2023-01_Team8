@@ -14,7 +14,7 @@ from openpyxl.workbook import Workbook
 import random
 import database.database
 import fill_data
-import buttons
+from UI import widgets as w
 import helpers
 from database.database import *
 import imports.fillClassrooms
@@ -327,28 +327,8 @@ class UI(QMainWindow):
         week_choose = QHBoxLayout(self)
 
         #Left/Right Navigation Arrows
-        arrowfont = QFont()
-        arrowfont.setBold(True)
-        arrowfont.setPointSize(20)
-
-        left = QPushButton("←")
-        left.setStyleSheet( "background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; "+
-                            "border-radius: 5px; "+
-                            "border-color: #fefdea")
-        left.setFont(arrowfont)
-
-        right = QPushButton("→")
-        right.setStyleSheet( "background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; "+
-                            "border-radius: 5px; "+
-                            "border-color: #fefdea")        
-        right.setFont(arrowfont)
-
-        right.clicked.connect(self.forward_week)
-        left.clicked.connect(self.back_week)
+        left =  w.push_button(w.coal,"←", self.back_week)
+        right = w.push_button(w.coal,"→", self.forward_week)
 
         week_choose.addWidget(left)
         week_choose.addWidget(self.week_label)

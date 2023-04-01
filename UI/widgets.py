@@ -22,7 +22,6 @@ import copy
 class Style:
 
     def __init__(self):
-        super().__init__()
         self.font = QFont()
         self.style = ""
 
@@ -33,6 +32,7 @@ glass.style = (     "background-color: #5e869c; " +
                     "color: #fefdea; " +
                     "border-color: #fefdea; ")
 
+
 #Navigation arrows and other major buttons
 coal = Style()
 coal.style =  (     "background-color: #4f4f4f; " +
@@ -40,6 +40,8 @@ coal.style =  (     "background-color: #4f4f4f; " +
                     "border-width: 3px; "+
                     "border-radius: 5px; "+
                     "border-color: #fefdea")
+coal.font.setBold(True)
+coal.font.setPointSize(20)
 
 
 #Function to make button
