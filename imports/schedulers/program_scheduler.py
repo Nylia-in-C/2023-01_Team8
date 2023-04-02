@@ -6,22 +6,14 @@ parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
 sys.path.append(grandparentdir)
 
+from itertools import chain
 from typing import *
 from imports.schedulers.scheduling_functions import *
 from imports.classes.classrooms import *
 from imports.fillClassrooms import *
 from imports.classes.courses import *
 
-
-def get_sched(term: int, debug=False):
-    '''
-    Main driver function for generating the term schedule for program-specific courses, 
-    where the term passed indicates if the schedule is for fall, winter, or spring semester
-    '''
-    # in theory this will never happen, but just to be safe:
-    if term not in [1, 2, 3]:
-        return None
-
+def get_term_data(term: int):
     if (term == 1):
         termA = 1
         termB = 3
@@ -37,8 +29,7 @@ def get_sched(term: int, debug=False):
         termB = 3
         start_day = getSpringStartDay(2024)
         holidays = getHolidaysTuesThurs(2023)
-        
-    rooms   = get_rooms()
+    
     cohorts = get_cohort_counts(term)
 
     pmA_courses  = get_courses('PM' , termA) if cohorts[f'PM{termA}']  else []
@@ -54,151 +45,162 @@ def get_sched(term: int, debug=False):
     fsA_courses  = get_courses('FS' , termA) if cohorts[f'FS{termA}']  else []
     fsB_courses  = get_courses('FS' , termB) if cohorts[f'FS{termB}']  else []
     
-    pmA_lecs  = [c for c in pmA_courses  if not c.hasLab and not c.isOnline]
-    pmB_lecs  = [c for c in pmB_courses  if not c.hasLab and not c.isOnline]
-    baA_lecs  = [c for c in baA_courses  if not c.hasLab and not c.isOnline]
-    baB_lecs  = [c for c in baB_courses  if not c.hasLab and not c.isOnline]
-    glmA_lecs = [c for c in glmA_courses if not c.hasLab and not c.isOnline]
-    glmB_lecs = [c for c in glmB_courses if not c.hasLab and not c.isOnline]
-    dxdA_lecs = [c for c in dxdA_courses if not c.hasLab and not c.isOnline]
-    dxdB_lecs = [c for c in dxdB_courses if not c.hasLab and not c.isOnline]
-    bkA_lecs  = [c for c in bkA_courses  if not c.hasLab and not c.isOnline]
-    bkB_lecs  = [c for c in bkB_courses  if not c.hasLab and not c.isOnline]
-    fsA_lecs  = [c for c in fsA_courses  if not c.hasLab and not c.isOnline]
-    fsB_lecs  = [c for c in fsB_courses  if not c.hasLab and not c.isOnline]
-    
-    pmA_labs  = [c for c in pmA_courses  if c.hasLab]
-    pmB_labs  = [c for c in pmB_courses  if c.hasLab]
-    baA_labs  = [c for c in baA_courses  if c.hasLab]
-    baB_labs  = [c for c in baB_courses  if c.hasLab]
-    glmA_labs = [c for c in glmA_courses if c.hasLab]
-    glmB_labs = [c for c in glmB_courses if c.hasLab]
-    dxdA_labs = [c for c in dxdA_courses if c.hasLab]
-    dxdB_labs = [c for c in dxdB_courses if c.hasLab]
-    bkA_labs  = [c for c in bkA_courses  if c.hasLab]
-    bkB_labs  = [c for c in bkB_courses  if c.hasLab]
-    fsA_labs  = [c for c in fsA_courses  if c.hasLab]
-    fsB_labs  = [c for c in fsB_courses  if c.hasLab]
-    
-    pmA_onls  = [c for c in pmA_courses  if c.isOnline]
-    pmB_onls  = [c for c in pmB_courses  if c.isOnline]
-    baA_onls  = [c for c in baA_courses  if c.isOnline]
-    baB_onls  = [c for c in baB_courses  if c.isOnline]
-    glmA_onls = [c for c in glmA_courses if c.isOnline]
-    glmB_onls = [c for c in glmB_courses if c.isOnline]
-    dxdA_onls = [c for c in dxdA_courses if c.isOnline]
-    dxdB_onls = [c for c in dxdB_courses if c.isOnline]
-    bkA_onls  = [c for c in bkA_courses  if c.isOnline]
-    bkB_onls  = [c for c in bkB_courses  if c.isOnline]
-    fsA_onls  = [c for c in fsA_courses  if c.isOnline]
-    fsB_onls  = [c for c in fsB_courses  if c.isOnline]
+    lecs = {
+        'pmA' : [c for c in pmA_courses  if not c.hasLab and not c.isOnline],
+        'pmB' : [c for c in pmB_courses  if not c.hasLab and not c.isOnline],
+        'baA' : [c for c in baA_courses  if not c.hasLab and not c.isOnline],
+        'baB' : [c for c in baB_courses  if not c.hasLab and not c.isOnline],
+        'glmA': [c for c in glmA_courses if not c.hasLab and not c.isOnline],
+        'glmB': [c for c in glmB_courses if not c.hasLab and not c.isOnline],
+        'dxdA': [c for c in dxdA_courses if not c.hasLab and not c.isOnline],
+        'dxdB': [c for c in dxdB_courses if not c.hasLab and not c.isOnline],
+        'bkA' : [c for c in bkA_courses  if not c.hasLab and not c.isOnline],
+        'bkB' : [c for c in bkB_courses  if not c.hasLab and not c.isOnline],
+        'fsA' : [c for c in fsA_courses  if not c.hasLab and not c.isOnline],
+        'fsB' : [c for c in fsB_courses  if not c.hasLab and not c.isOnline],
+    }
+    labs = {
+        'pmA' : [c for c in pmA_courses  if c.hasLab],
+        'pmB' : [c for c in pmB_courses  if c.hasLab],
+        'baA' : [c for c in baA_courses  if c.hasLab],
+        'baB' : [c for c in baB_courses  if c.hasLab],
+        'glmA': [c for c in glmA_courses if c.hasLab],
+        'glmB': [c for c in glmB_courses if c.hasLab],
+        'dxdA': [c for c in dxdA_courses if c.hasLab],
+        'dxdB': [c for c in dxdB_courses if c.hasLab],
+        'bkA' : [c for c in bkA_courses  if c.hasLab],
+        'bkB' : [c for c in bkB_courses  if c.hasLab],
+        'fsA' : [c for c in fsA_courses  if c.hasLab],
+        'fsB' : [c for c in fsB_courses  if c.hasLab],
+    }
+    online = {
+        'pmA' : [c for c in pmA_courses  if c.isOnline],
+        'pmB' : [c for c in pmB_courses  if c.isOnline],
+        'baA' : [c for c in baA_courses  if c.isOnline],
+        'baB' : [c for c in baB_courses  if c.isOnline],
+        'glmA': [c for c in glmA_courses if c.isOnline],
+        'glmB': [c for c in glmB_courses if c.isOnline],
+        'dxdA': [c for c in dxdA_courses if c.isOnline],
+        'dxdB': [c for c in dxdB_courses if c.isOnline],
+        'bkA' : [c for c in bkA_courses  if c.isOnline],
+        'bkB' : [c for c in bkB_courses  if c.isOnline],
+        'fsA' : [c for c in fsA_courses  if c.isOnline],
+        'fsB' : [c for c in fsB_courses  if c.isOnline],
+    }
 
+    course_hours = get_course_hours(list(
+        chain(*list(lecs.values())+list(labs.values())+list(online.values()))
+    ))
+    
     # assume an absolute max of 9 cohorts (this we never be reached in practice)
     all_cohort_IDs = [f'0{i}' for i in range(1, 10)]
     
-    pmA_cohorts  = all_cohort_IDs[:cohorts[f'PM{termA}']]
-    pmB_cohorts  = all_cohort_IDs[:cohorts[f'PM{termB}']]
-    baA_cohorts  = all_cohort_IDs[:cohorts[f'BA{termA}']]
-    baB_cohorts  = all_cohort_IDs[:cohorts[f'BA{termB}']]
-    glmA_cohorts = all_cohort_IDs[:cohorts[f'GLM{termA}']]
-    glmB_cohorts = all_cohort_IDs[:cohorts[f'GLM{termB}']]
-    dxdA_cohorts = all_cohort_IDs[:cohorts[f'DXD{termA}']]
-    dxdB_cohorts = all_cohort_IDs[:cohorts[f'DXD{termB}']]
-    bkA_cohorts  = all_cohort_IDs[:cohorts[f'BK{termA}']]
-    bkB_cohorts  = all_cohort_IDs[:cohorts[f'BK{termB}']]
-    fsA_cohorts  = all_cohort_IDs[:cohorts[f'FS{termA}']]
-    fsB_cohorts  = all_cohort_IDs[:cohorts[f'FS{termB}']]
-    
-    
-    all_cohorts = [f"PM0{termA}{c}" for c in pmA_cohorts] + \
-                  [f"PM0{termB}{c}" for c in pmB_cohorts] + \
-                  [f"BA0{termA}{c}" for c in baA_cohorts] + \
-                  [f"BA0{termB}{c}" for c in baB_cohorts] + \
-                  [f"GLM0{termA}{c}" for c in glmA_cohorts] + \
-                  [f"GLM0{termB}{c}" for c in glmB_cohorts] + \
-                  [f"DXD0{termA}{c}" for c in dxdA_cohorts] + \
-                  [f"DXD0{termB}{c}" for c in dxdB_cohorts] + \
-                  [f"BK0{termA}{c}" for c in bkA_cohorts] + \
-                  [f"BK0{termB}{c}" for c in bkB_cohorts] + \
-                  [f"FS0{termA}{c}" for c in fsA_cohorts] + \
-                  [f"FS0{termB}{c}" for c in fsB_cohorts] 
-
-    lectures = {
-        'pmA' : pmA_lecs,
-        'pmB' : pmB_lecs,
-        'baA' : baA_lecs,
-        'baB' : baB_lecs,
-        'glmA': glmA_lecs,
-        'glmB': glmB_lecs,
-        'dxdA': dxdA_lecs,
-        'dxdB': dxdB_lecs,
-        'bkA' : bkA_lecs,
-        'bkB' : bkB_lecs,
-        'fsA' : fsA_lecs,
-        'fsB' : fsB_lecs,
-    }
-    labs = {
-        'pmA' : pmA_labs,
-        'pmB' : pmB_labs,
-        'baA' : baA_labs,
-        'baB' : baB_labs,
-        'glmA': glmA_labs,
-        'glmB': glmB_labs,
-        'dxdA': dxdA_labs,
-        'dxdB': dxdB_labs,
-        'bkA' : bkA_labs,
-        'bkB' : bkB_labs,
-        'fsA' : fsA_labs,
-        'fsB' : fsB_labs,
-    }
-    online = {
-        'pmA' : pmA_onls,
-        'pmB' : pmB_onls,
-        'baA' : baA_onls,
-        'baB' : baB_onls,
-        'glmA': glmA_onls,
-        'glmB': glmB_onls,
-        'dxdA': dxdA_onls,
-        'dxdB': dxdB_onls,
-        'bkA' : bkA_onls,
-        'bkB' : bkB_onls,
-        'fsA' : fsA_onls,
-        'fsB' : fsB_onls,
-    }
     cohorts = {
-        'pmA' : pmA_cohorts,
-        'pmB' : pmB_cohorts,
-        'baA' : baA_cohorts,
-        'baB' : baB_cohorts,
-        'glmA': glmA_cohorts,
-        'glmB': glmB_cohorts,
-        'dxdA': dxdA_cohorts,
-        'dxdB': dxdB_cohorts,
-        'bkA' : bkA_cohorts,
-        'bkB' : bkB_cohorts,
-        'fsA' : fsA_cohorts,
-        'fsB' : fsB_cohorts,
+        'pmA' : all_cohort_IDs[:cohorts[f'PM{termA}']],
+        'pmB' : all_cohort_IDs[:cohorts[f'PM{termB}']],
+        'baA' : all_cohort_IDs[:cohorts[f'BA{termA}']],
+        'baB' : all_cohort_IDs[:cohorts[f'BA{termB}']],
+        'glmA': all_cohort_IDs[:cohorts[f'GLM{termA}']],
+        'glmB': all_cohort_IDs[:cohorts[f'GLM{termB}']],
+        'dxdA': all_cohort_IDs[:cohorts[f'DXD{termA}']],
+        'dxdB': all_cohort_IDs[:cohorts[f'DXD{termB}']],
+        'bkA' : all_cohort_IDs[:cohorts[f'BK{termA}']],
+        'bkB' : all_cohort_IDs[:cohorts[f'BK{termB}']],
+        'fsA' : all_cohort_IDs[:cohorts[f'FS{termA}']],
+        'fsB' : all_cohort_IDs[:cohorts[f'FS{termB}']],
     }
-
-    # get all 26 day schedules as a dictionary of dataframes
-    # (technically, we only need the lecture objects, but having this makes
-    # scheduling & debugging 1000x easier)
-    full_schedule, week_starts, last_days, h_ints = create_prgm_term_schedule(
-        lectures, labs, online, cohorts, rooms, start_day, holidays
-    )
+    all_cohorts = [f"PM0{termA}{c}"  for c in cohorts['pmA']]  + \
+                  [f"PM0{termB}{c}"  for c in cohorts['pmB']]  + \
+                  [f"BA0{termA}{c}"  for c in cohorts['baA']]  + \
+                  [f"BA0{termB}{c}"  for c in cohorts['baB']]  + \
+                  [f"GLM0{termA}{c}" for c in cohorts['glmA']] + \
+                  [f"GLM0{termB}{c}" for c in cohorts['glmB']] + \
+                  [f"DXD0{termA}{c}" for c in cohorts['dxdA']] + \
+                  [f"DXD0{termB}{c}" for c in cohorts['dxdB']] + \
+                  [f"BK0{termA}{c}"  for c in cohorts['bkA']]  + \
+                  [f"BK0{termB}{c}"  for c in cohorts['bkB']]  + \
+                  [f"FS0{termB}{c}"  for c in cohorts['fsA']]  + \
+                  [f"FS0{termA}{c}"  for c in cohorts['fsB']]
+                  
+    return { 
+        'lectures': lecs,
+        'labs': labs,
+        'online': online,
+        'course hours': course_hours,
+        'start day': start_day,
+        'holidays': holidays,
+        'cohorts': cohorts,
+        'full cohort list': all_cohorts,
+    }
     
-    if debug:
-        for day, sched in full_schedule.items():
-            print(f"\n\t\t {day} :\n")
-            print(sched)
-        print(f"week start dates {week_starts}")
-        print(f"holidays: {holidays}")
 
+def get_sched(term: int, export=True, debug=False):
+    '''
+    Main driver function for generating the program course term schedule, where
+    term indicates if the schedule is for fall, winter, or spring semester
+    '''
+    # in theory this will never happen, but just to be safe:
+    if term not in [1, 2, 3]:
+        return None
+    
+    term_data = get_term_data(term)
+
+    c_hours  = term_data.pop("course hours")
+    start    = term_data.pop("start day")
+    holidays = term_data.pop("holidays")
+    rooms    = get_rooms()
+    
+    all_cohorts = term_data.pop("full cohort list")
+    
+    # keep track of the current date, current day/week number, and holidays
+    curr_day  = start
+    date_ints = {'day': 0, 'week': 1, 'holidays': []}
+
+    # dict mapping course titles to the day (int, not date) on which they end
+    end_days = {}
+    
+    # starting monday dates for each week (all terms start on a wednesday)
+    week_starts = [curr_day - dt.timedelta(days=2)]
+    
+    # create schedules for the first day, then reference this when making 
+    # subsequent schedules to get consistent times and rooms for courses
+    prev_scheds = make_empty_scheds(rooms)
+    sched_dict = {}
+    
+    while curr_day < (start + dt.timedelta(weeks=13)):
+        
+        if curr_day not in holidays:
+            new_sched = make_prgm_day_sched(term_data, c_hours, 
+                                            date_ints, prev_scheds)
+            
+            c_hours     = update_course_hours(c_hours, new_sched)
+            prev_scheds = update_schedule(c_hours, new_sched, date_ints, end_days)
+            
+        else:
+            new_sched = pd.DataFrame({str(curr_day): ['HOLIDAY']})
+
+        sched_dict[str(curr_day)] = new_sched
+        
+        if debug: print(f"\n\n{str(curr_day)}:\n{new_sched}")
+        
+        if (curr_day.weekday() == 0):
+            curr_day += dt.timedelta(days=2)
+            
+        elif (curr_day.weekday() == 2):
+            curr_day += dt.timedelta(days=5)
+            date_ints['week'] += 1
+            week_starts.append(curr_day)
+            
+        date_ints['day'] += 1
+        
+    if export:
+        export_to_excel(sched_dict)
+    
     return {
         "cohorts": all_cohorts,
         "week starts": week_starts,
-        "last days": last_days,
-        "holidays": h_ints,
+        "last days": end_days,
+        "holidays": date_ints['holidays'],
     }
 
 
