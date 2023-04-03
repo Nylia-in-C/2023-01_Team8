@@ -347,7 +347,7 @@ def add_lecture_to_db(lec: Lecture) -> None:
 
 def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
     
-    with pd.ExcelWriter("test.xlsx", engine="openpyxl") as writer:
+    with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl") as writer:
         for day, val in sched_dict.items():
         
             val.to_excel(writer, sheet_name=f"DAY {day}", index=False)
@@ -355,7 +355,6 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
             #TODO: append program schedule to existing spreadsheet, rather than overwrite it
             #      fix formatting issues
             #      make each tab a week schedule, rather than a single day
-            #      change default excel file name
             
             
             # set columns widths so schedule is readable
