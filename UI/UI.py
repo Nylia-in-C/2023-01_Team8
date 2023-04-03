@@ -10,8 +10,8 @@ from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 import random
 import fill_data
-from UI import widgets as w
-from UI import remove_colours as rc
+import UI.widgets as w
+from UI.remove_colours import remove_colours as rc
 import helpers
 from database.database import *
 import imports.fillClassrooms
@@ -69,7 +69,7 @@ class UI(QMainWindow):
         super().__init__()
 
         global BG_COLOURS
-        BG_COLOURS = rc.remove_colours(BG_COLOURS)
+        BG_COLOURS = rc(BG_COLOURS)
 
         self.setWindowTitle("Scheduler")
         self.setStyleSheet("background-color: #6f2937") 
