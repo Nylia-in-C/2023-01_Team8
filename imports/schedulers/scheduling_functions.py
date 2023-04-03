@@ -4,6 +4,8 @@ import datetime as dt
 import pandas as pd
 import holidays
 from openpyxl.utils import get_column_letter
+from openpyxl import load_workbook
+from openpyxl import Workbook
 
 import helpers
 
@@ -348,15 +350,26 @@ def add_lecture_to_db(lec: Lecture) -> None:
     return
 
 def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
-    
+
+
+    if not os.path.exists("Exported Schedule.xlsx"):
+        wb = Workbook()
+        wb.save("Exported Schedule.xlsx")
+
     with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
+        wb = load_workbook("Exported Schedule.xlsx")
+
         for day, val in sched_dict.items():
-        
-            val.to_excel(writer, sheet_name=f"DAY {day}", index=False)
+
+            try:
+                next_empty_row = wb[f"DAY {day}"].max_row
+                next_empty_row = 0 if next_empty_row == 0 else next_empty_row + 2
+            except:
+                next_empty_row = 0
+
+            val.to_excel(writer, sheet_name=f"DAY {day}", index=False, startrow=next_empty_row)
             
-            #TODO: append program schedule to existing spreadsheet, rather than overwrite it
-            #      make each tab a week schedule, rather than a single day
-            
+            #TODO: make each tab a week schedule, rather than a single day
             
             # set columns widths so schedule is readable
             curr_sheet = writer.sheets[f"DAY {day}"]
