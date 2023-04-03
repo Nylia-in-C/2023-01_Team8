@@ -89,6 +89,8 @@ class UI(QMainWindow):
         self.pick_semester = w.drop_down(w.glass)
         self.pick_semester.addItems(list(SEM.keys()))
 
+        self.export_check = QCheckBox()
+
         # Options
         self.class_id = QLineEdit()
         self.class_lab = QButtonGroup()
@@ -589,6 +591,14 @@ class UI(QMainWindow):
         create_sched = w.push_button(w.coal, "Create Schedule", self.create_schedule)
         create_sched.setFixedSize(280,60)
 
+        # Export Checkbox
+        export_label = w.label(w.snow_header1, "Export:", 14)
+        self.export_check.setCheckState(True)
+        self.export_check.setTristate(False)
+        export_hbox = QHBoxLayout()
+        export_hbox.addWidget(export_label)
+        export_hbox.addWidget(self.export_check)
+
 
         # Read Current items in the Database
         self.update_class_combos()
@@ -615,6 +625,7 @@ class UI(QMainWindow):
         vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(15, 15, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(create_sched)
+        vbox.addLayout(export_hbox)
         
 
         width_limit.setLayout(vbox)
@@ -1014,8 +1025,12 @@ class UI(QMainWindow):
 
         self.update_class_combos()
 
-        schedule_info = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()])
-        prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()])
+        #TODO Get export value
+        export_confirm = self.export_check.checkState()
+        print(export_confirm)
+
+        schedule_info = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()], export_confirm)
+        prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()], export_confirm)
 
         week_starts = schedule_info["week starts"]
 
