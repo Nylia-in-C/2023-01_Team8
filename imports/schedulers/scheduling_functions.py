@@ -6,6 +6,7 @@ import holidays
 from openpyxl.utils import get_column_letter
 from openpyxl import load_workbook
 from openpyxl import Workbook
+from openpyxl.styles import Font
 
 import helpers
 
@@ -354,6 +355,10 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
 
     if not os.path.exists("Exported Schedule.xlsx"):
         wb = Workbook()
+        ws = wb.active
+        ws.title = "Exported Schedule"
+        ws.merge_cells("C3:I5")
+        ws.cell(row=3, column=3, value="Exported Schedule").font = Font(size=36)
         wb.save("Exported Schedule.xlsx")
 
     with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
