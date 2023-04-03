@@ -347,7 +347,7 @@ def add_lecture_to_db(lec: Lecture) -> None:
 
 def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
     
-    with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl") as writer:
+    with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
         for day, val in sched_dict.items():
         
             val.to_excel(writer, sheet_name=f"DAY {day}", index=False)
