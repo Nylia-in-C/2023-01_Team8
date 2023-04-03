@@ -355,11 +355,15 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
 
     if not os.path.exists("Exported Schedule.xlsx"):
         wb = Workbook()
-        ws = wb.active
-        ws.title = "Exported Schedule"
-        ws.merge_cells("C3:I5")
-        ws.cell(row=3, column=3, value="Exported Schedule").font = Font(size=36)
         wb.save("Exported Schedule.xlsx")
+
+    else:
+        try:
+            wb = load_workbook("Exported Schedule.xlsx")
+            del wb["Sheet"]
+            wb.save("Exported Schedule.xlsx")
+        except:
+            pass
 
     with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
         wb = load_workbook("Exported Schedule.xlsx")
