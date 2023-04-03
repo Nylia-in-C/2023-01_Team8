@@ -3,6 +3,8 @@ import math
 import datetime as dt
 import pandas as pd
 import holidays
+from openpyxl.utils import get_column_letter
+
 import helpers
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
@@ -353,19 +355,18 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
             val.to_excel(writer, sheet_name=f"DAY {day}", index=False)
             
             #TODO: append program schedule to existing spreadsheet, rather than overwrite it
-            #      fix formatting issues
             #      make each tab a week schedule, rather than a single day
             
             
             # set columns widths so schedule is readable
-            # curr_sheet = writer.sheets[f"DAY {day}"]
-            
-            # for column in curr_sheet.columns:
-            #     col_length = max(len(str(cell.value)) for cell in column)
-            #     col_char   = get_column_letter(column[0].column)
-                
-            #     # set the column width based on the maximum cell width found
-            #     curr_sheet.column_dimensions[col_char].width = col_length + 5
+            curr_sheet = writer.sheets[f"DAY {day}"]
+
+            for column in curr_sheet.columns:
+                col_length = max(len(str(cell.value)) for cell in column)
+                col_char   = get_column_letter(column[0].column)
+
+                # set the column width based on the maximum cell width found
+                curr_sheet.column_dimensions[col_char].width = col_length + 5
     return
 
 

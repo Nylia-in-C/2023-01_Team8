@@ -1027,7 +1027,6 @@ class UI(QMainWindow):
 
         #TODO Get export value
         export_confirm = self.export_check.checkState()
-        print(export_confirm)
 
         schedule_info = imports.schedulers.core_scheduler.get_sched(SEM[self.pick_semester.currentText()], export_confirm)
         prog_schedule_info = imports.schedulers.program_scheduler.get_sched(SEM[self.pick_semester.currentText()], export_confirm)
