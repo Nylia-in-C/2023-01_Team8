@@ -1,5 +1,5 @@
 import pytest
-import helpers
+import help_funcs
 import subprocess 
 from imports.schedulers.scheduling_functions import * 
 from imports.schedulers.core_scheduler import *
@@ -9,7 +9,7 @@ from database.database import *
 #helper function used to grab recently scheduled courses from the database
 def get_courses(termA, termB):
     # get a list of fall courses
-    db = helpers.check_path(r"database\database.db")
+    db = help_funcs.check_path(r"database\database.db")
     connection = create_connection(db)
     query = f"SELECT StartDay FROM Lecture L WHERE L.Term = {termA} or L.Term = {termB};"
     

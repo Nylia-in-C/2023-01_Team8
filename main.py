@@ -34,7 +34,7 @@ def main():
     window.move(w_rect.topLeft())
 
     #Splash screen, then show main window
-    #splash_screen.splash_screen(window)
+    splash_screen.splash_screen(window)
     window.show()
     
     app.exec_()

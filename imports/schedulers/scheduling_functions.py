@@ -10,7 +10,7 @@ from openpyxl import load_workbook
 from openpyxl import Workbook
 from openpyxl.styles import Font
 
-import helpers
+import help_funcs
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
@@ -357,19 +357,19 @@ def add_lecture_to_db(lec: Lecture) -> None:
 def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
 
 
-    if not os.path.exists("Exported Schedule.xlsx"):
+    if not os.path.exists("Exported_Schedule.xlsx"):
         wb = Workbook()
-        wb.save("Exported Schedule.xlsx")
+        wb.save("Exported_Schedule.xlsx")
 
     else:
         try:
-            wb = load_workbook("Exported Schedule.xlsx")
+            wb = load_workbook("Exported_Schedule.xlsx")
             del wb["Sheet"]
-            wb.save("Exported Schedule.xlsx")
+            wb.save("Exported_Schedule.xlsx")
         except:
             pass
 
-    with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
+    with pd.ExcelWriter("Exported_Schedule.xlsx", engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
         # get all the keys to cross reference later
         all_keys = list(sched_dict.keys())
         for day, val in sched_dict.items():
@@ -381,7 +381,7 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
             sheet_name = sheet_name.strftime("%Y-%m-%d")
 
             try:
-                wb = load_workbook("Exported Schedule.xlsx")
+                wb = load_workbook("Exported_Schedule.xlsx")
                 next_empty_row = wb[f"WEEK {sheet_name}"].max_row
                 next_empty_row = 1 if next_empty_row == 1 else next_empty_row + 2
 

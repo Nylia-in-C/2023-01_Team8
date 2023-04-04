@@ -71,7 +71,7 @@ class UI(QMainWindow):
         super().__init__()
 
         global BG_COLOURS
-        BG_COLOURS = rc(BG_COLOURS)
+        BG_COLOURS = rc.remove_colours(BG_COLOURS)
 
         self.setWindowTitle("Scheduler")
         self.setStyleSheet("background-color: #6f2937") 
@@ -92,6 +92,8 @@ class UI(QMainWindow):
         self.pick_semester.addItems(list(SEM.keys()))
 
         self.export_check = QCheckBox()
+        self.export_check.setStyleSheet("color: white")
+        self.export_check
 
         # Options
         self.class_id = QLineEdit()
@@ -594,7 +596,7 @@ class UI(QMainWindow):
         create_sched.setFixedSize(280,60)
 
         # Export Checkbox
-        export_label = w.label(w.snow_header1, "Export:", 14)
+        export_label = w.label(w.snow_header1, "Export to File:", 14)
         self.export_check.setCheckState(True)
         self.export_check.setTristate(False)
         export_hbox = QHBoxLayout()

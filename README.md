@@ -10,7 +10,8 @@
         [3.1.2. Create Template](https://github.com/MacEwanCMPT395/2023-01_Team8#312-create-template)  
         [3.1.3. Import Template](https://github.com/MacEwanCMPT395/2023-01_Team8#313-import-template)   
         [3.1.4. Students per Term Menu](https://github.com/MacEwanCMPT395/2023-01_Team8#314-students-per-term-menu)  
-        [3.1.5. Create Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#315-create-schedule)  
+        [3.1.5. Create Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#315-create-schedule)   
+            [3.1.5.1. Export Function](https://github.com/MacEwanCMPT395/2023-01_Team8#3151-export-function)  
     [3.2. Tabs](https://github.com/MacEwanCMPT395/2023-01_Team8#32-tabs)  
         [3.2.1. Classroom Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#321-classroom-schedule)  
         [3.2.2. Cohort Schedule](https://github.com/MacEwanCMPT395/2023-01_Team8#322-cohort-schedule)   
@@ -19,6 +20,7 @@
             [3.2.3.2. Course Options](https://github.com/MacEwanCMPT395/2023-01_Team8#3232-course-options)  
             [3.2.3.3. Reset Database](https://github.com/MacEwanCMPT395/2023-01_Team8#3233-reset-database)  
         [3.2.4. Instructions](https://github.com/MacEwanCMPT395/2023-01_Team8#324-instructions)  
+[4. Credits](https://github.com/MacEwanCMPT395/2023-01_Team8#324-credits)  
 &nbsp;  
 # 1. Introduction
 *Scheduler* is a standalone Windows-compatible application created for the Macewan School of Continuing Education. It allows the user to create timetables for the students, based on given courses, terms, classrooms, and enrollment numbers.  
@@ -51,8 +53,11 @@ The number of students per program per term can be manually adjusted here, eithe
 
 Note: Importing data via the *Load Data* function will overwrite previous input.   
 &nbsp;   
-### 3.1.5. Create Schedule
-Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Then choose a classroom to generate the schedule for. Afterwards, click the *Create Schedule* button to generate the schedule. 
+### 3.1.5. Create Schedule  
+Once data has been entered, select the desired Term (Fall, Winter, or Spring / Summer) from the dropdown menu. Then choose a classroom to generate the schedule for. Afterwards, click the *Create Schedule* button to generate the schedule.  
+&nbsp;  
+#### 3.1.5.1. Export Function
+If the *Export to File* checkbox is selected (on by default), a spreadsheet file called *Exported_Schedule.xlsx* will be created and placed into the base directory. 
 &nbsp;   
 &nbsp; 
 ## 3.2. Tabs  
@@ -120,3 +125,15 @@ Note: **This will delete everything previously put into the database and reset t
 ### 3.2.4. Instructions
 These instructions can be found in the *Instructions* tab for easy access without an internet connection. 
 &nbsp;   
+&nbsp;  
+# 4. Credits  
+&nbsp; 
+&nbsp; 
+This project was created by CMPT395 Group 8, consisting of the following team members:  
+&nbsp;  
+Andrew Keates  
+Brant Harker  
+Brittney Ference  
+Ken Lieu  
+Selena Weber  
+&nbsp;  
