@@ -6,7 +6,7 @@ currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
-from UI import UI
+from UI import UI, splash_screen
 from PyQt5.QtWidgets import *
 from database.database import *
 import fill_data
@@ -34,7 +34,7 @@ def main():
     window.move(w_rect.topLeft())
 
     #Splash screen, then show main window
-    UI.UI.splash_screen(window)
+    #splash_screen.splash_screen(window)
     window.show()
     
     app.exec_()

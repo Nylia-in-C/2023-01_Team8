@@ -2,9 +2,6 @@
 
 #Imports
 import os
-import sys
-import time
-import pandas as pd
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -12,8 +9,9 @@ from PyQt5.QtCore import *
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 import random
-import database.database
 import fill_data
+from UI import widgets as w
+from UI import remove_colours as rc
 import help_funcs
 from database.database import *
 import imports.fillClassrooms
@@ -23,9 +21,6 @@ import imports.schedulers.program_scheduler
 import imports.classes.classrooms
 import datetime
 import copy
-
-
-BG_COLOURS = QtGui.QColor.colorNames()
 
 SEM = {"Fall":1, "Winter":2, "Spring / Summer":3}
 # Quickly match times to slots when displaying schedule.
@@ -46,22 +41,16 @@ TIMES = {"08:00":0, "08:30":1,
 LEFT_MAX_WIDTH = 450
 
 # Dictionaries where key = week number, value =list of (2) lists for each day that week
-CORE_SCHEDULE = {}
-PROG_SCHEDULE = {}
-CORE_SCHEDULE_COHORTS = {}
-PROG_SCHEDULE_COHORTS = {}
+(CORE_SCHEDULE, PROG_SCHEDULE) = ({}, {})
+(CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS) = ({}, {})
 
-CORE_END_DATES = {}
-PROG_END_DATES = {}
-CORE_HOLIDAYS = []
-PROG_HOLIDAYS = []
+(CORE_END_DATES, PROG_END_DATES) = ({}, {})
+(CORE_HOLIDAYS, PROG_HOLIDAYS) = ([], [])
 
 WEEK_DISPLAY_DATE = {}
 ROOM = ""
 global PROG_LABELS
-WEEK = 1
-CORE_DAY = 1
-PROG_DAY = 1
+(WEEK, CORE_DAY, PROG_DAY) = (1, 1, 1)
 COLOUR_INDEX = -1
 COURSE_COLOUR = {}
 COHORT_COURSE_COLOUR = {}
@@ -72,93 +61,56 @@ COHORT_COURSE_TO_ROOM = {}
 
 CREATE_SCHEDULE_CLICKED = 0
 
-# Removes colours that make the text hard to read / separate from the background
-def remove_colours():
-    global BG_COLOURS
-    excludedcolours = ["aliceblue", "mediumturquoise", "midnightblue", 
-                    "lavenderblush", "blue", "mediumblue", "blanchedalmond", 
-                    "indigo", "seashell", "navy", "black", "brown", "beige",
-                    "azure", "deeppink", "fuchsia", "hotpink", "magenta",
-                    "red", "pink", "mediumvioletred", "blueviolet", "darkviolet",
-                    "mediumpurple", "purple"]
-
-    for colour in excludedcolours:
-        BG_COLOURS.remove(colour)
-
-    _colours = BG_COLOURS.copy()
-    for colour in range(len(_colours)):
-        if "dark" in _colours[colour] or "white" in _colours[colour] or "gray" in _colours[colour] or "grey" in _colours[colour]:
-            BG_COLOURS.remove(_colours[colour])
+BG_COLOURS = QtGui.QColor.colorNames()
 
 class UI(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        remove_colours()
+
+        global BG_COLOURS
+        BG_COLOURS = rc.remove_colours(BG_COLOURS)
+
         self.setWindowTitle("Scheduler")
         self.setStyleSheet("background-color: #6f2937") 
-
-        #Stylesheet
-        global style_glass
-        style_glass =        (  "background-color: #5e869c; " +
-                                "color: #fefdea; " +
-                                "border-color: #fefdea; ")
-
 
         # Create references for things that can change - filepaths, charts etc.\
         # Can add more as needed
         self.file_path = ""
-        self.file_label = QLabel()
-        self.legion_size = QLabel()
-        self.select_room = QComboBox()
-        self.select_room.activated.connect(self.room_selector_show_schedule)
-        self.select_room.setStyleSheet(style_glass)
+        self.file_label = w.label(w.snow_reg, "No File Chosen")
+        self.select_room = w.drop_down(w.glass, self.room_selector_show_schedule)
 
-        self.week_label = QLabel()
-        font = QFont()
-        font.setPointSize(16)
-        self.week_label.setFont(font)
+        self.week_label = w.label(w.snow_header1, "", 16)
         self.week_label.setAlignment(Qt.AlignCenter)
 
-        self.cohort_week_label = QLabel()
-        font = QFont()
-        font.setPointSize(16)
-        self.cohort_week_label.setFont(font)
+        self.cohort_week_label = w.label(w.snow_header1, "", 16)
         self.cohort_week_label.setAlignment(Qt.AlignCenter)
 
-        self.pick_semester = QComboBox()
-        self.pick_semester.setStyleSheet(style_glass) 
+        self.pick_semester = w.drop_down(w.glass)
         self.pick_semester.addItems(list(SEM.keys()))
 
         # Options
         self.class_id = QLineEdit()
         self.class_lab = QButtonGroup()
-        self.class_capacity = QSpinBox()
-        self.class_capacity.setStyleSheet(style_glass)
-        self.classroom_list = QComboBox()
-        self.classroom_list.setStyleSheet(style_glass)
-
-        self.courses = QComboBox()
-        self.courses.setStyleSheet(style_glass)
+        self.class_capacity = w.spin_box(w.glass)
+        self.classroom_list = w.drop_down(w.glass)
+        self.courses = w.drop_down(w.glass)
         self.courses_edit_new = QButtonGroup()
         self.course_id = QLineEdit()
-        self.course_term_hours = QSpinBox()
-        self.course_term_hours.setStyleSheet(style_glass)
-        self.course_term = QSpinBox()
-        self.course_term.setStyleSheet(style_glass)
-        self.course_duration = QSpinBox()
-        self.course_duration.setStyleSheet(style_glass) 
+        self.course_term_hours = w.spin_box(w.glass)
+        self.course_term = w.spin_box(w.glass)
+        self.course_term.setStyleSheet(w.glass.specs)
+        self.course_duration = w.spin_box(w.glass)
+        self.course_duration.setStyleSheet(w.glass.specs) 
         self.course_core = QCheckBox()
         self.course_online = QCheckBox()
         self.course_lab = QCheckBox()
-        self.course_program = QComboBox()
-        self.course_program.setStyleSheet(style_glass)
+        self.course_program = w.drop_down(w.glass)
 
-        self.course_pre_req_selector = QComboBox()
-        self.course_pre_req_selector.setStyleSheet(style_glass)
+
+        self.course_pre_req_selector = w.drop_down(w.glass)
         self.course_pre_reqs = []
-        self.course_pre_reqs_label = QLabel()
-        self.course_pre_reqs_label.setStyleSheet("color: #fefdea")
+        self.course_pre_reqs_label = w.label(w.snow_reg, "")
 
         '''
         Creating tables for each tab
@@ -179,9 +131,7 @@ class UI(QMainWindow):
         + Combobox for picking cohort
         '''
         self.cohort_table = QTableWidget()
-        self.cohort_tab_combo = QComboBox()
-        self.cohort_tab_combo.setStyleSheet(style_glass)
-        self.cohort_tab_combo.activated.connect(self.cohort_selector_show_schedule)
+        self.cohort_tab_combo = w.drop_down(w.glass, self.cohort_selector_show_schedule)
 
         self.cohort_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.cohort_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -206,37 +156,6 @@ class UI(QMainWindow):
 
         self.show()
 
-    def splash_screen(self):
-        # Start up splash screen
-        # adapted from: https://stackoverflow.com/questions/58661539/create-splash-screen-in-pyqt5
-        
-        if getattr(sys, 'frozen', True):
-            logo = 'macewan_logo.png'
-        else:
-            logo = '..\\macewan_logo.png'
-
-        splash_pic = QPixmap(logo)
-        splash_msg = QSplashScreen(splash_pic, Qt.WindowStaysOnTopHint)
-        splash_msg.setFixedSize(965, 568)
-        splash_msg.setStyleSheet(style_glass)
-
-        #Fade in, fade out
-        opaque = 0.00
-        step = 0.02
-        splash_msg.setWindowOpacity(opaque)
-        splash_msg.show()
-        while opaque < 1:
-            splash_msg.setWindowOpacity(opaque)
-            time.sleep(step)
-            opaque+=step
-        time.sleep(2)
-        while opaque > 0:
-            splash_msg.setWindowOpacity(opaque)
-            time.sleep(2*step)
-            opaque-=2*step
-        splash_msg.close()
-
-
     # Creates all items for central widget
     def create_hlayout(self):
         hbox = QHBoxLayout(self)
@@ -251,60 +170,51 @@ class UI(QMainWindow):
 
         return hbox
 
-    # Quick function to make horizontal separators
-    def create_horizontal_line(self):
-        h_line = QFrame()
-        h_line.setFrameShape(QFrame.HLine)
-        h_line.setFrameShadow(QFrame.Plain)
-        h_line.setStyleSheet("color: #fefdea")
-        h_line.setLineWidth(3)
-        return h_line
-
-    # Quick function to make vertical separators
-    def create_vertical_line(self):
-        v_line = QFrame()
-        v_line.setFrameShape(QFrame.VLine)
-        v_line.setLineWidth(2)
-        v_line.setFrameShadow(QFrame.Plain)
-        v_line.setStyleSheet("color: #fefdea")
-        return v_line
-
     # Creates the top hbox where most information will be displayed
     def create_tabs(self):
 
         # Create tabs
         tabs = QTabWidget()
-        tabs.setStyleSheet(style_glass)
-        tab1 = QWidget()
-        tab1.setStyleSheet(    "background-color: #3b0918; " +
-                               "color: #fefdea; ")                                 
-        tab2 = QWidget()
-        tab2.setStyleSheet(    "background-color: #3b0918; " +
-                               "color: #4f4f4f; ")  
+        tabs.setStyleSheet(w.glass.specs)
 
-        tab3 = QWidget()        
-        tab3.setStyleSheet(     "background-color: #fefdea; " +
-                                "color: #4f4f4f; " +
-                                "border-color: #fefdea; ")
-        tab4 = QWidget()
-        tab4.setStyleSheet(     "background-color: #3b0918; " +
-                                "color: #fefdea; " +
-                                "border-color: #fefdea; ")
-                                
-        tabs.addTab(tab1, "Classroom Schedule")
-        tabs.addTab(tab4, "Cohort Schedule")
-        tabs.addTab(tab2, "Options")
-        tabs.addTab(tab3, "Instructions")
+        (tab1, tab2, tab3, tab4) = (QWidget(), QWidget(), QWidget(), QWidget())
+
+        t_list = [tab1, tab2, tab3, tab4]
+        styles = [w.brick.specs, w.brick.specs, w.brick.specs, w.paper.specs]
+        t_titles = ["Classroom Schedule", "Cohort Schedule", "Options", "Instructions"]
+        t_funcs = [self.make_main_tab(), self.make_cohort_sched_tab(), 
+                   self.make_options_tab(), self.make_readme_tab()]
+
+        for i in range(len(t_list)):
+            t_list[i].setStyleSheet(styles[i])
+            tabs.addTab(t_list[i], t_titles[i])
+            t_list[i].setLayout(t_funcs[i])
 
         self.create_schedule_base(0)
         self.create_cohorts_schedule_base()
 
-        tab1.setLayout(self.make_main_tab())
-        tab2.setLayout(self.make_options_tab())
+        return tabs
 
-        # Cohorts schedule tab
-        tab4.setLayout(self.make_cohort_sched_tab())
 
+    def make_main_tab(self):
+        main_table_box = QVBoxLayout(self)
+        week_choose = QHBoxLayout(self)
+
+        #Left/Right Navigation Arrows
+        left =  w.push_button(w.coal,"←", self.back_week)
+        right = w.push_button(w.coal,"→", self.forward_week)
+
+        week_choose.addWidget(left)
+        week_choose.addWidget(self.week_label)
+        week_choose.addWidget(right)
+
+        main_table_box.addLayout(week_choose)
+        main_table_box.addWidget(self.main_table)
+
+        return main_table_box
+    
+
+    def make_readme_tab(self):
         # Read me Doc
         read_me = QTextEdit()
         rdme_path = help_funcs.check_path('README.md')
@@ -316,70 +226,25 @@ class UI(QMainWindow):
         read_me.setMarkdown(file_content)
         layout = QHBoxLayout()
         layout.addWidget(read_me)
-        tab3.setLayout(layout)
 
-        return tabs
-
-
-    def make_main_tab(self):
-        main_table_box = QVBoxLayout(self)
-        week_choose = QHBoxLayout(self)
-
-        #Left/Right Navigation Arrows
-        arrowfont = QFont()
-        arrowfont.setBold(True)
-        arrowfont.setPointSize(20)
-
-        left = QPushButton("←")
-        left.setStyleSheet( "background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; "+
-                            "border-radius: 5px; "+
-                            "border-color: #fefdea")
-        left.setFont(arrowfont)
-
-        right = QPushButton("→")
-        right.setStyleSheet( "background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; "+
-                            "border-radius: 5px; "+
-                            "border-color: #fefdea")        
-        right.setFont(arrowfont)
-
-        right.clicked.connect(self.forward_week)
-        left.clicked.connect(self.back_week)
-
-        week_choose.addWidget(left)
-        week_choose.addWidget(self.week_label)
-        week_choose.addWidget(right)
-
-        main_table_box.addLayout(week_choose)
-        main_table_box.addWidget(self.main_table)
-
-        return main_table_box
+        return layout
 
     def make_options_tab(self):
         vbox_overall = QVBoxLayout()
 
         vbox_overall.addLayout(self.update_classroom_section())
-        vbox_overall.addWidget(self.create_horizontal_line())
-        vbox_overall.addWidget(self.create_horizontal_line())
-        vbox_overall.addLayout(self.update_course_section())
-        vbox_overall.addWidget(self.create_horizontal_line())
-        vbox_overall.addWidget(self.create_horizontal_line())
+        vbox_overall.addWidget(w.create_horizontal_line())
+        vbox_overall.addWidget(w.create_horizontal_line())
 
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(16)
+        vbox_overall.addLayout(self.update_course_section())
+        vbox_overall.addWidget(w.create_horizontal_line())
+        vbox_overall.addWidget(w.create_horizontal_line())
 
         #Reset database button
-        reset_label = QLabel("Reset Database")
-        reset_label.setFont(font)
-        reset_label.setStyleSheet("color: #fefdea")
-        reset_button = QPushButton("Reset to Default Settings")
+        reset_label = w.label(w.snow_header1, "Reset Database")
+
+        reset_button = w.push_button(w.glass, "Reset to Default Settings", self.reset_db)
         reset_button.setFixedWidth(200)
-        reset_button.setStyleSheet(style_glass)
-        reset_button.clicked.connect(self.reset_db)
 
         hbox = QVBoxLayout()
         hbox.setContentsMargins(20,40,0,50)
@@ -393,7 +258,35 @@ class UI(QMainWindow):
         return vbox_overall
 
 
+    def reset_db(self):
 
+        global CREATE_SCHEDULE_CLICKED, CORE_SCHEDULE, CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, PROG_SCHEDULE
+        answer = QMessageBox(QMessageBox.Warning, "Reset Database",
+                                        "Are you sure you want to reset the database?\n\nAll data will be lost!",
+                                        buttons=QMessageBox.Yes | QMessageBox.No)
+        answer.setDefaultButton(QMessageBox.No)
+        answer.setStyleSheet("color: black")
+        clicked = answer.exec()
+
+        if clicked == QMessageBox.Yes:
+            try:
+                os.remove("./database/database.db")
+                fill_data.createDefaultDatabase()
+                self.update_class_combos()
+                self.update_course_combos()
+                self.cohort_tab_combo.clear()
+                self.reset_table()
+                self.reset_table_cohort()
+                CORE_SCHEDULE_COHORTS.clear()
+                PROG_SCHEDULE_COHORTS.clear()
+                CORE_SCHEDULE.clear()
+                PROG_SCHEDULE.clear()
+                CREATE_SCHEDULE_CLICKED = 0
+
+            except:
+                return
+        else:
+            return
 
     def update_classroom_section(self):
         room_add_layout = QHBoxLayout()
@@ -402,46 +295,31 @@ class UI(QMainWindow):
         room_delete_layout = QHBoxLayout()
         room_delete_layout.setSpacing(15)
 
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(16)
-
-        subfont = QFont()
-        subfont.setBold(True)
-        subfont.setItalic(True)
-        subfont.setPointSize(14)
-
         # Classroom section
         vbox_class = QVBoxLayout()
         vbox_class.setContentsMargins(20,0,0,0)
-        class_section_text = QLabel("Room Options")
-        class_section_text.setStyleSheet("color: #fefdea")
-        class_section_text.setFont(font)
+        class_section_text = w.label(w.snow_header1, "Room Options")
 
         #Header
         vbox_class.addWidget(class_section_text)
-        vbox_class.addWidget(self.create_horizontal_line())
+        vbox_class.addWidget(w.create_horizontal_line())
 
         #Adding a Room Subheader
-        class_add_text = QLabel("Add New Room")
-        class_add_text.setStyleSheet("color: #fefdea")
-        class_add_text.setFont(subfont)
+        class_add_text = w.label(w.snow_header2, "Add New Room")
         vbox_class.addWidget(class_add_text)
 
         # Class ID section
         self.class_id.setPlaceholderText("Classroom Name")
         self.class_id.setStyleSheet("color: #fefdea")
         class_id_box = QHBoxLayout()
-        class_id_label = QLabel("Room ID")
-        class_id_label.setStyleSheet("color: #fefdea")
+        class_id_label = w.label(w.snow_reg, "Room ID")
         class_id_box.addWidget(class_id_label)
         #self.class_id.setMaximumWidth(100)
         class_id_box.addWidget(self.class_id)
 
         # Class Capacity Section
         class_capacity_box = QHBoxLayout()
-        room_cap_label = QLabel("Room Capacity")
-        room_cap_label.setStyleSheet("color: #fefdea")
+        room_cap_label = w.label(w.snow_reg, "Room Capacity")
         class_capacity_box.addWidget(room_cap_label)
         self.class_capacity.setValue(10)
         self.class_capacity.setMinimum(10)
@@ -459,38 +337,31 @@ class UI(QMainWindow):
         self.class_lab.addButton(b1)
         self.class_lab.addButton(b2)
 
-        lab_bool_label = QLabel("Room Type")
-        lab_bool_label.setStyleSheet("color: #fefdea")
+        lab_bool_label = w.label(w.snow_reg, "Room Type")
         class_lab_bool.addWidget(lab_bool_label)
         class_lab_bool.addWidget(b1)
         class_lab_bool.addWidget(b2)
 
         # Create add button
-        class_btn = QPushButton("Add")
-        class_btn.setStyleSheet(style_glass) 
+        class_btn = w.push_button(w.glass, "Add", self.add_edit_classroom)
         class_btn.setMaximumWidth(100)
-        class_btn.clicked.connect(self.add_edit_classroom)
 
         # Put adding functions into the layout
         room_add_layout.addLayout(class_id_box)
-        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addWidget(w.create_vertical_line())
         room_add_layout.addLayout(class_capacity_box)
-        room_add_layout.addWidget(self.create_vertical_line())
+        room_add_layout.addWidget(w.create_vertical_line())
         room_add_layout.addLayout(class_lab_bool)
         room_add_layout.addWidget(class_btn)
         
         #Deleting a Room
 
         #Delete Room Header
-        class_delete_text = QLabel("Delete Room")
-        class_delete_text.setStyleSheet("color: #fefdea")
-        class_delete_text.setFont(subfont)
+        class_delete_text = w.label(w.snow_header2, "Delete Room")
 
         # Create remove button
-        remove_btn = QPushButton("Remove")
-        remove_btn.setStyleSheet(style_glass) 
+        remove_btn = w.push_button(w.glass, "Remove", self.remove_classroom)
         remove_btn.setMaximumWidth(150)
-        remove_btn.clicked.connect(self.remove_classroom)
 
         remove_section = QHBoxLayout()
         remove_section.addWidget(self.classroom_list)
@@ -508,20 +379,15 @@ class UI(QMainWindow):
         
         return vbox_class
 
+
     def update_course_section(self):
         vbox_course = QVBoxLayout()
         vbox_course.setContentsMargins(20,0,0,0)
 
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(16)
-
-        course_section_text = QLabel("Course Options")
-        course_section_text.setStyleSheet("color: #fefdea")
-        course_section_text.setFont(font)
+        course_section_text = w.label(w.snow_header1, "Course Options")
         
         vbox_course.addWidget(course_section_text)
-        vbox_course.addWidget(self.create_horizontal_line())
+        vbox_course.addWidget(w.create_horizontal_line())
         vbox_course.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
         db = help_funcs.check_path("database\database.db")  # database.db file path
@@ -556,8 +422,7 @@ class UI(QMainWindow):
         #-----------------------------
 
         hbox_program = QHBoxLayout()
-        prog_label = QLabel("Program: ")
-        prog_label.setStyleSheet("color: #fefdea")
+        prog_label = w.label(w.snow_reg, "Program: ")
         hbox_program.addWidget(prog_label)
         self.course_program.addItems(["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"])
         hbox_program.addWidget(self.course_program)
@@ -565,8 +430,7 @@ class UI(QMainWindow):
         # -----------------------------
 
         course_id_sec = QHBoxLayout()
-        course_name_label = QLabel("Course Name")
-        course_name_label.setStyleSheet("color: #fefdea")
+        course_name_label = w.label(w.snow_reg, "Course Name")
         course_id_sec.addWidget(course_name_label)
         self.courses_edit_new.buttonClicked.connect(self.show_hide_course)
         self.course_id.setStyleSheet("color: #fefdea")
@@ -580,20 +444,17 @@ class UI(QMainWindow):
 
         vbox_spin_boxes = QVBoxLayout()
         hbox_hours = QHBoxLayout()
-        hours_label = QLabel("Course Hours: ")
-        hours_label.setStyleSheet("color: #fefdea")
+        hours_label = w.label(w.snow_reg, "Course Hours: ")
         hbox_hours.addWidget(hours_label)
         hbox_hours.addWidget(self.course_term_hours)
 
         hbox_term = QHBoxLayout()
-        term_label = QLabel("Term: ")
-        term_label.setStyleSheet("color: #fefdea")
+        term_label = w.label(w.snow_reg, "Term: ")
         hbox_term.addWidget(term_label)
         hbox_term.addWidget(self.course_term)
 
         hbox_duration = QHBoxLayout()
-        duration_label = QLabel("Duration: ")
-        duration_label.setStyleSheet("color: #fefdea")
+        duration_label = w.label(w.snow_reg, "Duration: ")
         hbox_duration.addWidget(duration_label)
         hbox_duration.addWidget(self.course_duration)
 
@@ -606,20 +467,17 @@ class UI(QMainWindow):
         hbox_online_lab = QHBoxLayout()
 
         core_hbox = QHBoxLayout()
-        core_label = QLabel("Core Course: ")
-        core_label.setStyleSheet("color: #fefdea")
+        core_label = w.label(w.snow_reg, "Core Course: ")
         core_hbox.addWidget(core_label)
         core_hbox.addWidget(self.course_core)
 
         online_hbox = QHBoxLayout()
-        online_label = QLabel("Online: ")
-        online_label.setStyleSheet("color: #fefdea")
+        online_label = w.label(w.snow_reg, "Online: ")
         online_hbox.addWidget(online_label)
         online_hbox.addWidget(self.course_online)
 
         hbox_lab = QHBoxLayout()
-        lab_comp_label = QLabel("Lab Component: ")
-        lab_comp_label.setStyleSheet("color: #fefdea")
+        lab_comp_label = w.label(w.snow_reg, "Lab Component: ")
         hbox_lab.addWidget(lab_comp_label)
         hbox_lab.addWidget(self.course_lab)
 
@@ -628,24 +486,18 @@ class UI(QMainWindow):
         hbox_online_lab.addLayout(hbox_lab)
         #--------------------------
 
-        course_btn = QPushButton("Save Course")
-        course_btn.setStyleSheet(style_glass)
-        course_btn.clicked.connect(self.save_course)
+        course_btn = w.push_button(w.glass, "Save Course", self.save_course)
 
         # --------------------------
 
         hbox_pre_reqs = QHBoxLayout()
         vbox_pre_reqs = QVBoxLayout()
 
-        pre_req_label = QLabel("Chosen Pre-Reqs")
-        pre_req_label.setStyleSheet("color: #fefdea")
+        pre_req_label = w.label(w.snow_reg, "Chosen Pre-Reqs")
         hbox_pre_reqs.addWidget(pre_req_label)
-        add_pre_req = QPushButton("Add Pre-Req")
-        add_pre_req.setStyleSheet(style_glass)
-        add_pre_req.clicked.connect(self.add_pre_req)
-        rem_pre_req = QPushButton("Clear Pre-Reqs")
-        rem_pre_req.setStyleSheet(style_glass)
-        rem_pre_req.clicked.connect(self.clear_pre_reqs)
+        add_pre_req = w.push_button(w.glass, "Add Pre-Req", self.add_pre_req)
+        rem_pre_req = w.push_button(w.glass, "Clear Pre-Reqs", self.clear_pre_reqs)
+
 
         hbox_pre_reqs.addWidget(self.course_pre_reqs_label)
         vbox_pre_reqs.addLayout(hbox_pre_reqs)
@@ -662,13 +514,13 @@ class UI(QMainWindow):
 
         hbox.setSpacing(15)
         hbox.addLayout(new_or_edit)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addLayout(vbox_course_specs1)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addLayout(vbox_spin_boxes)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addLayout(vbox_pre_reqs)
-        hbox.addWidget(self.create_vertical_line())
+        hbox.addWidget(w.create_vertical_line())
         hbox.addWidget(course_btn)
 
         vbox_course.addLayout(hbox)
@@ -722,63 +574,45 @@ class UI(QMainWindow):
         vbox.setSizeConstraint(QLayout.SetFixedSize) # Prevents left side from resizing
 
         #Big Scheduler label in top left corner
-        title = QLabel("Scheduler")
+        title = w.label(w.snow_header1, "Scheduler", 40)
         title.setMaximumWidth(LEFT_MAX_WIDTH)
-        title.setStyleSheet("color: #fefdea")
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(40)
-        title.setFont(font)
 
         #Students Per Term Label
-        input_title = QLabel("Students per Term")
+        input_title = w.label(w.snow_header1, "Students per Term", 18)
         input_title.setMaximumWidth(LEFT_MAX_WIDTH)
-        input_title.setStyleSheet("color: #fefdea")
-        font.setPointSize(12)
-        input_title.setFont(font)
 
         #Term & Classroom label
-        select_title = QLabel("Term & Classroom")
+        select_title = w.label(w.snow_header1, "Term & Classroom", 18)
         select_title.setMaximumWidth(LEFT_MAX_WIDTH)
-        select_title.setStyleSheet("color: #fefdea")
-        font.setPointSize(12)
-        select_title.setFont(font)
 
         #Big green Create Schedule Button
-        create_sched = QPushButton("Create Schedule")
-        font.setPointSize(20)
-        create_sched.setFont(font)
-        create_sched.setStyleSheet( "background-color: #4f4f4f; " +
-                                    "color: #fefdea; " +
-                                    "border-width: 3px; "+
-                                    "border-radius: 5px; "+
-                                    "border-color: #fefdea")
+        create_sched = w.push_button(w.coal, "Create Schedule", self.create_schedule)
         create_sched.setFixedSize(280,60)
-        create_sched.clicked.connect(self.create_schedule)
+
 
         # Read Current items in the Database
         self.update_class_combos()
 
 
         vbox.addWidget(title)
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(self.create_file_choose())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(input_title)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(self.legion_inputs())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(select_title)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(self.pick_semester)
         vbox.addWidget(self.select_room)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
-        vbox.addWidget(self.create_horizontal_line())
+        vbox.addWidget(w.create_horizontal_line())
         vbox.addSpacerItem(QSpacerItem(15, 15, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addWidget(create_sched)
         
@@ -793,45 +627,30 @@ class UI(QMainWindow):
         vbox = QVBoxLayout()
 
         #Title
-        title = QLabel("Enrollment Import")
+        title = w.label(w.snow_header1, "Enrollment Import", 18)
         title.setStyleSheet("color: #fefdea")
         title.setMaximumWidth(LEFT_MAX_WIDTH)
-        
-        font = QFont()
-        font.setBold(True)
-        font.setPointSize(12)
-        title.setFont(font)
 
         hbox_file_choose = QHBoxLayout(self)
-        choose_input_button = QPushButton("Choose File", self)
-        choose_input_button.setStyleSheet(style_glass)
+        choose_input_button = w.push_button(w.glass, "Choose File", self.choose_file)
         choose_input_button.setMaximumWidth(100)
-        choose_input_button.clicked.connect(self.choose_file)
 
-        self.file_label.setText("No File Chosen")
-        self.file_label.setStyleSheet("color: #fefdea")
         self.file_label.setMaximumWidth(LEFT_MAX_WIDTH)
 
         hbox_file_choose.addWidget(choose_input_button)
         hbox_file_choose.addWidget(self.file_label)
 
-        load_data = QPushButton("Load Data")
-        load_data.setStyleSheet(style_glass)     
-        load_data.clicked.connect(self.load_student_numbers)
+        load_data = w.push_button(w.glass, "Load Data", self.load_student_numbers)
 
-        create_template_button = QPushButton("Create Template")
-        create_template_button.setStyleSheet(style_glass)
-        create_template_button.clicked.connect(self.create_template)
+        create_template_btn = w.push_button(w.glass, "Create Template", self.create_template)
 
         vbox.addWidget(title)
         vbox.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox_file_choose)
         vbox.addWidget(load_data)
-        vbox.addWidget(create_template_button)
+        vbox.addWidget(create_template_btn)
 
         return vbox
-
-
 
     # Makes layout for the term input section
     def legion_inputs(self):
@@ -840,29 +659,22 @@ class UI(QMainWindow):
         hbox_inputs = QHBoxLayout()
 
         hbox_inputs.addLayout(self.program_labels())
-        hbox_inputs.addLayout(self.create_term1_inputs())
-        hbox_inputs.addLayout(self.create_term2_inputs())
-        hbox_inputs.addLayout(self.create_term3_inputs())
+        hbox_inputs.addLayout(self.create_term_inputs(self.term_1_inputs, "Term 1"))
+        hbox_inputs.addLayout(self.create_term_inputs(self.term_2_inputs, "Term 2"))
+        hbox_inputs.addLayout(self.create_term_inputs(self.term_3_inputs, "Term 3"))
 
         vbox_all.addLayout(hbox_inputs)
 
         #Load saved student numbers button
-        load_saved_students = QPushButton("Load Saved Student Numbers")
-        load_saved_students.setStyleSheet(style_glass)
-        load_saved_students.clicked.connect(self.load_db_stu_num)
+        load_saved_students = w.push_button(w.glass, 
+                                            "Load Saved Student Numbers", 
+                                            self.load_db_stu_num)
 
         vbox_all.addWidget(load_saved_students)
 
 
         return vbox_all
 
-
-    def stu_num_input(self):
-        input_box = QSpinBox()
-        input_box.setMaximum(1000)
-        input_box.setMinimumWidth(50)
-        input_box.setStyleSheet(style_glass)
-        return input_box
 
     def program_labels(self):
         global PROG_LABELS
@@ -873,74 +685,29 @@ class UI(QMainWindow):
         PROG_LABELS = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         for label in PROG_LABELS:
-            program = QLabel(label)
-            program.setStyleSheet("color: #fefdea")
+            program = w.label(w.snow_reg, label)
             vbox_labels.addWidget(program)
 
         return vbox_labels
 
 
-    def create_term1_inputs(self):
-
-        '''
-        self.term_1_inputs holds all the fields here
-        '''
+    def create_term_inputs(self, inputs, header_text):
         vbox = QVBoxLayout()
 
         for n in range(len(PROG_LABELS)):
-            self.term_1_inputs.addWidget(self.stu_num_input())
+            input_box = w.spin_box(w.glass, 0, 1000)
+            input_box.setMinimumWidth(50)
+            inputs.addWidget(input_box)
 
-        self.term_1_inputs.setAlignment(Qt.AlignLeft)
+        inputs.setAlignment(Qt.AlignLeft)
 
-        header = QLabel("Term 1")
-        header.setStyleSheet("color: #fefdea")
-
-        vbox.addWidget(header)
-        vbox.addLayout(self.term_1_inputs)
-
-        return vbox
-    
-    def create_term2_inputs(self):
-
-
-        '''
-        self.term_2_inputs holds all the fields here
-        '''
-        vbox = QVBoxLayout()
-
-        for n in range(len(PROG_LABELS)):
-            self.term_2_inputs.addWidget(self.stu_num_input())
-
-        self.term_2_inputs.setAlignment(Qt.AlignLeft)
-
-        header = QLabel("Term 2")
-        header.setStyleSheet("color: #fefdea")
+        header = w.label(w.snow_reg, header_text)
 
         vbox.addWidget(header)
-        vbox.addLayout(self.term_2_inputs)
+        vbox.addLayout(inputs)
 
         return vbox
 
-    def create_term3_inputs(self):
-
-
-        '''
-        self.term_2_inputs holds all the fields here
-        '''
-        vbox = QVBoxLayout()
-
-        for n in range(len(PROG_LABELS)):
-            self.term_3_inputs.addWidget(self.stu_num_input())
-
-        self.term_3_inputs.setAlignment(Qt.AlignLeft)
-
-        header = QLabel("Term 3")
-        header.setStyleSheet("color: #fefdea")
-
-        vbox.addWidget(header)
-        vbox.addLayout(self.term_3_inputs)
-
-        return vbox
 
     '''
     Helper Functions
@@ -989,6 +756,7 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.main_table.setItem(row, column, placeholder)
                 self.main_table.removeCellWidget(row, column)
+
 
     def retrieve_term_inputs(self, layout):
 
@@ -1074,6 +842,7 @@ class UI(QMainWindow):
                 self.main_table.setCellWidget(cell, weekday, label_fill)
                 self.main_table.item(cell, weekday).setBackground(QtGui.QColor(COURSE_COLOUR[course]))
 
+
     def add_ghost_rooms(self):
 
         imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
@@ -1088,10 +857,10 @@ class UI(QMainWindow):
 
         close_connection(connection)
 
+
     '''
     Action Event functions
     '''
-
     def back_week(self):
         global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
 
@@ -1118,6 +887,7 @@ class UI(QMainWindow):
             self.week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK] + "\nWeek " + str(WEEK))
         except:
             return
+
 
     def forward_week(self):
         global CORE_SCHEDULE, PROG_SCHEDULE, WEEK
@@ -1174,9 +944,11 @@ class UI(QMainWindow):
             self.cohort_week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK_COHORTS] + "\nWeek " + str(WEEK_COHORTS))
         except:
             return
-    def back_week_cohort(self):
-        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, WEEK_COHORTS
+        
 
+    def back_week_cohort(self):
+    
+        global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, WEEK_COHORTS
 
         # Cant go below week 1
         if WEEK_COHORTS == 1:
@@ -1200,12 +972,14 @@ class UI(QMainWindow):
             self.cohort_week_label.setText("Week of " + WEEK_DISPLAY_DATE[WEEK_COHORTS] + "\nWeek " + str(WEEK_COHORTS))
         except:
             return
+        
+
     def create_schedule(self):
         global WEEK, CORE_SCHEDULE, PROG_SCHEDULE, CORE_DAY, PROG_DAY, ROOM, COURSE_COLOUR, COHORT_COURSE_COLOUR\
             ,CREATE_SCHEDULE_CLICKED, WEEK_DISPLAY_DATE, CORE_END_DATES, PROG_END_DATES, CORE_HOLIDAYS, PROG_HOLIDAYS
         # Reset values
-        CORE_DAY = 1
-        PROG_DAY = 1
+        CORE_DAY = 0
+        PROG_DAY = 0
         CORE_SCHEDULE.clear()
         PROG_SCHEDULE.clear()
         self.cohort_tab_combo.clear()
@@ -1233,7 +1007,7 @@ class UI(QMainWindow):
         load_font.setPointSize(40)
         load_msg = QSplashScreen()
         load_msg.setFixedSize(400,200)
-        load_msg.setStyleSheet(style_glass)
+        load_msg.setStyleSheet(w.glass.specs)
         load_msg.setFont(load_font)
         load_msg.show()
         load_msg.showMessage("Loading...", 0, QColor(255,255,255))
@@ -1493,8 +1267,6 @@ class UI(QMainWindow):
 
         close_connection(connection)
 
-
-
     # Get the schedule for a specified semester, and fill the dictionary
     # With the 4-tuple lists for each week
     def get_lecture_items(self):
@@ -1514,6 +1286,9 @@ class UI(QMainWindow):
         db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
+        # Get classes set on day 0
+        core_lectures_in_week = readLectureItem_UI(connection, ROOM, 0, 1)
+        prog_lectures_in_week = readLectureItem_UI(connection, ROOM, 0, 0)
 
         # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
         # 13 weeks in a semester
@@ -1527,19 +1302,19 @@ class UI(QMainWindow):
                 core_pass = []
                 prog_pass = []
 
-                core_lectures_in_week = readLectureItem_UI(connection, ROOM, CORE_DAY, 1)
-                prog_lectures_in_week = readLectureItem_UI(connection, ROOM, PROG_DAY, 0)
+                core_lectures_in_week.extend(readLectureItem_UI(connection, ROOM, CORE_DAY, 1))
+                prog_lectures_in_week.extend(readLectureItem_UI(connection, ROOM, PROG_DAY, 0))
 
                 # Append to overall list of lectures. Compare against dictionary for end dates
                 # Remove entry if it is past the end date.
                 core_cross_check += core_lectures_in_week
                 for course in core_cross_check:
-                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                    if not CORE_DAY > CORE_END_DATES.get(course[0], 0):
                         core_pass.append(course)
 
                 prog_cross_check += prog_lectures_in_week
                 for course in prog_cross_check:
-                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                    if not PROG_DAY > PROG_END_DATES.get(course[0], 0):
                         prog_pass.append(course)
 
                 if CORE_DAY in CORE_HOLIDAYS:
@@ -1568,6 +1343,7 @@ class UI(QMainWindow):
 
         close_connection(connection)
 
+
     def get_cohort_lecture_items(self):
 
         global CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, CORE_DAY, PROG_DAY, COHORT_CHOSEN, CORE_END_DATES\
@@ -1585,6 +1361,9 @@ class UI(QMainWindow):
         db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
+        core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, 0, 1)
+        prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, 0, 0)
+
         # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
         # 13 weeks in a semester
         for weeks in range(1, 14):
@@ -1597,22 +1376,22 @@ class UI(QMainWindow):
                 core_pass = []
                 prog_pass = []
 
-                core_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1)
+                core_lectures_in_week.extend(readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, CORE_DAY, 1))
                 core_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], CORE_DAY, 1))
 
-                prog_lectures_in_week = readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0)
+                prog_lectures_in_week.extend(readLectureItem_UI_cohorts(connection, COHORT_CHOSEN, PROG_DAY, 0))
                 prog_lectures_in_week.extend(readLectureItem_UI_cohorts_online(connection, COHORT_CHOSEN[:-2], PROG_DAY, 0))
 
                 # Append to overall list of lectures. Compare against dictionary for end dates
                 # Remove entry if it is past the end date.
                 core_cross_check += core_lectures_in_week
                 for course in core_cross_check:
-                    if not CORE_DAY > CORE_END_DATES[course[0]]:
+                    if not CORE_DAY > CORE_END_DATES.get(course[0], 0):
                         core_pass.append(course)
 
                 prog_cross_check += prog_lectures_in_week
                 for course in prog_cross_check:
-                    if not PROG_DAY > PROG_END_DATES[course[0]]:
+                    if not PROG_DAY > PROG_END_DATES.get(course[0], 0):
                         prog_pass.append(course)
 
                 # Checking if there was any new differences in schedule
@@ -1657,6 +1436,7 @@ class UI(QMainWindow):
                 day_sched[each_slot] = db_pull[each_lecture][0] + "-" + db_pull[each_lecture][2]
 
         return day_sched
+
 
     def add_edit_classroom(self):
         db = help_funcs.check_path("database\database.db")  # database.db file path
@@ -1736,6 +1516,7 @@ class UI(QMainWindow):
             failure.setStyleSheet("color: black")
             failure.exec()
 
+
     def save_course(self):
         db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
@@ -1785,6 +1566,7 @@ class UI(QMainWindow):
             addErr.exec()
             #print("error adding course")
 
+
     def update_course_combos(self):
         db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
@@ -1801,6 +1583,7 @@ class UI(QMainWindow):
         self.course_pre_req_selector.clear()
         self.course_pre_req_selector.addItems(course_name_list)
 
+
     def show_hide_course(self):
 
         if self.courses_edit_new.checkedButton().text() == "New Course":
@@ -1814,6 +1597,7 @@ class UI(QMainWindow):
     def add_pre_req(self):
         self.course_pre_reqs.append(self.course_pre_req_selector.currentText())
         self.course_pre_reqs_label.setText(", ".join(self.course_pre_reqs))
+
 
     def clear_pre_reqs(self):
         self.course_pre_reqs.clear()
@@ -1865,38 +1649,6 @@ class UI(QMainWindow):
             self.show_schedule(thursday, 3)
         except:
             return
-
-    def reset_db(self):
-
-        global CREATE_SCHEDULE_CLICKED, CORE_SCHEDULE, CORE_SCHEDULE_COHORTS, PROG_SCHEDULE_COHORTS, PROG_SCHEDULE
-        answer = QMessageBox(QMessageBox.Warning, "Reset Database",
-                                     "Are you sure you want to reset the database?\n\nAll data will be lost!",
-                                     buttons=QMessageBox.Yes | QMessageBox.No)
-        answer.setDefaultButton(QMessageBox.No)
-        answer.setStyleSheet("color: black")
-        clicked = answer.exec()
-
-        if clicked == QMessageBox.Yes:
-            try:
-                os.remove("./database/database.db")
-                fill_data.createDefaultDatabase()
-                self.update_class_combos()
-                self.update_course_combos()
-                self.cohort_tab_combo.clear()
-                self.reset_table()
-                self.reset_table_cohort()
-                CORE_SCHEDULE_COHORTS.clear()
-                PROG_SCHEDULE_COHORTS.clear()
-                CORE_SCHEDULE.clear()
-                PROG_SCHEDULE.clear()
-                CREATE_SCHEDULE_CLICKED = 0
-
-            except:
-                return
-        else:
-            return
-
-
 
     '''
     # ------------------------------------------------------------------------
@@ -1960,28 +1712,8 @@ class UI(QMainWindow):
         week_choose = QHBoxLayout(self)
 
         # Left/Right Navigation Arrows
-        arrowfont = QFont()
-        arrowfont.setBold(True)
-        arrowfont.setPointSize(20)
-
-        left = QPushButton("←")
-        left.setStyleSheet("background-color: #4f4f4f; " +
-                           "color: #fefdea; " +
-                           "border-width: 3px; " +
-                           "border-radius: 5px; " +
-                           "border-color: #fefdea")
-        left.setFont(arrowfont)
-
-        right = QPushButton("→")
-        right.setStyleSheet("background-color: #4f4f4f; " +
-                            "color: #fefdea; " +
-                            "border-width: 3px; " +
-                            "border-radius: 5px; " +
-                            "border-color: #fefdea")
-        right.setFont(arrowfont)
-
-        right.clicked.connect(self.forward_week_cohort)
-        left.clicked.connect(self.back_week_cohort)
+        left =  w.push_button(w.coal,"←", self.back_week_cohort)
+        right = w.push_button(w.coal,"→", self.forward_week_cohort)
 
         week_choose.addWidget(left)
         week_choose.addWidget(self.cohort_week_label)
@@ -1992,6 +1724,7 @@ class UI(QMainWindow):
         cohort_table_box.addWidget(self.cohort_table)
 
         return cohort_table_box
+
 
     def create_cohorts_schedule_base(self):
 
@@ -2021,6 +1754,7 @@ class UI(QMainWindow):
         # Fill with empty items to change background colours later
         self.reset_table_cohort()
 
+
     def reset_table_cohort(self):
         # Use this to populate table with values to allow
         # Background colouring
@@ -2038,6 +1772,7 @@ class UI(QMainWindow):
                 placeholder.setBackground(QtGui.QColor('#5e869c'))
                 self.cohort_table.setItem(row, column, placeholder)
                 self.cohort_table.removeCellWidget(row, column)
+
 
     def show_schedule_cohorts(self, lecture_list, weekday):
 
