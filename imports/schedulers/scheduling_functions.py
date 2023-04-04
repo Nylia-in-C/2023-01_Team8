@@ -56,11 +56,13 @@ def get_courses(prog: str, term: int) -> List[Course]:
     return courses
     
 def get_rooms() -> List[Classroom]:
+
     ''' fetch all non-ghost classrooms from the database'''
     db = help_funcs.check_path("database\database.db")  # database.db file path
+
     connection = create_connection(db)
 
-    query = f"SELECT * FROM Classrooms C;" #WHERE C.ClassID NOT LIKE 'ghost%';"
+    query = f"SELECT * FROM Classrooms C;"
 
     try:
         cur = connection.cursor()
