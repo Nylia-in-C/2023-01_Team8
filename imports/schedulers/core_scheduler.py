@@ -88,7 +88,7 @@ def get_term_data(term: int):
     }
 
 
-def get_sched(term: int, export=True, debug=False) -> Dict[str, pd.DataFrame]:
+def get_sched(term: int, export=False, debug=False) -> Dict[str, pd.DataFrame]:
     '''
     Main driver function for generating the core course term schedule, where
     term indicates if the schedule is for fall, winter, or spring semester
