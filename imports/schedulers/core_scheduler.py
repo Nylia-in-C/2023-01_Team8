@@ -86,9 +86,9 @@ def get_term_data(term: int):
         'cohorts': cohorts,
         'full cohort list': all_cohorts,
     }
-
-
-def get_sched(term: int, export=True, debug=False) -> Dict[str, pd.DataFrame]:
+    
+    
+def get_sched(term: int, export=False, debug=False) -> Dict[str, pd.DataFrame]:
     '''
     Main driver function for generating the core course term schedule, where
     term indicates if the schedule is for fall, winter, or spring semester
@@ -106,9 +106,16 @@ def get_sched(term: int, export=True, debug=False) -> Dict[str, pd.DataFrame]:
     
     all_cohorts = term_data.pop("full cohort list")
     
-    # keep track of the current date, current day/week number, and holidays
+    # keep track of the current date, current day/week number, & holidays/reading week
     curr_day  = start
     date_ints = {'day': 0, 'week': 1, 'holidays': []}
+    
+    if term == 1: 
+        reading_week = 10     # 11th week of fall term overlaps remembrance day
+    if term == 2: 
+        reading_week = 8      # 8th week of winter term overlaps
+    if term == 3: 
+        reading_week = None   # spr/sum term has no reading week
 
     # dict mapping course titles to the day (int, not date) on which they end
     end_days = {}
@@ -123,18 +130,23 @@ def get_sched(term: int, export=True, debug=False) -> Dict[str, pd.DataFrame]:
     
     while curr_day < (start + dt.timedelta(weeks=13)):
         
-        if curr_day not in holidays:
+        if curr_day not in holidays and date_ints['week'] != reading_week:
             new_sched = make_core_day_sched(term_data, c_hours, 
                                             date_ints, prev_scheds)
             
             c_hours     = update_course_hours(c_hours, new_sched)
             prev_scheds = update_schedule(c_hours, new_sched, date_ints, end_days)
             
+        elif (date_ints['week'] == reading_week):
+            new_sched = pd.DataFrame({str(curr_day): ['READING WEEK']})
+        
         else:
             new_sched = pd.DataFrame({str(curr_day): ['HOLIDAY']})
 
         sched_dict[str(curr_day)] = new_sched
-        if debug: print(f"\n\n{str(curr_day)}:\n{new_sched}")
+        
+        if debug: 
+            print(f"\n\n{str(curr_day)}:\n{new_sched}")
         
         if (curr_day.weekday() == 0):
             curr_day += dt.timedelta(days=2)
