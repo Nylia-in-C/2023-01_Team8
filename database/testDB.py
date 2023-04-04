@@ -1,26 +1,24 @@
-import sqlite3
 import os, sys
-import helpers
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
+import help_funcs
 from imports.classes.legions import Legion
 from imports.classes.programs import Program
 from imports.classes.programs import Cohort
 from imports.classes.classrooms import Classroom
 from imports.classes.courses import Course
 from imports.classes.courses import Lecture
-#from database import *
+
 import database as database
 
 def mainTest():
     #main function to connect to database and test helper functions
-    database = helpers.check_path("database\database.db")  #database.db file path 
-    connection = database.create_connection(database)    
+    DB = help_funcs.check_path("database\database.db")  #database.db file path 
+    connection = database.create_connection(DB)    
    
     if connection is not None: 
        
-        database.delete_table(connection, "LECTURE")
         LEGIONSTableCols = """ CREATE TABLE IF NOT EXISTS LEGIONS (
                     ProgID VARCHAR(100) NOT NULL,
                     TermID INT NOT NULL,
