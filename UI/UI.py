@@ -14,7 +14,7 @@ from openpyxl.workbook import Workbook
 import random
 import database.database
 import fill_data
-import helpers
+import help_funcs
 from database.database import *
 import imports.fillClassrooms
 
@@ -307,11 +307,11 @@ class UI(QMainWindow):
 
         # Read me Doc
         read_me = QTextEdit()
-        rdme_path = helpers.check_path('README.md')
+        rdme_path = help_funcs.check_path('README.md')
         try:
             file_content = open(rdme_path).read()
         except:
-            rdme_path = helpers.check_path('..\\README.md')
+            rdme_path = help_funcs.check_path('..\\README.md')
             file_content = open(rdme_path).read()
         read_me.setMarkdown(file_content)
         layout = QHBoxLayout()
@@ -524,7 +524,7 @@ class UI(QMainWindow):
         vbox_course.addWidget(self.create_horizontal_line())
         vbox_course.addSpacerItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum))
 
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         db_courses = readCourseItem(connection, "%")
         close_connection(connection)
@@ -954,7 +954,7 @@ class UI(QMainWindow):
         self.classroom_list.clear()
         self.select_room.clear()
 
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         db_classes = readClassroomItem(connection, "%")
         close_connection(connection)
@@ -1078,7 +1078,7 @@ class UI(QMainWindow):
 
         imports.fillClassrooms.fillClassrooms(SEM[self.pick_semester.currentText()])
 
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         if (len(readClassroomItem(connection, "ghost%")) != 0):
             ghost_rooms = QMessageBox(QMessageBox.Warning, "Insufficient Room Space", 
@@ -1428,7 +1428,7 @@ class UI(QMainWindow):
         programs = ["PCOM", "BCOM", "PM", "BA", "GLM", "FS", "DXD", "BK"]
 
         try:
-            db = helpers.check_path("database\database.db")  # database.db file path
+            db = help_funcs.check_path("database\database.db")  # database.db file path
             connection = create_connection(db)
 
             # Clear table
@@ -1454,7 +1454,7 @@ class UI(QMainWindow):
     def load_db_stu_num(self):
 
         try:
-            db = helpers.check_path("database\database.db")  # database.db file path
+            db = help_funcs.check_path("database\database.db")  # database.db file path
             connection = create_connection(db)
 
             term_1 = readStudentItem(connection, '%', 1)
@@ -1483,7 +1483,7 @@ class UI(QMainWindow):
     '''
     def clear_lectures(self):
         try:
-            db = helpers.check_path("database\database.db")  # database.db file path
+            db = help_funcs.check_path("database\database.db")  # database.db file path
             connection = create_connection(db)
             # Clear table
             deleteLectureItem_UI(connection)
@@ -1511,7 +1511,7 @@ class UI(QMainWindow):
         core_last_known_sched = [""] *26
         prog_last_known_sched = [""] *26
 
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
 
@@ -1582,7 +1582,7 @@ class UI(QMainWindow):
         core_last_known_sched = [""] * 26
         prog_last_known_sched = [""] * 26
 
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         # Recall that day 1 for Core is monday, Day 1 for Prog is Tuesday
@@ -1659,7 +1659,7 @@ class UI(QMainWindow):
         return day_sched
 
     def add_edit_classroom(self):
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         try:
@@ -1706,7 +1706,7 @@ class UI(QMainWindow):
 
 
     def remove_classroom(self):
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         try:
@@ -1737,7 +1737,7 @@ class UI(QMainWindow):
             failure.exec()
 
     def save_course(self):
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
 
         try:
@@ -1786,7 +1786,7 @@ class UI(QMainWindow):
             #print("error adding course")
 
     def update_course_combos(self):
-        db = helpers.check_path("database\database.db")  # database.db file path
+        db = help_funcs.check_path("database\database.db")  # database.db file path
         connection = create_connection(db)
         db_courses = readCourseItem(connection, "%")
         close_connection(connection)

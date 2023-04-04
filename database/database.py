@@ -42,7 +42,7 @@ def create_table(conn, tableInfo):
     try:
         c = conn.cursor()
         c.execute(tableInfo)     
-        #print("Table created successfully")
+        print("Table created successfully")
     except Exception as e:
         print(e)
 
@@ -62,7 +62,7 @@ def close_connection(conn):
     try:
         conn.commit()
         conn.close()
-        #print("Connection closed")
+        print("Connection closed")
     except Exception as e:
         print("Error closing database file:", str(e))
 
@@ -100,7 +100,7 @@ def makeCohort(conn, ProgID, TermID, legions):
     cohortObj = Cohort(ProgID, [], legions, TermID, cohortID)
     return cohortObj 
 
-##########################start of Read/write helpers ###########################################
+##########################start of Read/write help_funcs ###########################################
 
 def addLegionItem(conn,ProgID, TermID, numStudents):
      #add item to table from passed connection and Legion object
@@ -114,6 +114,7 @@ def addLegionItem(conn,ProgID, TermID, numStudents):
     except Exception as e:
         print("Issues inserting into table: ", e)
     return legion
+
 def readLegionItem(conn, legionName):
      #reads legion item from DB 
     #parameters:Connection string,  LegionName as string
@@ -159,7 +160,7 @@ def addProgramItem_UI(conn, program, course):
     return
 
 def deleteProgramItem_UI(conn, course):
-    #parameters: passed connection and program ID, and courseID
+    #parameters: passed connection and courseID
     try:
         rowString = "DELETE FROM PROGRAMS WHERE CourseID='"+ course +"'"
         #print(rowString)
@@ -268,7 +269,7 @@ def deleteCourseItem(conn, CourseID):
         return
 
 def addCohortItem(conn, ProgID, TermID, legions):
-     #add item to table from passed connection and cohort object
+     #add item to table from passed connection and cohort Info
     cohort = makeCohort(conn, ProgID, TermID, legions)
     cohortObject = cohort.createCohortItemInfo()
     cohortID = cohortObject[2]
@@ -430,4 +431,4 @@ def deleteStudentItem(conn,  PID, Term):
         except Exception as e:
             print("Issues reading from table: ", e)
         return
-##########################End of Read/write helpers ###########################################
+##########################End of Read/write help_funcs ###########################################

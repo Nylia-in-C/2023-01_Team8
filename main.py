@@ -1,7 +1,7 @@
 #main python file - 395 team 8
 
 import os, sys
-import helpers
+import help_funcs
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -14,7 +14,7 @@ import fill_data
 
 def main():
     #check if database is empty - if empty, fill with default data
-    db = helpers.check_path("database\database.db")  # database.db file path
+    db = help_funcs.check_path("database\database.db")  # database.db file path
     connection = create_connection(db)
     val = readProgramItem(connection, "%")
     if(len(val)<1):

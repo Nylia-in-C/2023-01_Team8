@@ -2,7 +2,7 @@
 # Imports
 import sys
 import os
-import helpers
+import help_funcs
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
@@ -39,7 +39,7 @@ def delete_ghost_rooms():
     """
     Deletes all ghostrooms from database
     """
-    db = helpers.check_path("database\database.db")
+    db = help_funcs.check_path("database\database.db")
     connection = create_connection(db)
 
     deleteClassroomItem(connection, 'ghost%')
@@ -50,7 +50,7 @@ def add_ghost_room(hasLab):
     """
     Adds ghost room to ghostRooms global variable
     """
-    db = helpers.check_path("database\database.db")
+    db = help_funcs.check_path("database\database.db")
     connection = create_connection(db)
     database_ghosts = readClassroomItem(connection, 'ghost%')
     close_connection(connection)
@@ -196,7 +196,7 @@ def fillClassrooms(term):
         "Program": {},
         "FS": {} 
     }
-    db = helpers.check_path("database\database.db")
+    db = help_funcs.check_path("database\database.db")
     connection = create_connection(db)
 
     #--------------------------------------------------------

@@ -3,8 +3,7 @@ import math
 import datetime as dt
 import pandas as pd
 import holidays
-import helpers
-
+import help_funcs
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
@@ -20,10 +19,11 @@ from typing import *
 from pprint import pprint
 
 
+
 #=========================== INITIAL DATA RETREIVAL ============================
 def get_courses(prog: str, term: int) -> List[Course]:
     ''' fetch all courses for a given program & term from the database '''
-    db = helpers.check_path("database\database.db")  # database.db file path
+    db = help_funcs.check_path("database\database.db")  # database.db file path
     connection = create_connection(db)
 
     query = f"SELECT C.* FROM \
@@ -56,7 +56,7 @@ def get_courses(prog: str, term: int) -> List[Course]:
     
 def get_rooms() -> List[Classroom]:
     ''' fetch all non-ghost classrooms from the database'''
-    db = helpers.check_path("database\database.db")  # database.db file path
+    db = help_funcs.check_path("database\database.db")  # database.db file path
     connection = create_connection(db)
 
     query = f"SELECT * FROM Classrooms C;" #WHERE C.ClassID NOT LIKE 'ghost%';"
@@ -327,7 +327,7 @@ def add_lectures_to_db():
     '''
     Add the lecture objects to the database so the UI can read & display them
     '''
-    db = helpers.check_path("database\database.db")  # database.db file path
+    db = help_funcs.check_path("database\database.db")  # database.db file path
     connection = create_connection(db)
     for lec in lec_objs:
         addLectureItem(connection, lec)
