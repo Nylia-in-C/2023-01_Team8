@@ -369,7 +369,6 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
         # get all the keys to cross reference later
         all_keys = list(sched_dict.keys())
         for day, val in sched_dict.items():
-
             if day not in all_keys:
                 continue
             # Finds the monday of the given week, to ensure they are on the same sheet
@@ -380,12 +379,30 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
             try:
                 wb = load_workbook("Exported Schedule.xlsx")
                 next_empty_row = wb[f"WEEK {sheet_name}"].max_row
-                next_empty_row = 0 if next_empty_row == 0 else next_empty_row + 2
+                next_empty_row = 1 if next_empty_row == 1 else next_empty_row + 2
 
             except:
-                next_empty_row = 0
+                next_empty_row = 1
 
-            val.to_excel(writer, sheet_name=f"WEEK {sheet_name}", index=False, startrow=next_empty_row)
+            val.to_excel(writer, sheet_name=f"WEEK {sheet_name}", startrow=next_empty_row)
+
+            # Hardcoded skip if its a wednesday, fixes the first week :(
+            if datetime_obj.strftime("%A") == "Wednesday" or datetime_obj.strftime("%A") == "Thursday":
+                curr_sheet = writer.sheets[f"WEEK {sheet_name}"]
+                if next_empty_row > 3:
+                    one_day = dt.timedelta(days=1)
+                    datetime_obj = datetime_obj + one_day
+                curr_sheet.cell(row=next_empty_row, column=1).value = datetime_obj.strftime("%A")
+
+                for column in curr_sheet.columns:
+                    col_length = max(len(str(cell.value)) for cell in column)
+                    col_char = get_column_letter(column[0].column)
+
+                    # set the column width based on the maximum cell width found
+                    curr_sheet.column_dimensions[col_char].width = col_length + 5
+
+                continue
+
             next_empty_column = len(val)
 
             # We are going to check
@@ -393,15 +410,25 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
             add_two_days = dt.timedelta(days=2)
             next_day = datetime_obj + add_two_days
             key_value = next_day.strftime("%Y-%m-%d")
+
             if key_value in all_keys:
                 all_keys.remove(key_value)
-                sched_dict[key_value].to_excel(writer, sheet_name=f"WEEK {sheet_name}", index=False, startrow=next_empty_row, startcol=next_empty_column)
+                sched_dict[key_value].to_excel(writer, sheet_name=f"WEEK {sheet_name}", startrow=next_empty_row, startcol=next_empty_column)
             else:
-                val.to_excel(writer, sheet_name=f"WEEK {sheet_name}", index=False, startrow=next_empty_row, startcol=next_empty_column)
+                val.to_excel(writer, sheet_name=f"WEEK {sheet_name}", startrow=next_empty_row, startcol=next_empty_column)
             
             # set columns widths so schedule is readable
             curr_sheet = writer.sheets[f"WEEK {sheet_name}"]
 
+            # Programs are labelled on mondays / wednesday too?
+            # This just corrects it for the labelling
+            if next_empty_row > 3:
+                one_day = dt.timedelta(days=1)
+                datetime_obj = datetime_obj + one_day
+                next_day = next_day + one_day
+
+            curr_sheet.cell(row=next_empty_row, column=1).value = datetime_obj.strftime("%A")
+            curr_sheet.cell(row=next_empty_row, column=next_empty_column).value = next_day.strftime("%A")
             for column in curr_sheet.columns:
                 col_length = max(len(str(cell.value)) for cell in column)
                 col_char   = get_column_letter(column[0].column)
