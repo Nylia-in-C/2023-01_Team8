@@ -366,22 +366,49 @@ def export_to_excel(sched_dict: Dict[str, pd.DataFrame]) -> None:
             pass
 
     with pd.ExcelWriter("Exported Schedule.xlsx", engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
-        wb = load_workbook("Exported Schedule.xlsx")
 
+        wb = load_workbook("Exported Schedule.xlsx")
+        # get all the keys to cross reference later
+        all_keys = list(sched_dict.keys())
+        print(all_keys)
         for day, val in sched_dict.items():
 
+
+            # Finds the monday of the given week, to ensure they are on the same sheet
+            datetime_obj = dt.datetime.strptime(day, '%Y-%m-%d')
+            sheet_name = datetime_obj - dt.timedelta(days=datetime_obj.weekday() % 7)
+            sheet_name = sheet_name.strftime("%Y-%m-%d")
+
             try:
-                next_empty_row = wb[f"DAY {day}"].max_row
+                next_empty_row = wb[f"WEEK {sheet_name}"].max_row
                 next_empty_row = 0 if next_empty_row == 0 else next_empty_row + 2
+
             except:
                 next_empty_row = 0
 
-            val.to_excel(writer, sheet_name=f"DAY {day}", index=False, startrow=next_empty_row)
-            
+            val.to_excel(writer, sheet_name=f"WEEK {sheet_name}", index=False, startrow=next_empty_row)
+
+            try:
+                next_empty_column = wb[f"WEEK {sheet_name}"].max_column
+                next_empty_column = 0 if next_empty_column == 0 else next_empty_column + 2
+            except:
+                next_empty_column = 0
+
+            # We are going to check
+            # to see if the next day has a different schedule
+            add_two_days = dt.timedelta(days=2)
+            next_day = datetime_obj + add_two_days
+            key_value = next_day.strftime("%Y-%m-%d")
+            if key_value in all_keys:
+                all_keys.remove(key_value)
+                sched_dict[key_value].to_excel(writer, sheet_name=f"WEEK {sheet_name}", index=False, startrow=next_empty_row, startcol=next_empty_column)
+            else:
+                val.to_excel(writer, sheet_name=f"WEEK {sheet_name}", index=False, startrow=next_empty_row, startcol=next_empty_column)
+
             #TODO: make each tab a week schedule, rather than a single day
             
             # set columns widths so schedule is readable
-            curr_sheet = writer.sheets[f"DAY {day}"]
+            curr_sheet = writer.sheets[f"WEEK {sheet_name}"]
 
             for column in curr_sheet.columns:
                 col_length = max(len(str(cell.value)) for cell in column)
